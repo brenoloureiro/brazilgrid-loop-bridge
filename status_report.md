@@ -1,4 +1,4 @@
-# Loop status — 2026-05-24T17:27:41Z
+# Loop status — 2026-05-24T17:28:02Z
 
 **Saude**: green (loop saudavel)
 
@@ -16,7 +16,7 @@
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: a091663 bridge: sync ulfor iter 79 (82 seconds ago)
+**Bridge ultimo sync**: 75e6352 bridge: sync iter 33 (21 seconds ago)
 
 **UlFor HEAD**: 7b2f1297 ulfor checkpoint: 17:24Z — fase 4, proximo: Breno desbloqueia (7o forcado, mas com 1 commit substantivo 80620230 fix bakeoff_d1 stdout wrap destrava 5 smoke offline)
 
