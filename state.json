@@ -1729,7 +1729,7 @@
         "hash": "0971c699",
         "msg": "docs(forecast): promote v3 DECISAO Breno + bloqueio dataset local",
         "absorbed": true,
-        "interpretacao": "DECISAO BRENO OFICIALIZADA sobre promote v3 (resposta ao PARAR E PERGUNTAR de 14:35Z absorvido em iter_0028). Breno escolheu **opt A em SE** (val14d > CV+coerencia): ridge+h22_model_aware+alpha=1. Matriz final 4 decisoes: NE PROMOVER ridge+h22_pf+alpha=1; SE PROMOVER (opt A) ridge+h22_MA+alpha=1; S MANTER lr+full; N PROMOVER ridge+h22_pf+alpha=100. FINDING_RIDGE_ALPHA_SWEEP.md +83 linhas (Sprint 1 bloco). CHAMPION_DECISION_MATRIX.md +51 linhas (matriz Breno + secao H14-G implementacao). Justificativa Breno opt A SE: val14d e' sinal recente do regime real (CMO subindo, intercambio SE-S invertendo, NE em expansao); as 10 features que h22_MA preserva e h22_pf dropa (CMO+intercambio+taxa_penetracao) carregam sinal nesse regime; val14d delta MA-pf = -1.64pp NMAE + R² +0.05. Aceita perda de coerencia multi-sub em troca de fit ao regime atual. Reavaliar Jun/2026. Decisao SE H14-G bias correction NE: implementar em **promote_champions.py** (NAO em loader.py) -- bias correction e' parte do artefato promovido, binding ao modelo; registry/MLflow tag carrega bias spec; loader.py deve ser dumb. Registrado por UlFor como H25 ulfor para sprint envelope-safe proxima."
+        "interpretacao": "DECISAO BRENO OFICIALIZADA sobre promote v3 (resposta ao PARAR E PERGUNTAR de 14:35Z absorvido em iter_0028). Breno escolheu **opt A em SE** (val14d > CV+coerencia): ridge+h22_model_aware+alpha=1. Matriz final 4 decisoes: NE PROMOVER ridge+h22_pf+alpha=1; SE PROMOVER (opt A) ridge+h22_MA+alpha=1; S MANTER lr+full; N PROMOVER ridge+h22_pf+alpha=100. FINDING_RIDGE_ALPHA_SWEEP.md +83 linhas (Sprint 1 bloco). CHAMPION_DECISION_MATRIX.md +51 linhas (matriz Breno + secao H14-G implementacao). Justificativa Breno opt A SE: val14d e' sinal recente do regime real (CMO subindo, intercambio SE-S invertendo, NE em expansao); as 10 features que h22_MA preserva e h22_pf dropa (CMO+intercambio+taxa_penetracao) carregam sinal nesse regime; val14d delta MA-pf = -1.64pp NMAE + R\u00b2 +0.05. Aceita perda de coerencia multi-sub em troca de fit ao regime atual. Reavaliar Jun/2026. Decisao SE H14-G bias correction NE: implementar em **promote_champions.py** (NAO em loader.py) -- bias correction e' parte do artefato promovido, binding ao modelo; registry/MLflow tag carrega bias spec; loader.py deve ser dumb. Registrado por UlFor como H25 ulfor para sprint envelope-safe proxima."
       },
       {
         "hash": "6111cda4",
@@ -1908,8 +1908,8 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 1,
-    "horas": 0.3058,
-    "usd": 5.6365
+    "iter": 2,
+    "horas": 0.4475,
+    "usd": 9.0649
   }
 }
