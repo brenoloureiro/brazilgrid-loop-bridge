@@ -1,8 +1,8 @@
 {
-  "iter_atual": 21,
+  "iter_atual": 22,
   "mode": "self_planning",
-  "alvo_ativo": "recon_delta_ulfor_post_daf80a6a",
-  "layer_ativa": "meta",
+  "alvo_ativo": "ensemble_champion_persist",
+  "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
     "version": "1.0",
@@ -477,6 +477,35 @@
         "actual_effort_hours": 0.5,
         "h22_implication": "PARCIAL: drop pdp_prog confirmado prejudicial em GBDT (LGBM CV +3.6/6.9/8.2pp MAE NE/SE/S quando removido). H22 segue valido especificamente para medir GAP em R\u00b2 entre GBDT e OLS no protocolo CV uniforme (engineering linear capta interacao do que GBDT extrai? Provavelmente nao integralmente, mas magnitude pendente)."
       }
+    },
+    "H24_ensemble_champion_persist": {
+      "iter": 22,
+      "verdict": "CONFIRMADO_3SUBS",
+      "iter_closed": 22,
+      "subs_confirming": [
+        "NE",
+        "SE",
+        "N"
+      ],
+      "subs_not_confirming": [
+        "S"
+      ],
+      "evidence_final": "CV walk-forward 5 folds (60d, gap 7d) sobre features iter_0002 em 12 cells (4 subs x 3 vers). Champion replica local (sklearn Pipeline StandardScaler + Ridge(alpha=10) p/ NE+N; StandardScaler + LinearRegression p/ SE+S). Inner_val 30d para derivar pesos sem leak. Best ensemble bate champion-only em maioria das folds em: NE 3/3 cells (best -9089 MWh = 24% em v3 ens_equal; -7103 v1 = 19%; -8576 v2 = 23%), SE 3/3 cells (best -2100 MWh = 24% em v3 ens_inv_mse; -1130 v1 = 14%; -1063 v2 = 13%; R^2 FLIP NEG->POS), N 3/3 cells (best -107 MWh = 19% em v1-v2 ens_inv_mse; -99 v3 = 18%). S 0/3 (wins 1-2/5 abaixo limiar 3/5; v3 PIORA +50 MWh). Best schemes globais: ens_inv_mse 5 cells, ens_equal 5, ens_inv_mae 1, ens_opt_alpha 2.",
+      "comparison_h10_lgbm": {
+        "NE_best_delta_h10": -12996,
+        "NE_best_delta_h24": -9089,
+        "SE_best_delta_h10": -565,
+        "SE_best_delta_h24": -2100,
+        "SE_h24_vs_h10_ratio": 3.72,
+        "S_best_delta_h10": -53,
+        "S_best_delta_h24": -46,
+        "N_best_delta_h10": -100,
+        "N_best_delta_h24": -107,
+        "key_insight": "SE_ganho_quadruplica_em_H24 -- confirma predicao H24 (lineares deixam mais variancia residual)"
+      },
+      "decision": "CONFIRMADO_3SUBS. Ensemble (champion_linear + persist_d1, peso analitico equal/inv_mse) e' post-processing benefico em 3/4 champions UlFor (NE+SE+N). req-0008 OPCIONAL (sugerir UlFor adicionar persist no payload do /api/forecast/d1 + blend runtime). S nao se beneficia (champion ja' tight).",
+      "lesson_learned": "Ensemble model+persist generaliza para FAMILIA do modelo (linear ou GBDT) -- mecanismo BMA e' robusto. Ganho em SE quadruplicou (LR vs LGBM, -2100 vs -565 MWh) confirmando que lineares deixam mais variancia residual para persist absorver. Pesos analiticos (equal/inv_mse) > opt_alpha mantem-se mesmo trocando familia de modelo. ens_inv_mae perdeu protagonismo vs H10 (1 cell vs 6) porque variancia maior dos lineares torna metricas quadraticas (MSE) mais discriminativas para weight derivation.",
+      "follow_ups_created": []
     }
   },
   "sanity_checks_disponiveis": [
@@ -488,10 +517,10 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0021_recon_delta.md",
+  "ultimo_handoff": "iter_0022_h24_ensemble_champion_persist.md",
   "budget_consumido": {
-    "iter": 21,
-    "horas": 0.4,
+    "iter": 22,
+    "horas": 1.4,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -1089,9 +1118,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 27,
-    "horas": 3.5295,
-    "usd": 74.1092,
-    "lgbm_supplement_added_to_iter0020": "+0.5h (paralelo)"
+    "iter": 29,
+    "horas": 5.1703,
+    "usd": 80.0487,
+    "note": "iter_0022 H24 ensemble_champion_persist (replay sklearn over iter_0002 features, no LLM cost)"
   }
 }

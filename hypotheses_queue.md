@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T17:30:00Z
+last_updated: 2026-05-24T18:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -776,13 +776,35 @@ hypotheses:
     layer: curtailment
     target: ensemble_champion_persist
     priority: P2
-    status: queued
+    status: done
+    iter_handled: 0022
+    verdict: CONFIRMADO_3SUBS
+    verdict_detail: |
+      NE+SE+N confirmam ganho clinico do ensemble vs champion-only:
+        NE (ridge_alpha10): 3/3 cells, best delta -9089 MWh (24% MAE
+            reducao, ens_equal NE/v3), R² +0.08 -> +0.40
+        SE (lr):            3/3 cells, best delta -2100 MWh (24% reducao,
+            ens_inv_mse SE/v3), R² FLIP NEG->POS -0.78 -> +0.06.
+            Ganho 4x maior que H10 LGBM em SE — confirma predicao H24
+            (lineares deixam mais variancia residual para persist).
+        N  (ridge_alpha10): 3/3 cells, best delta -107 MWh (19% reducao,
+            ens_inv_mse N/v1). Empate magnitude com H10.
+        S  (lr):            0/3 confirm. Wins 1-2/5 (abaixo limiar 3/5);
+            v3 PIORA +50 MWh. Champion lr_s ja' tight R²=+0.45 v3 —
+            ensemble adiciona ruido. Consistente com H10 (S/v3 +26 MWh).
+      Best schemes globais (12 cells): ens_inv_mse 5x, ens_equal 5x,
+      ens_inv_mae 1x, ens_opt_alpha 2x (S only). Pesos analiticos
+      simples dominam — consistente com BMA classico.
     estimated_effort_hours: 1.5
+    actual_effort_hours: 1.4
     depends_on: [H10]
     blocks: []
+    follow_ups_created: []
     sanity_checks_required: [baseline, holdout, dist_shift]
+    sanity_checks_done: [B1_inherit, B3_via_cv, B4_integrated, B5_via_weights, B2_NA, B6_NA]
     expected_value: validar se ganho do ensemble se propaga a producao (Ridge/LR)
     created_at: 2026-05-24T10:30:00Z
+    completed_at: 2026-05-24T18:30:00Z
 
   - id: H25
     summary: Stacker meta-modelo (Ridge sobre base preds) supera weighted average?

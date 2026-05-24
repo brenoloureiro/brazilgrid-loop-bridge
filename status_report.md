@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T13:09:03Z
+# Loop status — 2026-05-24T13:17:55Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=272863, .STOP=no)
 
-**Iter atual**: 21
-**Alvo ativo**: recon_delta_ulfor_post_daf80a6a
+**Iter atual**: 22
+**Alvo ativo**: ensemble_champion_persist
 
-**Budget**: 21 iters / 0.4 horas consumidas
+**Budget**: 22 iters / 1.4 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0021_recon_delta.md
-  decision: 
+**Ultimo handoff**: iter_0022_h24_ensemble_champion_persist.md
+  decision: |
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 97d3e7d bridge: sync ulfor iter 21 (22 seconds ago)
+**Bridge ultimo sync**: 98adcf8 bridge: sync ulfor iter 24 (4 minutes ago)
 
-**UlFor HEAD**: de190f9d ulfor checkpoint: 14:05Z — frente bias correction fechada (H14 a H14-G)
+**UlFor HEAD**: 4427a718 ulfor checkpoint: 14:15Z — 3 sprints (H22_MA validado, H14-G, matrix) + decisao pendente Breno
 
 ---
 

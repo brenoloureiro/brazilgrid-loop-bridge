@@ -6,6 +6,22 @@ Atualizado pelo watchdog ao final de cada iteração com ganho promovido.
 **Iter 0008 (H9):** metricas primarias agora **MAE/R²/F1** (PLANO_FINAL Principio 6).
 NMAE mantida como secundaria — flaggada `unsafe` quando ymean<1 MWh.
 
+**Iter 0022 (H24):** Ensemble (champion_linear + persist_d1, peso analitico
+equal/inv_mse) testado sobre as REPLICAS LOCAIS dos champions UlFor (Ridge_alpha10
+NE/N, LinearRegression SE/S) com features iter_0002 — **CONFIRMADO_3SUBS**
+(NE+SE+N). NE delta best -9089 MWh (24% MAE reducao, ens_equal NE/v3) com R² flip
++0.08 -> +0.40. SE delta best -2100 MWh (24% reducao, ens_inv_mse SE/v3) com R²
+flip -0.78 -> +0.06 (confirma fragilidade numerica champion lr_se exposta em
+recon iter_0021). N delta best -107 MWh (19% reducao, ens_inv_mse N/v1). S NAO
+confirma (wins 1-2/5; v3 ate piora +50 MWh — champion lr_s ja tight R² +0.45).
+Comparacao H10 (LGBM) vs H24 (Ridge/LR): **ganho em SE quadruplicou** (-565 ->
+-2100 MWh) — confirma predicao H24 (lineares deixam mais variancia residual para
+persist absorver). Best schemes: ens_inv_mse (5 cells) e ens_equal (5) dominam;
+opt_alpha so vence em S (onde nao confirma). req-0008 OPCIONAL — sugerir ao
+UlFor adicionar persist no payload do `/api/forecast/d1` e blend em runtime para
+NE+SE+N (improvement clinico relevante apenas NE 7-9k MWh; SE 1-2k MWh; N 100 MWh).
+Detalhe em `iterations/iter_0022_h24_ensemble_champion_persist.md`.
+
 **Iter 0021 (RECON_DELTA):** 6 commits UlFor `daf80a6a..ec0fd937` absorvidos em
 ~15 min reais (13:10-13:35 BRT). **Producao 100% inalterada** (loader.py +
 MLflow Registry intocados). **(1) NOVA FRENTE H22_ulfor ABERTA — champion
@@ -251,6 +267,10 @@ queue. Detalhe em `iterations/iter_0013_h10_ensemble_v2_persist.md`.
 | curtailment | ensemble_lgb_persist_d1 | SE | LGBM-only (CV 5x60d) MAE 7.74k v2 | best=ens_inv_mae MAE 7.21k v2 (-7%); -7% v1, -4% v3 | wins 3-4/5 folds; magnitude clinica modesta mas consistente | 0013 | H10 CONFIRMADO | 2026-05-24T10:30Z |
 | curtailment | ensemble_lgb_persist_d1 | S  | LGBM-only (CV 5x60d) MAE 1.06k v2 | best=ens_inv_mse MAE 1.06k (~0%); v1 -5%, v3 +3% (irrelevante) | regime instavel; alpha varia 0.00-1.00 entre folds | 0013 | H10 PARCIAL (2/3 confirming) | 2026-05-24T10:30Z |
 | curtailment | ensemble_lgb_persist_d1 | N  | LGBM-only (CV 5x60d) MAE 0.58k v1-v2 | **best=ens_inv_mae MAE 0.48k (-17%)**; R² LGB -0.33 -> ens +0.01 | bonus H10 — persist forte em N (skill_LGB_vs_persist negativo); ensemble corrige | 0013 | H10 CONFIRMADO (bonus) | 2026-05-24T10:30Z |
+| curtailment | ensemble_champion_persist_d1 | NE | ridge_alpha10-only (CV 5x60d) MAE 37.7-38.7k MWh (v1-v3) | **best=ens_equal MAE 29.4-30.6k (-19% a -24%)**; delta -7103 a -9089 MWh; R² flip champion -0.06/+0.08 -> ens +0.31/+0.40 | inv_mse e equal empatam por cell; opt_alpha subdomina | 0022 | H24 CONFIRMADO; [B3+B4+B5 done; B1 inherit; B2/B6 N/A] | 2026-05-24T18:30Z |
+| curtailment | ensemble_champion_persist_d1 | SE | lr-only (CV 5x60d) MAE 7.97-8.73k MWh (v1-v3) | **best=ens_inv_mse MAE 6.63-7.08k (-13% a -24%)**; delta -1063 a -2100 MWh; R² FLIP -0.41/-0.78 -> +0.00/+0.06 | ganho 4x maior que H10 LGBM (-565 -> -2100 MWh) — confirma fragilidade lr_se cond_num 2.5e17 exposta em recon iter_0021 | 0022 | H24 CONFIRMADO | 2026-05-24T18:30Z |
+| curtailment | ensemble_champion_persist_d1 | S  | lr-only (CV 5x60d) MAE 0.73-1.11k MWh (v1-v3) | NAO ajuda: best ens delta -34/-46 MWh wins 1-2/5 (abaixo limiar 3/5); v3 PIORA +50 MWh | champion lr_s ja' tight R² +0.45 v3; ensemble adiciona ruido (persist R² -0.68) | 0022 | H24 NAO CONFIRMADO no S | 2026-05-24T18:30Z |
+| curtailment | ensemble_champion_persist_d1 | N  | ridge_alpha10-only (CV 5x60d) MAE 0.55-0.57k MWh (v1-v3) | **best=ens_inv_mse MAE 451-463 (-17% a -19%)**; delta -99 a -107 MWh; R² flip -0.24/-0.38 -> +0.05/+0.06 | empate magnitude com H10 LGBM (-100 MWh); persist > model -> ensemble corrige | 0022 | H24 CONFIRMADO (bonus, mesma analise H10) | 2026-05-24T18:30Z |
 
 ---
 
