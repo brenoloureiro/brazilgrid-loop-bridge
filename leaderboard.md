@@ -1,9 +1,11 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0024 (2026-05-24T20:30Z). Suite canonica MAE/R²/F1/RMSE/skill
-+ NMAE/bias secundarios. Fonte unica: parquets UlFor commit `6b21ffdf`
+Atualizado em iter_0026 (2026-05-24T21:30Z, RECON_DELTA absorvendo
+`5d41d063..83abab3e` UlFor). Suite canonica MAE/R²/F1/RMSE/skill + NMAE/bias
+secundarios. Fonte unica: parquets UlFor commit `6b21ffdf`
 (`experiments/bakeoff_curtailment_multisub/outputs/cv_summary_*.parquet`),
-extraidos via parse direto. **Zero retrain neste iter.**
++ 7 parquets novos alpha-sweep desta janela (h22_MA × {α=1,100,1000} +
+h22_per_fold × {α=1,100}). **Zero retrain neste iter.**
 
 **Protocolo CV** (4 subs × 7 modelos × 5 folds = 140 runs por feature_set):
 
@@ -125,6 +127,59 @@ envelope-safe. Padrao: regime atual mais nao-linear que historico CV.
 3. **N**: `lr+full` → `ridge+h22_per_fold` (bias H14-B vs H14-G decisao Breno)
 4. **S**: **MANTER STATUS QUO** `lr+full` (unica refutacao formal post-14d)
 
+### Alpha sweep v3 (commits `42dc0d7a` + `a3c742a9` + `75e2431e`, iter_0026)
+
+UlFor estendeu sweep para `ridge × {h22_MA, h22_per_fold} × {α=1, 10, 100, 1000}`.
+**α=1 vence 3/4 subs** em ambos feature_sets H22; α=100 dedicado a N
+(mais ruido/colinearidade justificam shrinkage); α=1000 degenerado em todos
+subs. h22_MA ≡ h22_per_fold com α=1 (delta <0.5pp). **SURPRESA SE**:
+`lr+h22_per_fold` QUEBRA (R² −0.07!) mas `ridge+h22_per_fold+α=1` entrega
+R² +0.43 — regularizacao minima resolve `cond_num 2.5e17` sem trocar familia.
+
+| sub | champion v2 atual (matriz iter_0023) | **champion v3 (alpha-aware)** | NMAE CV | R² CV | Ganho v2→v3 |
+|---|---|---|---:|---:|---|
+| NE | ridge + h22_per_fold (α=10) | **ridge + h22_per_fold (α=1)** | **30.81%** | **+0.563** | −0.6pp NMAE (~tie) |
+| SE | lr + h22_model_aware | **ridge + h22_per_fold (α=1)** | **46.60%** | **+0.430** | **−10.6pp NMAE** + R² +0.50 vs lr+h22_pf |
+| S | lr + full (status quo) | lr + full (status quo) | 87.2% | +0.371 | n/a (val refuta h22 em S) |
+| N | ridge + h22_per_fold (α=10) | **ridge + h22_per_fold (α=100)** | **84.43%** | **+0.216** | −2.0pp NMAE / R² +0.02 |
+
+**Vantagem operacional v3**: NE+SE+N todos rodam `h22_per_fold`, so o `alpha`
+muda. `promote_champions.py` ja patcheado (commit `75e2431e`) com
+`--ridge-alpha` + feature_sets `h22_per_fold` / `h22_model_aware` /
+`h22_stricter` (back-compat preservada, default α=10 legado).
+
+**Validation gap PARCIALMENTE REABRE para v3**: SE `ridge+h22_pf+α=1` NAO
+foi testado em 14d real (iter_0024 testou apenas α=10 default). Principio 5
+(CV win first) NAO basta — UlFor explicito: "nao promovivel sem val_recent".
+Loop NAO emite req-0008 nesta iter (padrao pre-empcao UlFor self-actiona).
+
+### Ablation negativa H22 stricter (commit `42dc0d7a`, iter_0026) — REFUTADO
+
+Testado `MIN_FOLDS_DROP=5` (drops unanimes 5/5 folds em vez de 3/5). Drop-sets
+ficam muito menores (NE 22→7, SE 11→3, S 4→1, N 10→2), mas CV regride em
+3/4 subs vs `h22` (3/5):
+
+| sub | h22_stricter NMAE | vs h22 (3/5) | vs h22_MA (3/5) |
+|---|---:|---:|---:|
+| NE | 33.37% | +1.96pp PIOR | +1.96pp PIOR |
+| SE | 48.17% | −8.99pp vs h22 (MELHOR) | +0.11pp (≈ MA) |
+| S | 88.08% | +3.74pp PIOR | +2.25pp PIOR |
+| N | 86.73% | +0.33pp (≈) | −0.50pp marginal |
+
+**Lesson**: features qualificadas em 3-4/5 folds (ambiguas) carregam sinal
+residual util para generalizacao. Manter `MIN_FOLDS_DROP=3`. Encerra essa
+linha de pesquisa.
+
+### ADDENDUM val14d z-score (commit `7cc3b604`, iter_0026)
+
+Complementa `FINDING_14D_REAL_VALIDATION` (iter_0024 `99af14b7`) com 2
+angulos: (a) z-score `val_recent` vs envelope CV: **TODOS** pontos
+`|z| ≤ 1σ` → sem regime shift detectavel; (b) refuta sugestao de "reabrir
+CV para LGBM SE/N" — dados ja existem em `cv_summary_mean_*.parquet` e
+`lgbm+h22_MA` em SE perde CV por −4.6pp apesar de ganhar val por +0.46pp.
+Princípio 5 (CV win first) bloqueia promote LGBM. **Implicacao loop**: H27
+(P50 quantile) atratividade INALTERADA — janela atual nao destrava LGBM.
+
 ### Sucessores via H22_model_aware (commit `2daa5d40`, iter_0023)
 
 Patch que substitui PI universal (Ridge) por PI medida com **champion-model
@@ -223,6 +278,9 @@ vs 34.7%) e por estabilidade std.
 3. ~~**Holdout 14d real para candidatos h22_per_fold NE+SE**~~ → **FECHADA
    em iter_0024** por commits `99af14b7` + `5d41d063` (UlFor self-actionou
    single-fold 14d real para os 7 promovieis). H31_emergente PRE-EMPTED.
+   **REABRE PARCIAL em iter_0026** para alpha sweep v3 (SE `ridge+h22_pf+α=1`
+   nao testado em 14d real — so CV). Loop NAO emite req formal (padrao
+   pre-empcao UlFor multi-agente).
 4. **Skill_vs_persist em CV para ensemble (H24)**: replicas locais
    computam champion+persist combinado mas iter_0022 nao reporta
    `skill_ens_vs_persist` explicitamente — derivavel de parquet em iter_0025+.
@@ -254,6 +312,7 @@ iterations/iter_0002 a iter_0006.
 | 0020 | H21 pdp_residual engineered | REFUTADO (OLS + LGBM CV convergem) | — (definitivo) |
 | 0022 | H24 ensemble champion+persist | CONFIRMADO_3SUBS (NE/SE/N) | — (vivo, candidato runtime) |
 | 0024 | RECON_DELTA UlFor 4427a718..5d41d063 | validation_gap dos 7 promovieis FECHADA (4 PROMOVER, 1 REFUTADO, 1 decisao Breno, 1 marginal) + 2 achados novos (lgbm em SE+N regime atual) | — (handoff) |
+| 0026 | RECON_DELTA UlFor 5d41d063..83abab3e | alpha sweep v3 (NE+SE+N ridge+h22_pf, α-aware) + H22 stricter REFUTADO + promote_champions.py patched + ADDENDUM val14d (LGBM refuted-CV) | — (handoff) |
 
 ## Lessons learned (transferiveis)
 

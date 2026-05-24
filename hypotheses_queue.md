@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T19:30:00Z
+last_updated: 2026-05-24T21:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -1022,3 +1022,30 @@ hypotheses:
     sanity_checks_required: [holdout, baseline]
     expected_value: encerrar H3-family residual no replay loop (Ridge confirma OLS ou nao)
     created_at: 2026-05-24T16:30:00Z
+    notes_iter0026: |
+      Atratividade SOBE MARGINAL pos-alpha-sweep UlFor (commits 42dc0d7a +
+      a3c742a9). Alpha sweep mostrou alpha=1 vence alpha=10 (default H30) em
+      3/4 subs em h22_MA/h22_per_fold. Recomendacao iter_0027: rodar H30 com
+      alpha=1 E alpha=10 simultaneamente (custo zero adicional, mesmo loop
+      de CV) para validar se vereditico CONFIRMADO_RIDGE/REFUTADO_RIDGE muda
+      com o alpha. Mecanismo conjecturado: menos shrinkage permite que basis
+      residual centrado em zero retenha mais sinal -- alpha=1 e o teste
+      mais sensivel desse mecanismo.
+
+notas_iter0026:
+  inspected_range: 5d41d063..83abab3e (8 commits UlFor, ~25 min reais)
+  resolved: []
+  newly_blocked: []
+  newly_queued: []
+  pre_empted: [H31_emergente]
+  attractiveness_changes:
+    H30: SOBE MARGINAL (alpha sweep sugere replicar com alpha=1)
+    H22: INALTERADO (sweep linear puro, nao toca GBDT vs OLS)
+    H27: INALTERADO (ADDENDUM 7cc3b604 refuta reabrir CV LGBM)
+    H31_emergente: PRE-EMPTED mantem (validation gap parcial reabre mas pre-empcao provavel)
+  validation_gap_partial_reopening: |
+    SE ridge+h22_per_fold+alpha=1 (proposta v3 UlFor commit a3c742a9):
+    NMAE 46.60% / R^2 +0.43 em CV (Pareto strict vs lr+h22_pf 57.17%/R²-0.07
+    e vs lr+h22_MA 48.06%/+0.381). NAO testado em 14d real -- so CV 5x60d.
+    UlFor explicito: "nao promovivel sem val_recent (principio 5)".
+    Loop NAO emite req-0008 (padrao pre-empcao UlFor multi-agente self-actiona <30min).
