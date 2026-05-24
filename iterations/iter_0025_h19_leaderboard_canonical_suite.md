@@ -188,25 +188,36 @@ overlay). Em 14d real:
    `1 - MAE_ens / MAE_persist` explicitamente. Derivavel do parquet local
    `outputs/iter_0022/`. Nao executado nesta iter (fora do envelope).
 
-## PHASE D (state.json) — DEFERRED
+## PHASE D (state.json) — COMPLETED
 
-Originalmente planejado adicionar:
-- Top-level `leaderboard_oficial_v33_champions` block (machine-readable)
-- Top-level `best_ml` block (para quality_gate R3)
-- `planner_config.notas_iter0025`
+Inicialmente planejado deferir por race com daemon iter_0024 in-flight.
+Apos daemon halted via .STOP signal (post-iter_0024 commit), PHASE D
+executada nesta mesma iter:
 
-Mas durante esta iter o **daemon loop estava ativamente modificando
-state.json em iter_0024** (recon_delta de 2 commits UlFor adicionais). Para
-evitar race condition e merge conflict, PHASE D foi DEFERIDA ate proxima
-iter (iter_0026 ou followup).
+- **Top-level `leaderboard_oficial_v33_champions`** adicionado com:
+  - `version: 1.0`, `materialized_in_iter: 25`, `cv_protocol` documentado
+  - `metric_suite.primary` = ["mae_mwh", "r2", "f1_p50"]
+  - `metric_suite.secondary` = ["nmae", "rmse_mwh", "bias_mwh", "skill_vs_persist_d1"]
+  - 4 entradas em `champions.{NE,SE,S,N}` com suite completa + skill +
+    nmae_safe + bias_correction_default (para NE+N) + notas (fragility
+    SE, F1 NaN em S)
+  - 12 baselines em `baselines.{NE,SE,S,N}_{persist_d1,persist_d7,ma7}`
+  - 4 entradas em `pendencias` (req-0008 candidato, H32 emergente, H31,
+    skill_ens_vs_persist)
+- **Top-level `best_ml`** adicionado (placeholder quality_gate R3):
+  - 4 entradas (NE/SE/S/N) com mae_mwh_mean + r2_mean + warn:""
+  - Heuristica: se warn contem "regressed" ou "piora", R3 sinaliza falha
+- **`planner_config.notas_iter0024`** + **`notas_iter0025`** adicionados
+- **`planner_config.next_iter_should_be`** atualizado:
+  - (A-rec) H31 emergente (req-0008 holdout 14d real h22_per_fold)
+  - (B) H27 P50 quantile substituto (custo zero)
+  - (C) H29 emergente bias_correction + H10 ensemble
+  - (D) H22 nosso, (E) H30, (F) H32 emergente
 
-**Acao recomendada**: ao retomar, adicionar os 2 blocos top-level COM os
-dados desta iter (champions_metrics_consolidated ja existe em state.json
-desde iter_0017 como `hypotheses_verdict.H19_extract_champion_mae_r2_f1.champions_metrics_consolidated`
-— pode-se promover para top-level + adicionar RMSE/bias/skill).
-
-Quality gate R3 (state.best_ml.warn check) continua passando porque
-`state.best_ml` ainda nao existe — heuristica idempotente.
+Quality gate R3 agora tem snapshot referencia em `state.best_ml`. Em
+proxima iter, se algum sub regredir em MAE/R², proximo claude --print
+pode preencher `warn` field com "regressed: ..." e R3 sinalizara
+automaticamente.
 
 ## Proxima iter recomendada
 
