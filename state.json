@@ -1,37 +1,52 @@
 {
-  "iter_atual": 2,
-  "alvo_ativo": "curtailment_d1_ENE_CNF_multisubsistema",
+  "iter_atual": 3,
+  "alvo_ativo": "curtailment_d1_pdp_validation",
   "layer_ativa": "curtailment",
-  "iter_no_alvo_atual": 2,
+  "iter_no_alvo_atual": 3,
   "baselines": {
-    "NE": {"tipo": "persist_d1", "nmae_test_n11": 0.388, "r2": -0.157},
-    "SE": {"tipo": "persist_d1", "nmae_test_n11": 0.633, "r2": -1.043},
-    "S":  {"tipo": "persist_d7", "nmae_test_n11": null,  "r2": null, "nota": "ymean_test=0"},
-    "N":  {"tipo": "persist_d1", "nmae_test_n11": 0.342, "r2": -0.072}
+    "curtailment_d1_NE": {"tipo": "persist_d1", "nmae_test_n11": 0.388, "r2": -0.157},
+    "curtailment_d1_SE": {"tipo": "persist_d1", "nmae_test_n11": 0.633, "r2": -1.043},
+    "curtailment_d1_S":  {"tipo": "persist_d7", "nmae_test_n11": null, "r2": null, "nota": "ymean_test=0"},
+    "curtailment_d1_N":  {"tipo": "persist_d1", "nmae_test_n11": 0.342, "r2": -0.072}
   },
   "best_ml": {
-    "NE": {"version": "v2", "model": "lgbm", "nmae": 0.282, "r2": 0.660, "iter": 2},
-    "SE": {"version": "v2", "model": "lgbm", "nmae": 0.362, "r2": 0.394, "iter": 2,
-           "warn": "ganho_some_em_holdout_strict_+6.4pp"},
+    "NE": {"version": "v2", "model": "lgbm", "nmae_original": 0.282, "nmae_strict": 0.317, "r2_original": 0.660, "r2_strict": 0.456, "iter": 2},
+    "SE": {"version": "v2", "model": "lgbm", "nmae_original": 0.362, "nmae_strict": 0.426, "r2_original": 0.394, "r2_strict": 0.280, "iter": 2, "warn": "v3_aparente_melhor_some_em_holdout_strict_+19.2pp"},
     "S":  null,
     "N":  null
   },
+  "hypotheses_verdict": {
+    "H2_off_by_one_pdp_join": {
+      "iter": 3,
+      "verdict": "REFUTADO",
+      "evidence": "corr(PDP_prev[t], gen[t])=0.9118 > corr(PDP_prev[t], gen[t+1])=0.8211; n=484 dias agregados NE eolica; dat_programacao = target day (dbt model correto, JOIN bakeoff correto)",
+      "fix_required": "nenhum em JOIN/SQL"
+    }
+  },
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0002_sanity_checks_v1v2v3.md",
+  "ultimo_handoff": "iter_0003_h2_validation_and_channel.md",
   "budget_consumido": {
-    "iter": 2,
-    "horas": 2.4,
+    "iter": 3,
+    "horas": 1.4,
     "custo_usd": null
   },
   "ulfor_session_sync": {
     "iter0002_inicio_head": "055b9d03",
     "iter0002_fim_head": "b7fa795c",
-    "novos_commits_durante_iter": [
+    "iter0003_inicio_head": "b7fa795c",
+    "iter0003_fim_head": "1fb2bb50",
+    "novos_commits_durante_iter0003": [
       "5e1bc70a feat: bakeoff v3.2 — pdp_has_data indicator + restore PDP NE",
       "e283a03a fix: bakeoff v3.3 final — PDP NE off, indicator p/ outros",
-      "b7fa795c ulfor checkpoint: 00:25Z — fase 3, proximo: per-conjunto NE com crosswalk"
+      "b7fa795c ulfor checkpoint: 00:25Z — fase 3, proximo: per-conjunto NE com crosswalk",
+      "d0cf3054 (?) — entre b7fa795c e nosso commit (sessao ativa)",
+      "1fb2bb50 [loop commit] coord: canal loop->ulfor estabelecido (loop iter 0003)"
     ],
-    "acao": "registrado_para_iter_0003"
+    "ulfor_wip_uncommitted": ["experiments/bakeoff_curtailment_per_conjunto/bakeoff_nec.py (M, nao tocado pelo loop)"]
   },
+  "open_requests": [
+    {"id": "req-0001", "from_iter": 3, "priority": "P1", "type": "investigation", "summary": "Validar com test n>=60d que shift -1d em pdp_prev_eolica e ruido (off-by-one ja refutado)", "status": "OPEN"},
+    {"id": "req-0002", "from_iter": 3, "priority": "P0", "type": "feature_fix", "summary": "forward-fill em vez de coalesce(0) para gaps PDP Abr/26", "status": "OPEN"}
+  ],
   "kill_requested": false
 }
