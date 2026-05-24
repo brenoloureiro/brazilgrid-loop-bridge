@@ -1,14 +1,14 @@
-# UlFor headless runner — status — 2026-05-24T13:42:43Z
+# UlFor headless runner — status — 2026-05-24T13:43:40Z
 
 **Saude**: green (runner saudavel)
 
 **Runner**: alive=yes pid=273001 .STOP=no
 **Loop status**: running
-**Ultimo heartbeat**: 2026-05-24T13:42:42Z
+**Ultimo heartbeat**: 2026-05-24T13:43:40Z
 
 ## Iter / decisao
 
-- **Iter atual UlFor (runner)**: 28
+- **Iter atual UlFor (runner)**: 29
 - **Ultimo plan_step modo**: MODO_1_CONTINUACAO
 - **Ultimo plan_step razao**: sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE
 - **err_streak**: 0
@@ -16,10 +16,10 @@
 
 ## UlFor master (estado observado)
 
-- **HEAD**: db3d2cb9 ulfor checkpoint: 15:00Z — H22 stricter REFUTADO + alpha sweep (paralelo), 0 commits proprios convergencia plena
+- **HEAD**: 83abab3e docs(forecast): MATRIX coerencia — promote_champions.py JA tem --ridge-alpha
 - **Branch**: master
-- **Ultimo commit observado (state)**: db3d2cb9
-- **Ultimo checkpoint**: ulfor_2026-05-24T15-00.md
+- **Ultimo commit observado (state)**: 34abdd49
+- **Ultimo checkpoint**: ulfor_2026-05-24T14-35.md
   - **Idade**: 0 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
@@ -27,9 +27,9 @@
 ## Budget (reset diario 00:00 UTC)
 
 - **Data UTC**: 2026-05-24
-- **Iters hoje**: 28 / 30
-- **Horas hoje**: 6.2295 / 12
-- **Custo hoje**: $107.701 / $50
+- **Iters hoje**: 29 / 30
+- **Horas hoje**: 6.4737 / 12
+- **Custo hoje**: $113.1477 / $50
 
 ---
 
