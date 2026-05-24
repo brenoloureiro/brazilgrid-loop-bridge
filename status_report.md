@@ -1,4 +1,4 @@
-# Loop status — 2026-05-24T12:25:08Z
+# Loop status — 2026-05-24T12:25:33Z
 
 **Saude**: green (loop saudavel)
 
@@ -16,7 +16,7 @@
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: b2d29dc bridge: sync ulfor iter 10 (9 minutes ago)
+**Bridge ultimo sync**: 45ab699 bridge: sync iter 17 (24 seconds ago)
 
 **UlFor HEAD**: eb9fca05 exp(forecast): H14-B sweep da janela bias correction (28/60/90d)
 
