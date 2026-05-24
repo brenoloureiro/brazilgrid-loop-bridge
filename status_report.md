@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T15:51:00Z
+# Loop status — 2026-05-24T16:09:42Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=554874, .STOP=no)
 
-**Iter atual**: 26
-**Alvo ativo**: leaderboard_canonical_suite_h19_materialization
+**Iter atual**: 27
+**Alvo ativo**: feat_intercambio_importance_cv_pi
 
 **Budget**: 25 iters / 1.4 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0026_recon_delta.md
-  decision: 
+**Ultimo handoff**: iter_0027_h8_intercambio_cv_pi.md
+  decision: |
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 4e9e185 bridge: sync ulfor iter 33 (80 seconds ago)
+**Bridge ultimo sync**: d8ff404 bridge: sync ulfor iter 39 (4 minutes ago)
 
-**UlFor HEAD**: d9aefdd1 ulfor checkpoint: 15:46Z — fase 4, proximo: Breno decide promote v3 (val14d real revisado SE para h22_MA)
+**UlFor HEAD**: 27152e16 ulfor checkpoint: 16:02Z — fase 4, proximo: Breno decide promote v3 (tree limpo, paralelo fechou pendencias 15:46Z)
 
 ---
 

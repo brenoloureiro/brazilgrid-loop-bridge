@@ -313,6 +313,7 @@ iterations/iter_0002 a iter_0006.
 | 0022 | H24 ensemble champion+persist | CONFIRMADO_3SUBS (NE/SE/N) | — (vivo, candidato runtime) |
 | 0024 | RECON_DELTA UlFor 4427a718..5d41d063 | validation_gap dos 7 promovieis FECHADA (4 PROMOVER, 1 REFUTADO, 1 decisao Breno, 1 marginal) + 2 achados novos (lgbm em SE+N regime atual) | — (handoff) |
 | 0026 | RECON_DELTA UlFor 5d41d063..83abab3e | alpha sweep v3 (NE+SE+N ridge+h22_pf, α-aware) + H22 stricter REFUTADO + promote_champions.py patched + ADDENDUM val14d (LGBM refuted-CV) | — (handoff) |
+| 0027 | H8 feat_intercambio CV-PI independente | CONFIRMADO_PARCIAL_3SUBS_REFUTADO_SE_em_Ridge — joint-drop primario + 30-perm single-feat reproduz UlFor H22 drop direction em 3/4 subs (NE -3.95pp joint a1; S -8.3pp gigante; N inconclusivo unsafe) e diverge em SE (+1.21pp joint a1, lesson model-aware H22_MA empirico). H33 derivada. | — (definitivo) |
 
 ## Lessons learned (transferiveis)
 
@@ -334,6 +335,15 @@ iterations/iter_0002 a iter_0006.
 - **Multicolinearidade estatistica != redundancia preditiva** (iter_0011
   H8_ulfor REFUTADA + iter_0021 H22_ulfor PROMOVIVEL): VIF/corr sozinho
   nao guia drops; precisa cruzar com PI per-fold.
+- **PI single-feat sobre colinears identitarios e' viesada para CIMA**
+  (iter_0027 H8): permutar 1 feature do conjunto colinear val_net =
+  val_import - val_export (VIF=1e8) quebra a identidade local; modelo
+  treinado com a identidade preserva pesos que dependem dela; predicao
+  quebra; aparenta importance alta. **Joint-drop refit do bundle inteiro
+  e' o teste autoritativo** — em NE alpha=1, val_import single-PI =
+  +1.65pp (parece KEEP) mas joint-drop = -3.95pp (bundle ATIVAMENTE
+  HARMFUL). Reforça empiricamente o lesson teorico H22_model_aware
+  UlFor commit `2daa5d40` (PI deve ser medida com o modelo final).
 
 ## Como atualizar
 

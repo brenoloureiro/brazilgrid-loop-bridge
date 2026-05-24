@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T21:30:00Z
+last_updated: 2026-05-24T22:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -235,18 +235,50 @@ hypotheses:
       mesmos drop candidates val_export/val_import/val_net em NE+SE (VIF=1e8
       colinearidade perfeita). N: val_net_* nao listado -> MANTEM em N. Sem
       mudanca na atratividade H8 nosso.
+
+      VEREDITO iter_0027: CONFIRMADO_PARCIAL_3SUBS_REFUTADO_SE_em_Ridge.
+      Loop rodou CV-PI independente (Ridge_alpha=10 + Ridge_alpha=1, walk-
+      forward 5x60d gap 7d, 30 perms x 4 features) + joint-drop refit test
+      como primario (autoritativo p/ colinears val_net=imp-exp identidade
+      perfeita VIF=1e8). Resultado joint-drop por sub:
+        - NE: bundle_drop_improves_model (a10: -1.17pp; a1: -3.95pp NMAE)
+              -> CONFIRMA UlFor drop direction com efeito STRONGER.
+        - SE: bundle_drop_HARMFUL (a10: +0.27pp; a1: +1.21pp) -> CONTRADIZ
+              UlFor em Ridge. UlFor decidiu drop com lr champion + VIF;
+              divergencia model-aware (~10pp gap lesson H22_MA empirico).
+        - S:  bundle_drop_improves_model (-8.3pp / -7.0pp) -> CONFIRMA
+              drop com magnitude muito maior; sugere extensao 4-feat
+              (UlFor listou so val_net_lag1).
+        - N:  bundle_drop_improves_model (-2.7pp / -2.3pp) -> sugere drop
+              em Ridge mas modelo N base NMAE>1 (limite-de-dado, nao
+              funcional). INCONCLUSIVO_em_N; UlFor keep direction
+              permanece valida out-of-scope deste teste.
+      Lesson metodologica forte: PI single-feat sobre colinears identicos
+      e' SISTEMICAMENTE VIESADO PARA CIMA (permutar 1 feature quebra
+      identidade local). Joint-drop refit e' o teste autoritativo. Em NE
+      alpha=1: val_import single-PI = +1.65pp (parece KEEP) mas joint-drop
+      = -3.95pp (bundle ATIVAMENTE HARMFUL). VIF + PI multivariado UlFor
+      H22 metodologicamente superior — esta iter empiricamente reforca isso.
+      H33 derivada (P3 ~0.5h): replicar joint-drop SE com LinearRegression
+      em vez de Ridge para fechar o caveat model-aware locally.
     type: feature
     layer: curtailment
     target: feat_intercambio_importance
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0027
+    verdict: CONFIRMADO_PARCIAL_3SUBS_REFUTADO_SE_em_Ridge
     estimated_effort_hours: 0.5
+    actual_effort_hours: 0.7
     depends_on: []
     blocks: []
     sanity_checks_required: [perm]
+    sanity_checks_done: [perm, leak, holdout_temporal_strict, baseline_compare, dist_shift]
+    follow_ups_created: [H33]
     expected_value: drop intercambio se confirmado ruido
     created_at: 2026-05-24T03:30:00Z
     last_external_update_iter: 0023
+    completed_at: 2026-05-24T22:30:00Z
 
   - id: H9
     summary: NMAE substituido por MAE/R²/F1 (Principio 6 PLANO_FINAL)
@@ -1032,6 +1064,48 @@ hypotheses:
       residual centrado em zero retenha mais sinal -- alpha=1 e o teste
       mais sensivel desse mecanismo.
 
+  - id: H33
+    summary: Joint-drop SE em LR vs Ridge — fechar caveat model-aware H22_MA empirico
+    detail: |
+      Derivada de H8 iter_0027 (CONFIRMADO_PARCIAL_3SUBS_REFUTADO_SE_em_Ridge).
+      H8 expos divergencia model-aware em SE: joint-drop do bundle de
+      intercambio features (val_export+val_import+val_net) em Ridge_alpha10
+      e Ridge_alpha=1 PIORA modelo (+0.27pp / +1.21pp NMAE). UlFor H22_model_aware
+      (commit 2daa5d40) decidiu drop em SE usando lr champion + VIF; lesson
+      teorico: "PI medida com o modelo final, nao com proxy mais robusto"
+      (commit ccf53722 H23_ulfor). Ridge usa L2 que redistribui pesos entre
+      colineares -> PI subestima individualmente, mas modelo se beneficia da
+      redundancia. LR sem shrinkage colapsa quando essas features removem
+      -> PI revela importance.
+
+      H33 testa: joint-drop em SE refit com LinearRegression em vez de
+      Ridge revela o mesmo dNMAE positivo ou inverte para negativo?
+
+      Implementacao: trivial extension de h8_intercambio_cv_pi.py — trocar
+      Ridge(alpha=...) por LinearRegression. Mesmo split CV walk-forward
+      5x60d gap 7d, mesmo bundle, mesma sanidade.
+
+      Aceitacao:
+        - CONFIRMADO se joint-drop LR_SE dNMAE > 0 (piora drop, contra
+          UlFor): reforca caveat de que H22_MA decision foi VIF-driven
+          mesmo em LR, sinal individual e' real.
+        - REFUTADO se joint-drop LR_SE dNMAE <= 0 (drop neutro/melhora
+          em LR): confirma lesson model-aware empiricamente, magnitude
+          gap modelo-dependente.
+
+      Custo: ~30s wall-clock, zero dep externa, reuso 100% script H8.
+    type: feature
+    layer: curtailment
+    target: feat_intercambio_joint_drop_se_lr
+    priority: P3
+    status: queued
+    estimated_effort_hours: 0.5
+    depends_on: [H8]
+    blocks: []
+    sanity_checks_required: [perm, baseline]
+    expected_value: fechar empiricamente o caveat metodologico H22_model_aware
+    created_at: 2026-05-24T22:30:00Z
+
 notas_iter0026:
   inspected_range: 5d41d063..83abab3e (8 commits UlFor, ~25 min reais)
   resolved: []
@@ -1049,3 +1123,25 @@ notas_iter0026:
     e vs lr+h22_MA 48.06%/+0.381). NAO testado em 14d real -- so CV 5x60d.
     UlFor explicito: "nao promovivel sem val_recent (principio 5)".
     Loop NAO emite req-0008 (padrao pre-empcao UlFor multi-agente self-actiona <30min).
+
+notas_iter0027:
+  hypothesis_handled: H8
+  verdict: CONFIRMADO_PARCIAL_3SUBS_REFUTADO_SE_em_Ridge
+  newly_created: [H33]
+  newly_resolved: [H8]
+  budget_iter_horas: 0.7
+  output_dir: outputs/iter_0027/h8_intercambio_cv_pi/
+  highlights: |
+    Confirmacao independente de UlFor H22 drop list (via Ridge CV-PI loop
+    com joint-drop primario + 30-perm single-feat secundario):
+      - NE confirma drop direction (stronger -3.95pp joint-drop in alpha=1)
+      - S  confirma + sugere extensao 4-feat (joint-drop -8.3pp gigante)
+      - SE diverge em Ridge (+1.21pp joint-drop); UlFor decidiu drop com lr.
+            Esta divergencia E o efeito mensuravel ~10pp do lesson H22_MA
+            empiricamente reproduzido no loop. H33 derivada fecha o caveat.
+      - N  inconclusivo (modelo Ridge N NMAE>1 unsafe). UlFor keep direction
+            permanece valida out-of-scope.
+    Lesson methodologica: PI single-feat sobre colinears identitarios
+    (val_net = val_import - val_export, VIF=1e8) e' viesada para cima.
+    Joint-drop refit dissolve a ambiguidade. NE alpha=1 single-PI val_import
+    +1.65pp parece KEEP; joint-drop -3.95pp prova bundle HARMFUL.
