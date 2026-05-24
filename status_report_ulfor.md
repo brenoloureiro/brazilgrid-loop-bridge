@@ -1,14 +1,14 @@
-# UlFor headless runner — status — 2026-05-24T12:46:30Z
+# UlFor headless runner — status — 2026-05-24T12:48:45Z
 
 **Saude**: green (runner saudavel)
 
 **Runner**: alive=yes pid=273001 .STOP=no
 **Loop status**: running
-**Ultimo heartbeat**: 2026-05-24T12:46:30Z
+**Ultimo heartbeat**: 2026-05-24T12:48:45Z
 
 ## Iter / decisao
 
-- **Iter atual UlFor (runner)**: 16
+- **Iter atual UlFor (runner)**: 17
 - **Ultimo plan_step modo**: MODO_1_CONTINUACAO
 - **Ultimo plan_step razao**: sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE
 - **err_streak**: 0
@@ -16,20 +16,20 @@
 
 ## UlFor master (estado observado)
 
-- **HEAD**: 9d9a5979 ulfor checkpoint: 13:35Z — sprint H22 (PROMOVIVEL NE/SE) + anomalia LR_SE patologica
+- **HEAD**: ec0fd937 ulfor checkpoint: 13:25Z — sprint H23 (multi-agente, preventivo)
 - **Branch**: master
-- **Ultimo commit observado (state)**: 9d9a5979
-- **Ultimo checkpoint**: ulfor_2026-05-24T13-35.md
-  - **Idade**: 0 min
+- **Ultimo commit observado (state)**: ec0fd937
+- **Ultimo checkpoint**: ulfor_2026-05-24T13-30.md
+  - **Idade**: 1 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
 
 ## Budget (reset diario 00:00 UTC)
 
 - **Data UTC**: 2026-05-24
-- **Iters hoje**: 16 / 30
-- **Horas hoje**: 3.8789 / 12
-- **Custo hoje**: $67.5264 / $50
+- **Iters hoje**: 17 / 30
+- **Horas hoje**: 4.0453 / 12
+- **Custo hoje**: $70.744 / $50
 
 ---
 
