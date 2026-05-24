@@ -220,12 +220,16 @@ vs 34.7%) e por estabilidade std.
    validate_d1 em janela CV-completa e logar `mae_corrected_per_fold`.
 2. **F1_p50 em S**: NaN estrutural, nao computavel sob protocolo P50.
    Alternativa: threshold P75 ou P90 — H32 emergente (P3) candidata.
-3. **Holdout 14d real para candidatos h22_per_fold NE+SE**: bloqueado em
-   H31_emergente (req-0008 ao UlFor, ~30min execucao).
+3. ~~**Holdout 14d real para candidatos h22_per_fold NE+SE**~~ → **FECHADA
+   em iter_0024** por commits `99af14b7` + `5d41d063` (UlFor self-actionou
+   single-fold 14d real para os 7 promovieis). H31_emergente PRE-EMPTED.
 4. **Skill_vs_persist em CV para ensemble (H24)**: replicas locais
    computam champion+persist combinado mas iter_0022 nao reporta
-   `skill_ens_vs_persist` explicitamente — derivavel de parquet em
-   iter_0023.
+   `skill_ens_vs_persist` explicitamente — derivavel de parquet em iter_0025+.
+5. **CV 5x60d para `lgbm × {full, h22_MA}` em SE+N**: achados novos 14d real
+   (iter_0024) sugerem regime nao-linear atual; promote bloqueado por
+   ausencia de CV. UlFor candidato a executar em proximo sprint
+   envelope-safe.
 
 ## Historico iter loop (deprecado — replays n=11)
 
