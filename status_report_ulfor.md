@@ -1,10 +1,10 @@
-# UlFor headless runner — status — 2026-05-24T13:46:45Z
+# UlFor headless runner — status — 2026-05-24T15:35:58Z
 
-**Saude**: red (pid registrado mas processo nao esta vivo)
+**Saude**: red (err_streak=3 — runner pausou aguardando humano)
 
-**Runner**: alive=no pid=273001 .STOP=no
+**Runner**: alive=yes pid=554936 .STOP=no
 **Loop status**: budget_iter_daily
-**Ultimo heartbeat**: 2026-05-24T13:46:44Z
+**Ultimo heartbeat**: 2026-05-24T15:35:57Z
 
 ## Iter / decisao
 
@@ -20,7 +20,7 @@
 - **Branch**: master
 - **Ultimo commit observado (state)**: 83abab3e
 - **Ultimo checkpoint**: ulfor_2026-05-24T14-35.md
-  - **Idade**: 3 min
+  - **Idade**: 112 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
 
