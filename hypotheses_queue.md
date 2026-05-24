@@ -125,19 +125,25 @@ hypotheses:
     detail: |
       B6 detectou sign-flip em curt_lag1/lag7 e ger_eolica_mwh. Sem n>=60d
       nao da pra distinguir entre regime change vs ruido amostral.
-      Enviado ao UlFor como req-0003.
+      Enviado ao UlFor como req-0003. RESPOSTA UlFor (iter_0006 extract):
+      sign-flip NAO se confirma com n=60d gap=7d. Correlacoes test
+      atenuam mas mantem direcao positiva (|corr_test|~0.1-0.2 vs +0.25
+      train, dentro de variabilidade amostral n=60). VEREDITO: SE/v3
+      PROMOVIVEL para FASE 4. Lags: ajudam em NE (+2.9pp se removidos),
+      atrapalham em N (-2.3pp se removidos, lgbm vence), SE indiferente.
     type: methodology
     layer: curtailment
     target: SE_v3_lag_collapse
     priority: P1
-    status: blocked
-    iter_handled: 0004
+    status: done
+    iter_handled: 0006
     estimated_effort_hours: 0.0
     depends_on: [req-0003]
     blocks: []
     sanity_checks_required: []
     expected_value: decidir se SE/v3 promovivel
     created_at: 2026-05-24T03:00:00Z
+    completed_at: 2026-05-24T04:50:00Z
 
   - id: H7
     summary: XGBoost vs LGBM com mesmo split — qual generaliza melhor?
@@ -286,21 +292,65 @@ hypotheses:
     expected_value: confirmar que v3.3 e promovivel para FASE 4
     created_at: 2026-05-24T03:30:00Z
 
+  - id: H16
+    summary: B6 zero_count_shift: ajustar threshold por n_test, evita falso positivo
+    detail: |
+      Iter_0006 mostrou que B6 deu falso positivo em iter_0004 (SE/v3 lag
+      sign-flip) por causa de n_test=11 muito pequeno. UlFor re-rodou com
+      n=60 e correlacoes nao flipam — direcao mantida, magnitudes apenas
+      atenuam. Adicionar a B6: se n_test < 30, downgrade severity em 1
+      nivel (high -> medium, medium -> low). Ou seguir threshold absoluto
+      em |corr_train|, |corr_test| >= 0.2 antes de marcar sign_flip.
+      Inclui regression test sintetico com n=10 e n=60 mostrando diferenca.
+    type: methodology
+    layer: meta
+    target: sanity_check_b6_robustness
+    priority: P1
+    status: queued
+    estimated_effort_hours: 0.5
+    depends_on: []
+    blocks: []
+    sanity_checks_required: []
+    expected_value: evitar req desnecessario ao UlFor por falso positivo
+    created_at: 2026-05-24T05:00:00Z
+
+  - id: H17
+    summary: Promover SE/v3 + S/v3.3 PDP-fixed para FASE 4 (decisao UlFor pendente)
+    detail: |
+      UlFor reportou v3.3 sub-level (iter_0006 extract): NE 35.7%, SE 46.0%,
+      S 109% (quebra teto persist 113.7%!), N 72.2%. SE/v3 promovivel
+      (confirmado em req-0003). S/v3.3 ML AGORA bate baseline (Was perdendo
+      117.2% vs 113.7%). Promover esses dois subsistemas para FASE 4 (model
+      serializer + drift monitor). Loop nao executa promocao — registra
+      como request P0 feature_fix para UlFor.
+    type: model
+    layer: curtailment
+    target: fase_4_promote_SE_S
+    priority: P0
+    status: queued
+    estimated_effort_hours: 0.0
+    depends_on: []
+    blocks: []
+    sanity_checks_required: []
+    expected_value: deliverable real do UlFor para producao
+    created_at: 2026-05-24T05:00:00Z
+
   - id: H15
     summary: S 'nao aprendivel' — rare event classifier em vez de regressor?
     detail: |
-      S tem ymean_test=0 (rare ENE/CNF events). Regressor NMAE NaN.
-      Treinar binario "havera curt ENE/CNF em D+1?" com class_weight=
-      balanced. AUC > 0.7 = ja util como alerta operacional. Datasets
-      desbalanceados sao mais comuns no setor eletrico de transmissao.
+      ATUALIZADO iter_0006: PARCIALMENTE OBSOLETA. UlFor v3.3 pos-PDP-fix
+      (req-0002) S/ML agora bate baseline (109% < persist_d1 113.7%). S
+      JA E aprendivel como regressor — classifier nao e mais P2.
+      Manter como P3 — pode ainda dar AUC > regressor para alerta
+      operacional (recall mais util que MAE neste sub low-signal).
     type: methodology
     layer: curtailment
     target: S_classification
-    priority: P2
+    priority: P3
     status: queued
     estimated_effort_hours: 1.5
     depends_on: []
     blocks: []
     sanity_checks_required: [holdout, baseline]
-    expected_value: destrava S, hoje sem nenhum modelo
+    expected_value: maybe upside, ja menos urgente que pre-PDP-fix
     created_at: 2026-05-24T03:30:00Z

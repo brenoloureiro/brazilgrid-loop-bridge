@@ -1,35 +1,49 @@
 {
-  "iter_atual": 5,
+  "iter_atual": 6,
   "mode": "self_planning",
-  "alvo_ativo": "loop_self_planning_infrastructure",
+  "alvo_ativo": "ulfor_v3_3_metrics_absorbed",
   "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "baselines": {
-    "curtailment_d1_NE": {"tipo": "persist_d1", "nmae_test_n11": 0.388, "r2": -0.157},
-    "curtailment_d1_SE": {"tipo": "persist_d1", "nmae_test_n11": 0.633, "r2": -1.043},
-    "curtailment_d1_S":  {"tipo": "persist_d7", "nmae_test_n11": null, "r2": null, "nota": "ymean_test=0"},
-    "curtailment_d1_N":  {"tipo": "persist_d1", "nmae_test_n11": 0.342, "r2": -0.072}
+    "curtailment_d1_NE": {"tipo": "persist_d1", "official_source": "UlFor v3.3 n=60d"},
+    "curtailment_d1_SE": {"tipo": "persist_d1", "official_source": "UlFor v3.3 n=60d"},
+    "curtailment_d1_S":  {"tipo": "persist_d1", "nmae_persist": 1.137, "official_source": "UlFor v3.3 n=60d"},
+    "curtailment_d1_N":  {"tipo": "persist_d1", "official_source": "UlFor v3.3 n=60d"}
   },
-  "best_ml": {
-    "NE": {"version": "v2", "model": "lgbm", "nmae_original": 0.282, "nmae_strict": 0.317, "r2_original": 0.660, "r2_strict": 0.456, "iter": 2,
-           "note_pos_iter0005": "UlFor commit b7acfdcd anunciou v3.3 PDP gap fix com 'sub-level ganhos' — iter_0006 recon_delta deve absorver"},
-    "SE": {"version": "v2", "model": "lgbm", "nmae_original": 0.362, "nmae_strict": 0.426, "r2_original": 0.394, "r2_strict": 0.280, "iter": 2,
-           "warn": "v3_aparente_melhor_some_em_holdout_strict_+19.2pp; B6_iter0004_confirma_causa_e_sign_flip_lag_features"},
-    "S":  null,
-    "N":  null
+  "best_ml_oficial_ulfor_v33": {
+    "NE": {"version": "v3.3", "model": "xgb", "nmae": 0.357, "r2": 0.402, "iter_handed_off": 6, "source_commit": "b7acfdcd"},
+    "SE": {"version": "v3.3", "model": "xgb", "nmae": 0.460, "r2": 0.386, "iter_handed_off": 6, "source_commit": "b7acfdcd",
+           "decision": "PROMOVIVEL FASE 4 (req-0003 verdict)"},
+    "S":  {"version": "v3.3", "model": "xgb", "nmae": 1.090, "r2": -0.135, "iter_handed_off": 6, "source_commit": "b7acfdcd",
+           "note": "ML AGORA bate baseline persist_d1=1.137 — pre PDP fix era 1.172 (perdia para persist)"},
+    "N":  {"version": "v3.3", "model": "lgbm", "nmae": 0.722, "r2": 0.041, "iter_handed_off": 6, "source_commit": "b7acfdcd",
+           "note": "lags atrapalham — remover para ganho marginal"}
+  },
+  "best_ml_loop_replay_n11": {
+    "NE": {"version": "v2", "model": "lgbm", "nmae_original": 0.282, "nmae_strict": 0.317, "iter": 2,
+           "deprecated_by": "UlFor v3.3 oficial n=60d (iter_0006)"},
+    "SE": {"version": "v2", "model": "lgbm", "nmae_original": 0.362, "nmae_strict": 0.426, "iter": 2,
+           "deprecated_by": "UlFor v3.3 oficial n=60d (iter_0006)"}
   },
   "hypotheses_verdict": {
     "H2_off_by_one_pdp_join": {
       "iter": 3,
       "verdict": "REFUTADO",
       "evidence": "corr(PDP_prev[t], gen[t])=0.9118 > corr(PDP_prev[t], gen[t+1])=0.8211; n=484 dias",
-      "fix_required": "nenhum em JOIN/SQL"
+      "confirmed_by_ulfor_iter6": "req-0001 ulfor_response confirmed: 14/16 shift deltas |<2pp| em n=60d"
     },
     "H6_SE_colapso_strict": {
       "iter": 4,
-      "verdict": "EVIDENCIA_FORTE (B6 caught sign-flip); UlFor processou req-0003 DONE — extrair resposta em iter_0006",
-      "evidence": "sign-flip em curt_lag1/lag7/lag14, ger_eolica_mwh em SE/v3",
-      "fix_required": "depende ulfor_response — iter_0006 recon_delta"
+      "verdict_initial": "EVIDENCIA_FORTE B6 (n=11)",
+      "verdict_final": "REFUTADO via req-0003 ulfor_response (n=60d)",
+      "iter_closed": 6,
+      "evidence_final": "Em n=60d gap 7d, sign-flip NAO confirma. Correlacoes atenuam mas mantem direcao. |corr_test|~0.1-0.2 vs +0.252 train = variabilidade amostral. SE/v3 PROMOVIVEL.",
+      "lesson_learned": "B6 com test n=11 deu falso positivo. Ver H16 para mitigation."
+    },
+    "H4_B6_zero_count_shift": {
+      "iter": 4,
+      "verdict": "implementado",
+      "iter6_note": "Caso real iter_0004 (SE/v3 sign-flip) era falso positivo (n=11). H16 nova proposta para downgrade severity quando n_test<30."
     }
   },
   "sanity_checks_disponiveis": [
@@ -40,48 +54,41 @@
     "distribution_shift",
     "zero_count_shift"
   ],
-  "sanity_checks_default_pipeline": [
-    "leak_detection",
-    "permutation_importance",
-    "holdout_temporal_strict",
-    "baseline_compare",
-    "distribution_shift",
-    "zero_count_shift"
-  ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0005_self_planning_upgrade.md",
+  "ultimo_handoff": "iter_0006_recon_delta_post_reqs.md",
   "budget_consumido": {
-    "iter": 5,
-    "horas": 1.5,
+    "iter": 6,
+    "horas": 1.8,
     "custo_usd": null
   },
   "ulfor_session_sync": {
-    "iter0004_fim_head": "9c1484e2",
-    "iter0005_inicio_head": "9c1484e2",
     "iter0005_fim_head": "be2c9186",
-    "novos_commits_durante_iter0005": [
-      "b7acfdcd feat(forecast): UlFor PDP gap Abr/26 fix — v3.3 sub-level ganhos (resposta a req-0002)",
-      "be2c9186 coord: AUTOPILOT_PROMPT — passo 4.5 leitura de loop_requests.md (Breno aplicou patch sugerido iter_0003)"
-    ],
-    "note": "UlFor processou todos 3 requests durante esta iter. iter_0006 deve ser recon_delta para absorver."
+    "iter0006_inicio_head": "be2c9186",
+    "iter0006_fim_head": "be2c9186",
+    "novos_commits_durante_iter0006": [],
+    "note": "Nenhum novo commit UlFor durante iter_0006 (recon de commits ja existentes em be2c9186/b7acfdcd). Reqs DONE com ulfor_response preenchido (foram preenchidos durante iter_0005, loop estava ocupado para extrair)."
   },
   "open_requests": [],
   "closed_requests": [
     {"id": "req-0001", "from_iter": 3, "priority": "P1", "type": "investigation",
      "summary": "Validar com test n>=60d que shift -1d em pdp_prev_eolica e ruido",
-     "status": "DONE", "closed_at_loop_iter": 5, "extract_response_in": 6},
+     "status": "DONE", "closed_at_loop_iter": 6,
+     "ulfor_verdict": "RUIDO AMOSTRAL CONFIRMADO — 14/16 shift deltas |<2pp| em n=60d v3.3"},
     {"id": "req-0002", "from_iter": 3, "priority": "P0", "type": "feature_fix",
      "summary": "forward-fill em vez de coalesce(0) para gaps PDP Abr/26",
-     "status": "DONE", "closed_at_loop_iter": 5, "extract_response_in": 6,
-     "ulfor_commit": "b7acfdcd"},
+     "status": "DONE", "closed_at_loop_iter": 6, "ulfor_commit": "b7acfdcd",
+     "ulfor_verdict": "PREMISSA INVALIDADA — gap fechado upstream via Dagster backfill 28 dias Abr/26. Coalesce 0 agora seguro.",
+     "v33_metrics_NE_pos": "NMAE 35.7% R²+0.402",
+     "v33_metrics_S_pos": "NMAE 109% (era 117% pre-fix, ML AGORA bate persist 113.7%)"},
     {"id": "req-0003", "from_iter": 4, "priority": "P1", "type": "investigation",
      "summary": "Validar H6 SE colapso strict (B6 caught lag sign-flip)",
-     "status": "DONE", "closed_at_loop_iter": 5, "extract_response_in": 6}
+     "status": "DONE", "closed_at_loop_iter": 6,
+     "ulfor_verdict": "Sign-flip NAO confirma em n=60d. Variabilidade amostral. SE/v3 PROMOVIVEL FASE 4. NE: lags helps, S: lags helps, N: lags hurt, SE: indifferent."}
   ],
   "planner_config": {
     "mode": "self_planning",
-    "next_iter_should_be": "recon_delta_manual (UlFor processou 3 requests + commitou v3.3 fix)",
-    "next_iter_override_suggested": "use _force_next_iter.txt p/ iter_0006 absorver UlFor changes"
+    "next_iter_should_be": "hypothesis_test normal (top da queue agora = H9 P1 metric_suite)",
+    "alt_next": "H17 (P0 promover SE/S v3.3 a FASE 4) — mas e meta-acao via req, nao codigo no loop"
   },
   "kill_requested": false
 }
