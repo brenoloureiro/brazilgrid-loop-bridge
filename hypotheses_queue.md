@@ -213,6 +213,23 @@ hypotheses:
       iter_0002 PI mostrou val_net_mwmed_lag1 no top-5 de N/v1-v3 mas baixo
       em outros subs. Permutation rigorosa para confirmar se intercambio
       e feature critica (em N) ou ruido.
+
+      ATUALIZADO iter_0021: PARCIALMENTE RESPONDIDA por UlFor H22 (VIF per-fold
+      + PI per-fold, commit 10fa56d3). Drop candidates listados em
+      FEATURE_DROPS_H22_PER_FOLD:
+        - NE: val_export_mwmed (4/5 folds), val_import_mwmed (5/5), val_net_mwmed (5/5)
+              -- VIF=1e8 (net = import - export, colineares perfeitos)
+              + |PI|<0.5pp consistentemente. Drop candidate confirmado.
+        - SE: val_export_mwmed (5/5), val_import_mwmed (3/5). Drop candidate.
+        - S:  val_net_mwmed_lag1 (3/5, VIF=17.7, |PI|=0.119pp).
+              Drop candidate em S (CONTRADIZ iter_0002 top-5 N — esse era
+              regime-specific, n=11 inflado por colinearidade).
+        - N:  NAO listado em FINDING_H22 N drop list -> val_net_* MANTEM em N.
+              Consistente com iter_0002 top-5 N (sub onde intercambio carrega
+              sinal economico real).
+      Atratividade H8 nosso CAI: tecnica UlFor (VIF+PI conjunto) supera nossa
+      PI puro proposta. Manter queued para confirmacao independente via
+      CV-PI proprio se necessario.
     type: feature
     layer: curtailment
     target: feat_intercambio_importance
@@ -224,6 +241,7 @@ hypotheses:
     sanity_checks_required: [perm]
     expected_value: drop intercambio se confirmado ruido
     created_at: 2026-05-24T03:30:00Z
+    last_external_update_iter: 0021
 
   - id: H9
     summary: NMAE substituido por MAE/R²/F1 (Principio 6 PLANO_FINAL)
