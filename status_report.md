@@ -1,10 +1,10 @@
-# Loop status — 2026-05-24T04:43:47Z
+# Loop status — 2026-05-24T12:05:35Z
 
 **Saude**: green (loop saudavel)
 
-**Loop continuo**: yes (pid=54759, .STOP=no)
+**Loop continuo**: no (pid=54759, .STOP=no)
 
-**Iter atual**: 16
+**Iter atual**: 17
 **Alvo ativo**: leaderboard_consistency_post_h9
 
 **Budget**: 16 iters / 0.8 horas consumidas
@@ -16,9 +16,9 @@
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: de3c8f1 bridge: sync iter 16 (38 seconds ago)
+**Bridge ultimo sync**: 708a5e6 bridge: sync ulfor iter 7 (6 hours ago)
 
-**UlFor HEAD**: f64cfbb7 coord: req-0007 (P2 data_publish, F1_p50 + per-fold MAE parquet) from loop iter_0016
+**UlFor HEAD**: 5c7963d4 ulfor checkpoint: 06:25Z — 3 sprints (H21 REFUTADA + H14 analitica + H14 produtizado)
 
 ---
 
