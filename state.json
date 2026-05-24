@@ -1,12 +1,13 @@
 {
-  "iter_atual": 44,
+  "iter_atual": 45,
   "mode": "hypothesis_test",
-  "alvo_ativo": "gbdt_vs_ols_gap_full_features",
+  "alvo_ativo": "ne_n_d1_quantile_calibrated_v2",
   "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
-  "last_verdict": "CONFIRMADO_PARCIAL_em_feats_full",
-  "last_verdict_iter": 44,
-  "last_verdict_summary": "iter_0044 H36 GBDT vs OLS-puro com features completas iter_0002 v3 (47 NE / 44 SE+S) CONFIRMADO_PARCIAL_em_feats_full (NE-only, 1/3 subs). Decision rule (max gap R^2_test >= +0.05 confirma; <= -0.02 todos refuta): NE gap = +0.397 (OLS 0.114 vs GBDT 0.511, MAE 31.5k vs 23.8k = 25% melhor) GBDT_BETTER LOCAL. SE gap = -0.296 (OLS -0.024 vs GBDT -0.321, AMBOS perdem para constant mean, GBDT colapsa mais). S gap = -0.061 (OLS +0.240 vs GBDT +0.179, MAE GBDT 485 < OLS 630 mas R^2 enganoso por 70% zeros em test). CAVEAT METODOLOGICO: NE +40pp pode ser (a) GBDT extrai nao-linearidade real OR (b) OLS-puro overfit catastrofico (R^2_train=0.865 -> R^2_test=0.114, delta -0.75) com 47 feats colineares (UlFor VIF>=10 em 38/55). Comparacao operacionalmente relevante seria GBDT vs Ridge_alpha10 (champion UlFor NE) -- UlFor ja respondeu via bake-off iter_0007 (Ridge venceu XGB/LGBM em NE) mas em CV 5x60d; H41 derivada (P3, 0.5h) alinha protocolos com mesmo holdout 80/20 H36 para closure. PI duo gap ate +-40pp empirico em features completas (ano_sin_d1 NE -39pp ols-only; semana_sin_d1 SE +35pp gbdt-only) -- magnitude muito maior que ~10pp do lesson H22_MA UlFor SE/lr-vs-ridge; reforca canonicamente que PI EH severamente model-dependent. 6 sanity checks: leak PASS_INHERITED, perm PROXIED_BY_REFIT_DROP_PI, holdout PASS (80/20 temporal sobre `dia`), baseline PASS_GEN_ONLY_PERSIST_D1 (NE persist R^2=+0.079 vs OLS +0.114 vs GBDT +0.511; SE persist -0.769; S persist -1.120 -- ambos modelos batem persist na 3/3), dist_shift REPORTED (KS y_train-y_test: NE 0.32 p<1e-4, SE 0.24 p=4e-4, S 0.14 p=0.085), zero_count REPORTED (S 57%/70% conf cauda longa). Sub-rationale por sub: NE confirma local mas e' artefato OLS-no-reg; SE+S refutam globalmente. Champions UlFor INTACTOS (zero rollback). 1 follow-up criado: H41 (P3 0.5h, GBDT vs Ridge_alpha10 NE mesmo holdout). Convergencia H22 (3-feat REFUTADO) + H36 (47-feat parcial-artefato): GBDT nao tem upside REAL sobre modelo linear-regularizado em curt D+1. Custo iter 0.5h.",
+  "last_verdict": "CONFIRMADO_ASYM_ONLY",
+  "last_verdict_iter": 45,
+  "last_verdict_summary": "iter_0045 H37 CQR-asymmetric + Mondrian conformal NE+N CONFIRMADO_ASYM_ONLY. VARIANTE A (CQR-asym) PASS ambos os gates de aceitacao do queue: NE iv=30 2/3 cells in [75, 85] (cov mean 75.5%, vs H26 sym 74.7% borderline 0.3pp below limit); N iv=30 3/3 cells in [75, 90] (cov mean 86.4%, vs H26 sym 90.8% over-coverage CORRIGIDO). VARIANTE B (Mondrian + shrinkage inverse-variance) REFUTADA: NE 1/3 in [75, 85] (cov 75.2%) E std fold-a-fold mean = 20.9% (>> 10pp threshold por 2x). Per sub bonus (sym vs asym vs mond iv=30): NE 74.7/75.5/75.2, SE 76.6/80.3/75.2, S 79.5/81.8/79.5, N 90.8/86.4/91.3. Custo width ASYM: NE +9%, SE +20%, S +51%, N +36% (mais larga mas calibrada nas duas pontas). Mecanismo da vitoria ASYM em N: 37% dos dias com curt~0 inflam s_sym global; q_low_asym ~107 MWh (vs q_alpha_sym ~663 MWh) nao penaliza zeros. Mecanismo da derrota MONDRIAN: shrinkage inverse-variance com n_global=30 e n_bucket=15 da w_bucket ~0.5 mesmo quando var bate; colapsa em sym+ruido de bucketing. Heterogeneidade NE e' regime real (B5 iter_0012 KS p<0.0001 por DIA, nao por modelo) -- bucketing pos-hoc nao atenua. 6 sanity checks: leak SKIPPED_INHERITED (iter_0010), perm SKIPPED_INHERITED (iter_0010), holdout PASSED_EMBEDDED (5 folds walk-forward gap=7d, inner_val temporalmente antes do test; mondrian bucket usa q50_te nao y_te = D-1-safe), baseline PASSED_EMBEDDED (triple sym+asym+mond), dist_shift ANNOTATED_REUSE (KS<1e-4 NE+SE = causa raiz), zero_count REPORTED (N y_frac_zero ~37% explica vitoria asym sobre sym). Champions UlFor (Ridge NE / LR SE+S / Ridge_clean_plus N) INTACTOS -- replay-only sem rollback. Arco conformal classico envelope iter_0002/CV-5x60d ENCERRADO com ASYM como deliverable replay para NE+N + bonus H26 SE+S. Lesson canonica para sanity_checks/calibration.md: 'Per-regime bucketing pos-hoc shrunk para global colapsa em sym quando n_global ~ n_bucket; preferir asymmetric scores quando o problema e' assimetria de cauda'. Custo iter 0.7h (vs estimado 2.0h). Zero follow-ups derivados imediatamente: H42 (productize ASYM em endpoint forecast_d1) e H43 (Mondrian aprendido) sao P3 opcionais sem queue, dependem de UlFor publicar quantile models ou Breno decidir produtizar bandas.",
+  "last_verdict_summary_old_iter44": "iter_0044 H36 GBDT vs OLS-puro com features completas iter_0002 v3 (47 NE / 44 SE+S) CONFIRMADO_PARCIAL_em_feats_full (NE-only, 1/3 subs). Decision rule (max gap R^2_test >= +0.05 confirma; <= -0.02 todos refuta): NE gap = +0.397 (OLS 0.114 vs GBDT 0.511, MAE 31.5k vs 23.8k = 25% melhor) GBDT_BETTER LOCAL. SE gap = -0.296 (OLS -0.024 vs GBDT -0.321, AMBOS perdem para constant mean, GBDT colapsa mais). S gap = -0.061 (OLS +0.240 vs GBDT +0.179, MAE GBDT 485 < OLS 630 mas R^2 enganoso por 70% zeros em test). CAVEAT METODOLOGICO: NE +40pp pode ser (a) GBDT extrai nao-linearidade real OR (b) OLS-puro overfit catastrofico (R^2_train=0.865 -> R^2_test=0.114, delta -0.75) com 47 feats colineares (UlFor VIF>=10 em 38/55). Comparacao operacionalmente relevante seria GBDT vs Ridge_alpha10 (champion UlFor NE) -- UlFor ja respondeu via bake-off iter_0007 (Ridge venceu XGB/LGBM em NE) mas em CV 5x60d; H41 derivada (P3, 0.5h) alinha protocolos com mesmo holdout 80/20 H36 para closure. PI duo gap ate +-40pp empirico em features completas (ano_sin_d1 NE -39pp ols-only; semana_sin_d1 SE +35pp gbdt-only) -- magnitude muito maior que ~10pp do lesson H22_MA UlFor SE/lr-vs-ridge; reforca canonicamente que PI EH severamente model-dependent. 6 sanity checks: leak PASS_INHERITED, perm PROXIED_BY_REFIT_DROP_PI, holdout PASS (80/20 temporal sobre `dia`), baseline PASS_GEN_ONLY_PERSIST_D1 (NE persist R^2=+0.079 vs OLS +0.114 vs GBDT +0.511; SE persist -0.769; S persist -1.120 -- ambos modelos batem persist na 3/3), dist_shift REPORTED (KS y_train-y_test: NE 0.32 p<1e-4, SE 0.24 p=4e-4, S 0.14 p=0.085), zero_count REPORTED (S 57%/70% conf cauda longa). Sub-rationale por sub: NE confirma local mas e' artefato OLS-no-reg; SE+S refutam globalmente. Champions UlFor INTACTOS (zero rollback). 1 follow-up criado: H41 (P3 0.5h, GBDT vs Ridge_alpha10 NE mesmo holdout). Convergencia H22 (3-feat REFUTADO) + H36 (47-feat parcial-artefato): GBDT nao tem upside REAL sobre modelo linear-regularizado em curt D+1. Custo iter 0.5h.",
   "metric_suite_primary": {
     "version": "1.0",
     "adopted_in_iter": 8,
@@ -736,6 +737,30 @@
         "H40_doc_B2_interpretation_caso2"
       ],
       "budget_consumido_horas": 0.25
+    },
+    "H37_conformal_asymmetric_mondrian": {
+      "iter": 45,
+      "verdict": "CONFIRMADO_ASYM_ONLY",
+      "iter_closed": 45,
+      "evidence_final": "5 folds walk-forward CV (test=60d gap=7d) sobre features iter_0002 em 12 cells x 2 iv variants (30/60). LGBM quantile alphas [0.1,0.5,0.9] defaults H26. Triple baseline embedded por fold/iv: sym (= H26 bit-exato) / asym (CQR-asymmetric Romano variant, s_low/s_high separados) / mond (per-regime bucket por P50 train_inner + shrinkage inverse-variance, bucketing test via q50_te D-1-safe). VARIANTE A (ASYM) PASS ambos os gates: NE iv=30 2/3 cells in [75, 85] (cov mean 75.5%, vs H26 sym 74.7%); N iv=30 3/3 cells in [75, 90] (cov mean 86.4%, vs H26 sym 90.8% over-coverage CORRIGIDO). VARIANTE B (MOND) REFUTADA: NE 1/3 in [75, 85] (cov 75.2%) E std fold-a-fold mean = 20.9% (>> 10pp threshold por 2x). Per sub bonus iv=30 (sym/asym/mond): NE 74.7/75.5/75.2, SE 76.6/80.3/75.2, S 79.5/81.8/79.5, N 90.8/86.4/91.3. Width custo ASYM: NE +9%, SE +20%, S +51%, N +36%. Mecanismo ASYM em N: 37% dias com curt~0 inflam s_sym global; q_low_asym ~107 MWh (vs q_alpha_sym ~663 MWh) nao penaliza zeros. Mecanismo derrota MONDRIAN: shrinkage com n_global=30 e n_bucket=15 da w_bucket ~0.5 mesmo quando var bate; colapsa em sym+ruido bucketing. Heterogeneidade NE e' regime real (KS p<0.0001 iter_0012 por DIA), bucketing pos-hoc nao atenua. Sanity: leak SKIPPED_INHERITED iter_0010 H3, perm SKIPPED_INHERITED iter_0010, holdout PASSED_EMBEDDED (inner_val sempre antes do test; mond bucketing usa q50_te = D-1-safe), baseline PASSED_EMBEDDED (triple), dist_shift ANNOTATED_REUSE (KS<1e-4 NE+SE = causa raiz), zero_count REPORTED (N 37% zeros = mecanismo vitoria asym). Replicacao H26 bit-exato confirmada (sym branch reproduz iter_0037 dentro 0.5pp em 24 (cell,iv)). Replay-only, Champions UlFor INTACTOS. Arco conformal classico iter_0002/CV-5x60d ENCERRADO com ASYM como deliverable replay para NE+N (alem do bonus H26 SE+S). Lesson canonica para sanity_checks/calibration.md: 'Per-regime bucketing pos-hoc shrunk para global colapsa em sym quando n_global ~ n_bucket; preferir asymmetric scores quando o problema e' assimetria de cauda'.",
+      "artefatos": [
+        "outputs/iter_0045/h37_conformal_asymmetric_mondrian/verdict.json",
+        "outputs/iter_0045/h37_conformal_asymmetric_mondrian/results.json",
+        "outputs/iter_0045/h37_conformal_asymmetric_mondrian/summary.csv",
+        "scripts/h37_conformal_asymmetric_mondrian.py",
+        "iterations/iter_0045_h37_conformal_asymmetric_mondrian.md"
+      ],
+      "derivada_de": [
+        "H26_iter_0037_INDETERMINADO_NE_BORDERLINE_BONUS_SE_S",
+        "H11_iter_0014_REFUTADO_NE_quantile_uncalibrated"
+      ],
+      "follow_ups": [],
+      "follow_ups_potenciais_sem_queue": [
+        "H42_productize_asym_in_endpoint_d1 (P3, depende UlFor publicar quantile models)",
+        "H43_mondrian_aprendido_via_lgbm_stacker (P3, custo 1.5h; atratividade baixa porque heterogeneidade NE e' do dado nao da receita)"
+      ],
+      "budget_consumido_horas": 0.7,
+      "actual_vs_estimated": "0.7/2.0h (65% under-budget; +30 LoC sobre h26 estimado, ficou em ~340 LoC totais incluindo verdict)"
     }
   },
   "sanity_checks_disponiveis": [
@@ -2199,9 +2224,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 16,
-    "horas": 3.7667,
-    "usd": 67.4227
+    "iter": 17,
+    "horas": 4.0914,
+    "usd": 74.6381
   },
   "low_n_test_policy": {
     "version": "1.0",

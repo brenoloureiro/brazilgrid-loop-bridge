@@ -1,8 +1,26 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0044 (2026-05-26T04:00Z, **H36 GBDT vs OLS-puro com features completas
-iter_0002 v3 (47 NE / 44 SE+S) — CONFIRMADO_PARCIAL_em_feats_full (NE-only, com caveat
-metodologico)**. Decision rule (max gap R^2_test >= +0.05 confirma; <= -0.02 todos refuta):
+Atualizado em iter_0045 (2026-05-26T06:00Z, **H37 CQR-asymmetric + Mondrian conformal
+NE+N — CONFIRMADO_ASYM_ONLY**). Variante A (CQR-asym) PASS ambos os gates de aceitacao:
+NE iv=30 2/3 cells in [75, 85] (cov 75.5%, vs H26 sym 74.7%); N iv=30 3/3 cells in
+[75, 90] (cov 86.4%, vs H26 sym 90.8% over-coverage corrigido). Variante B (Mondrian +
+shrinkage inverse-variance) REFUTADA: NE 1/3 in [75, 85] (cov 75.2%) E std fold-a-fold
+mean = 20.9% (>> 10pp threshold). **Mecanismo da vitoria ASYM em N**: 37% dos dias com
+curt~0 inflam s symmetric global; q_low asym ~107 MWh vs q_alpha sym ~663 MWh nao
+penaliza zeros. **Mecanismo da derrota MOND**: shrinkage com n_global=30 e n_bucket=15
+da w_bucket ~0.5 mesmo quando var bate; colapsa em sym + ruido de bucketing.
+Heterogeneidade NE e' regime real (B5 iter_0012 KS p<0.0001 por DIA) e bucketing
+pos-hoc nao atenua. Per sub bonus (sym vs asym vs mond iv=30): NE 74.7/75.5/75.2,
+SE 76.6/80.3/75.2, S 79.5/81.8/79.5, N 90.8/86.4/91.3. Custo width ASYM: NE +9%, SE
++20%, S +51%, N +36% (mais larga mas calibrada). Champions UlFor INTACTOS (replay-only,
+sem rollback). Arco conformal classico do envelope iter_0002/CV-5x60d ENCERRADO com
+ASYM como deliverable replay para NE+N (alem do bonus H26 SE+S). Lesson canonica
+sanity_checks/calibration: "Per-regime bucketing pos-hoc shrunk para global colapsa
+em sym quando n_global e n_bucket sao da mesma ordem; preferir asymmetric scores quando
+o problema e' assimetria de cauda". Custo iter 0.7h (vs estimado 2.0h). Atualizado
+anteriormente em iter_0044 (2026-05-26T04:00Z, **H36 GBDT vs OLS-puro com features
+completas iter_0002 v3 (47 NE / 44 SE+S) — CONFIRMADO_PARCIAL_em_feats_full (NE-only,
+com caveat metodologico)**. Decision rule (max gap R^2_test >= +0.05 confirma; <= -0.02 todos refuta):
 NE gap = +0.397 (OLS 0.114 vs GBDT 0.511, MAE 31.5k vs 23.8k -- 25% melhor) GBDT_BETTER
 LOCAL. SE gap = -0.296 (OLS -0.024 vs GBDT -0.321, AMBOS perdem para constant mean,
 GBDT colapsa mais). S gap = -0.061 (OLS +0.240 vs GBDT +0.179, mas GBDT MAE 485 < OLS
@@ -656,6 +674,7 @@ iterations/iter_0002 a iter_0006.
 | 0030 | H15 S classifier vs regressor binarizado | CONFIRMADO_PARCIAL_NON_RARE — em thr_zero (any curt, pos_rate 40%) e thr_p75 (big curt, pos_rate 25%) LogReg(class_weight=balanced) bate LR_reg+Ridge_reg binarizados em **+4.5pp/+6.8pp AUC** e **+5.1pp/+8.1pp PR-AUC**; em thr_p90 (rare event, pos_rate 10%) regressor binarizado EMPATA classifier (ΔAUC −1.6pp, ΔPR-AUC −0.6pp, dentro do ruido). Mecanismo: rare events com test_pos absoluto baixo (1-5 positivos em fold 5) inviabilizam calibracao do LogReg. Perm test FORTE: real AUC=0.872 vs perm 0.512±0.13 (p=0.000). Hipotese original ("classifier > regressor em rare-event") REFUTADA, mas H15 derivada: classifier e' o caminho para alerta binario "vai ter curt em S?" (LogReg AUC 0.78 vs persist 0.62, +16.8pp) | 59-60 (CV) | FALSE | H35 (alerta operacional moderado S) |
 | 0032 | H20 auto-flag low_confidence_n_test | CONFIRMADO_DISPLAY — politica `low_confidence_n_test=(n_test<30)` propagada para meta.json/summary_replay.csv/leaderboard; audit cobre 12 meta runs + 21 outros JSON + 18 parquets UlFor; 12 LGBM-replay runs + 8 sanity-JSONs marcados LOW, 0 marcados LOW na secao Champions/Baselines do topo. Runner `run_bakeoff_replay.py` patcheado. | n/a (display) | n/a | — (definitivo) |
 | 0034 | H22 GBDT vs OLS gap (3 feats gen+pdp_prev) | REFUTADO_NO_NONLINEAR_GAIN — holdout temporal 80/20 (n_train=388/n_test=98 per sub). NE: OLS R²=+0.550 vs GBDT +0.507 (gap −4.3pp); SE: OLS +0.072 vs GBDT +0.088 (gap +1.5pp TIE); S: OLS −0.252 vs GBDT −0.426 (gap −17.4pp). max_gap=+0.015 < +5pp threshold em todos; mean_gap=−0.067. GBDT overfit train R²=0.81-0.99 vs test 0.51/0.09/−0.43 sob distribution shift (B5 iter_0012 KS<1e-4). PI duo refit-drop reconfirma EMPIRICAMENTE lesson H22_MA UlFor: gap_per_feat ±85pp (NE pdp_eolica OLS 43pp vs GBDT 128pp) — PI eh model-dependent, mas isso NAO traduz em R²_test melhor para GBDT. OLS bate persist_d1 em NE+SE; GBDT empata. H36 derivada (testar com 37 feats v3). | 98 (holdout 80/20) | FALSE | — (definitivo, escopo 3 feats) |
+| 0045 | H37 CQR-asymmetric + Mondrian per regime (fechar NE+N gap H26) | CONFIRMADO_ASYM_ONLY — variante A (CQR-asym) PASS ambos os gates: NE iv=30 2/3 cells in [75, 85] (cov 75.5%, vs H26 sym 74.7% borderline), N iv=30 3/3 cells in [75, 90] (cov 86.4%, vs H26 sym 90.8% over-coverage). Variante B (Mondrian + shrinkage inverse-variance) REFUTADA: NE 1/3 in [75, 85] (cov 75.2%) E std fold-a-fold mean = 20.9% (>> 10pp threshold por 2x). Mecanismo ASYM em N: 37% dias curt~0 inflam s_sym global; q_low_asym ~107 MWh vs q_alpha_sym ~663 MWh nao penaliza zeros. Mecanismo MOND: shrinkage com n_global=30 e n_bucket=15 da w_bucket ~0.5 mesmo quando var bate; Mondrian colapsa em sym+ruido de bucketing. Heterogeneidade NE e' regime real (KS p<0.0001 por DIA, B5 iter_0012), nao da receita de calibracao. Bonus SE+S (subs ja confirmadas H26): SE asym 80.3% (+3.7pp vs sym), S asym 81.8% (+2.3pp); ambos dentro [75, 85] mas custo width +20%-51%, sem valor extra vs sym. Custo width ASYM: NE +9%, SE +20%, S +51%, N +36%. Lesson canonica para sanity_checks/calibration: "Per-regime bucketing pos-hoc shrunk para global colapsa em sym quando n_global ~ n_bucket; preferir asymmetric scores quando o problema e' assimetria de cauda". Replay-only, Champions UlFor INTACTOS. Arco conformal classico envelope iter_0002/CV-5x60d ENCERRADO. | 58-60 (CV 5 folds, iv=30 inner_val) | FALSE | — (definitivo replay-loop) |
 
 ## Lessons learned (transferiveis)
 

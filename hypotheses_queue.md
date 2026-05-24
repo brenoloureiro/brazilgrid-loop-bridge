@@ -1824,17 +1824,64 @@ notas_iter0031:
     layer: curtailment
     target: ne_n_d1_quantile_calibrated_v2
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0045
+    verdict: CONFIRMADO_ASYM_ONLY
+    verdict_summary: |
+      VARIANTE A (CQR-asymmetric) PASS em AMBOS os gates:
+        NE iv=30: 2/3 cells in [75, 85] (cov mean 75.5%; H26 era 74.7%)
+        N  iv=30: 3/3 cells in [75, 90] (cov mean 86.4%; H26 era 90.8%)
+      VARIANTE B (Mondrian + shrinkage inv-variance) REFUTADA:
+        NE iv=30: 1/3 cells in [75, 85] (cov mean 75.2%) -- falha 2/3
+        std fold-a-fold mean NE = 20.9% (>> 10pp threshold, 2x)
+      Per sub bonus (sym vs asym vs mond iv=30):
+        NE: 74.7% / 75.5% / 75.2%
+        SE: 76.6% / 80.3% / 75.2%
+        S : 79.5% / 81.8% / 79.5%
+        N : 90.8% / 86.4% / 91.3%
+      Custo width asym: NE +9%, SE +20%, S +51%, N +36% (mais larga,
+      mas calibrada nas duas pontas).
+      Mecanismo da vitoria ASYM em N: 37% dos dias com curt~0 fazem
+      s_low symmetric inflar q_alpha global; com asym, q_low fica ~107
+      MWh (vs q_alpha sym ~663 MWh), nao penaliza zeros.
+      Mecanismo da derrota MONDRIAN: shrinkage inverse-variance com
+      n_global=30 e n_bucket=15 da w_bucket~0.5 mesmo quando var bate;
+      Mondrian colapsa em sym + ruido de bucketing. Heterogeneidade NE
+      e' regime real (B5 iter_0012 KS p<0.0001 por DIA, nao por modelo)
+      e bucketing pos-hoc nao atenua.
+      Replicacao bit-exato H26 cov_uncal_full inhibida (sym branch
+      do script reproduz H26 dentro de 0.5pp em todas 24 (cell, iv)
+      combinacoes). Champions UlFor INTACTOS (replay-only).
     estimated_effort_hours: 2.0
+    actual_effort_hours: 0.7
     depends_on: [H26]
     blocks: []
     sanity_checks_required: [holdout, baseline, dist_shift]
+    sanity_checks_status:
+      B1_leak: skipped_inherited (iter_0010 H3 p=0)
+      B2_perm: skipped_inherited (iter_0010 H3 p=0)
+      B3_holdout: passed_embedded (gap=7d, 5 folds; inner_val antes do test; mondrian bucket usa q50_te nao y_te)
+      B4_baseline: passed_embedded (triple baseline sym+asym+mond)
+      B5_dist_shift: annotated_reuse (KS p<0.0001 NE+SE = causa raiz que motivou H37)
+      B6_zero_count: reported (N y_frac_zero ~37% explica vitoria asym sobre sym)
+    follow_ups_created: []  # H42/H43 (asym productize / mondrian aprendido) sao P3 opcionais sem queue
     expected_value: |
       Fecha H26 borderline NE (0.3pp do limite strict) e corrige N
       over-coverage. Bonus: validacao de Mondrian conformal como
       ferramenta para distribution shift em outros forecasts (carga,
       eolica D+1 per-conjunto).
+    actual_value: |
+      ASYM ENTREGUE como deliverable replay-loop: bandas P10/P90
+      calibradas em NE+N (alem do bonus H26 em SE+S). Mondrian
+      INVALIDADO no envelope iter_0002+CV-5x60d (n insuficiente
+      por bucket; heterogeneidade NE e' do dado nao da receita).
+      Implicacao: lesson canonica para sanity_checks/calibration.md =
+      "Per-regime bucketing pos-hoc shrunk para global colapsa em
+      sym quando n_global e n_bucket sao da mesma ordem; preferir
+      x-conditional quantile regressor (mondrian aprendido) ou
+      asymmetric scores quando o problema e' assimetria de cauda".
     created_at: 2026-05-25T08:00:00Z
+    completed_at: 2026-05-26T06:00:00Z
 
   - id: H40
     summary: Documentar joint-drop > PI single-feat em colinears perfeitos (B2_interpretation)
