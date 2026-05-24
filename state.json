@@ -764,7 +764,7 @@
     "novos_commits_durante_iter0018": [
       {
         "hash": "0c2f7429",
-        "msg": "ulfor checkpoint 12:13Z — fase 4, proximo: H22 ou H14-B (autopilot idle)",
+        "msg": "ulfor checkpoint 12:13Z \u2014 fase 4, proximo: H22 ou H14-B (autopilot idle)",
         "absorbed": true,
         "interpretacao": "Checkpoint FORCADO pelo runner headless (gatilho 348 min > 240 min sem checkpoint). Sessao zero-trabalho, HEAD inalterado em 5c7963d4 (06:25Z), tree limpo. Estado: H21 REFUTADA, H14 PARCIAL (NE produtizado), H22+H14-B+H14-D abertas. 25 commits ahead origin/master aguardam push do Breno (deploy EC2)."
       },
@@ -817,7 +817,7 @@
         },
         {
           "id": "H29_emergente",
-          "status_change": "nao criada formalmente nesta iter — candidata a proxima",
+          "status_change": "nao criada formalmente nesta iter \u2014 candidata a proxima",
           "motivo": "Aplicar bias_correction per-sub (28d NE/SE/S, 60d N) sobre H10 ensemble (LGBM+persist) no replay loop. Ortogonal a H10. Pode compor."
         }
       ],
@@ -910,8 +910,8 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 18,
-    "horas": 0.7161,
-    "usd": 4.6678
+    "iter": 19,
+    "horas": 1.005,
+    "usd": 15.3232
   }
 }
