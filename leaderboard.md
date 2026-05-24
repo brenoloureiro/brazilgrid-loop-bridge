@@ -1,6 +1,23 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0042 (2026-05-26T00:00Z, **CONSOLIDATION refuted_streak_2**: 5
+Atualizado em iter_0044 (2026-05-26T04:00Z, **H36 GBDT vs OLS-puro com features completas
+iter_0002 v3 (47 NE / 44 SE+S) — CONFIRMADO_PARCIAL_em_feats_full (NE-only, com caveat
+metodologico)**. Decision rule (max gap R^2_test >= +0.05 confirma; <= -0.02 todos refuta):
+NE gap = +0.397 (OLS 0.114 vs GBDT 0.511, MAE 31.5k vs 23.8k -- 25% melhor) GBDT_BETTER
+LOCAL. SE gap = -0.296 (OLS -0.024 vs GBDT -0.321, AMBOS perdem para constant mean,
+GBDT colapsa mais). S gap = -0.061 (OLS +0.240 vs GBDT +0.179, mas GBDT MAE 485 < OLS
+630 -- R^2 enganoso por 70% zeros em test). Verdict 1/3 confirma -> CONFIRMADO_PARCIAL.
+**CAVEAT METODOLOGICO**: NE +40pp pode ser (a) GBDT extrai nao-linearidade real OR (b)
+OLS-puro overfit catastrofico (R^2_train=0.865 -> R^2_test=0.114, delta -0.75) com 47
+feats colineares (UlFor VIF>=10 em 38/55). Comparacao operacionalmente relevante seria
+GBDT vs Ridge_alpha10 (champion UlFor NE) -- UlFor ja respondeu via bake-off iter_0007
+(Ridge venceu XGB/LGBM em NE) mas em CV 5x60d; H41 derivada (P3, 0.5h) alinha
+protocolos com mesmo holdout 80/20 H36 para closure. **PI duo gap ate +-40pp empirico
+em features completas** (ano_sin_d1 NE -39pp ols-only; semana_sin_d1 SE +35pp
+gbdt-only): magnitude muito maior que ~10pp do lesson H22_MA UlFor SE/lr-vs-ridge --
+reforca canonicamente que PI EH severamente model-dependent. **Champions UlFor
+INTACTOS** (zero rollback). Custo iter 0.5h (vs estimado 1.0h). Atualizado anteriormente
+em iter_0042 (2026-05-26T00:00Z, **CONSOLIDATION refuted_streak_2**: 5
 frentes encerradas em 5 iters (NGBoost defaults H28; H3-family residual H21+H30+
 iter_0020 supplement; bundle intercambio drop SE H8+H33; conformal symmetric NE H26;
 stacker Ridge H25; GBDT-3feat H22). Ultimas 3 iters (0039-0041): 0 mudancas em

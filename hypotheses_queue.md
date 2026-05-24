@@ -1700,7 +1700,9 @@ notas_iter0031:
     layer: curtailment
     target: gbdt_vs_ols_gap_full_features
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0044
+    verdict: CONFIRMADO_PARCIAL_em_feats_full (NE only, com caveat metodologico)
     estimated_effort_hours: 1.0
     depends_on: [H22]
     blocks: []
@@ -1711,6 +1713,69 @@ notas_iter0031:
       H36 mede gap diretamente vs OLS sem regularizacao para isolar
       contribuicao nao-linear das arvores).
     created_at: 2026-05-25T05:30:00Z
+    closed_at: 2026-05-26T04:00:00Z
+    closed_summary: |
+      Rodado em outputs/iter_0044/h36_gbdt_vs_ols_full/.
+      Resultado por sub (gap = GBDT R^2_test - OLS R^2_test, threshold +5pp):
+        NE: gap = +0.397 (R^2: OLS 0.114 vs GBDT 0.511) GBDT_BETTER (CONFIRMADO local)
+        SE: gap = -0.296 (R^2: OLS -0.024 vs GBDT -0.321) GBDT_WORSE
+        S:  gap = -0.061 (R^2: OLS +0.240 vs GBDT +0.179) GBDT_WORSE
+      Verdict: CONFIRMADO_PARCIAL_em_feats_full (1/3 subs, NE-only).
+      CAVEAT METODOLOGICO: NE +40pp gap pode ser explicado por (a) GBDT
+      extrair nao-linearidade real OR (b) OLS-puro overfit catastrofico
+      (R^2_train=0.865 -> R^2_test=0.114, delta -0.75) com 47 feats
+      colineares (UlFor VIF>=10 em 38/55). Comparacao operacionalmente
+      relevante seria GBDT vs Ridge_alpha10 (champion UlFor NE); UlFor ja
+      fez via bake-off iter_0007 e Ridge venceu XGB/LGBM em NE -> hipotese
+      (b) regularizacao > nao-linearidade no NE. Champions UlFor INTACTOS
+      (zero rollback). Reforca lesson H22_MA / H8 (PI duo gap ate ±40pp
+      empirico, ano_sin_d1 NE -39pp; semana_sin_d1 SE +35pp -- PI EH
+      severamente model-dependent em features completas). H41 derivada
+      (P3, queued): GBDT vs Ridge_alpha10 NE para distinguir
+      regularizacao vs nao-linearidade.
+    artefatos: outputs/iter_0044/h36_gbdt_vs_ols_full/
+      (results.json + summary.csv + sanity_checks.json)
+    follow_ups_created: [H41]
+
+  - id: H41
+    summary: GBDT vs Ridge_alpha10 NE com features completas -- isolar regularizacao vs nao-linearidade
+    detail: |
+      Derivada de H36 iter_0044 (CONFIRMADO_PARCIAL_em_feats_full NE-only).
+      H36 mostrou GBDT supera OLS-puro em NE por +40pp R^2 test com 47
+      feats iter_0002 v3. CAVEAT: OLS-puro (no-reg) tem R^2_train=0.865 e
+      R^2_test=0.114 (delta -0.75) -- overfit catastrofico em 47 feats
+      colineares (UlFor VIF>=10 em 38/55). A pergunta operacional real e':
+      "GBDT supera o CHAMPION Ridge_alpha10 NE?" -- nao OLS-puro.
+
+      UlFor bake-off iter_0007 ja respondeu (champion=Ridge_alpha10 venceu
+      XGB/LGBM em NE), mas em CV 5x60d gap7d -- nao no protocolo H36
+      (holdout 80/20 temporal sobre iter_0002 features). H41 ALINHA
+      protocolos: GBDT (LGBM defaults H10) vs Ridge_alpha10 (champion
+      UlFor) no MESMO holdout 80/20 sobre iter_0002 v3 NE features.
+
+      Hipotese: gap GBDT vs Ridge_alpha10 NE <= +2pp R^2 test (Ridge fecha
+      80%+ do gap vs OLS-puro). Se confirmar: nao-linearidade nao agrega
+      sobre regularizacao L2 em curt D+1 NE -- corrobora champion UlFor.
+      Se gap >= +5pp: GBDT tem upside REAL sobre Ridge -- questiona
+      champion NE.
+
+      Custo: ~10 LoC sobre h36_gbdt_vs_ols_full.py (trocar OLS por
+      Ridge_alpha10; manter mesmo split, mesmas features, mesmas
+      comparacoes).
+    type: model
+    layer: curtailment
+    target: gbdt_vs_ridge_alpha10_ne_full
+    priority: P3
+    status: queued
+    estimated_effort_hours: 0.5
+    depends_on: [H36]
+    blocks: []
+    sanity_checks_required: [holdout, baseline, dist_shift]
+    expected_value: |
+      Distingue se ganho GBDT +40pp NE em H36 e' (a) nao-linearidade real
+      OR (b) artefato de OLS-puro overfit. Ortogonal a champion (Ridge
+      ja confirmado por CV UlFor); H41 alinha protocolos para closure.
+    created_at: 2026-05-26T04:00:00Z
 
   - id: H37
     summary: CQR-asymmetric + Mondrian conformal por regime — fechar NE+N gap H26
