@@ -1,14 +1,14 @@
-# UlFor headless runner — status — 2026-05-24T15:49:40Z
+# UlFor headless runner — status — 2026-05-24T15:53:42Z
 
 **Saude**: green (runner saudavel)
 
 **Runner**: alive=yes pid=571987 .STOP=no
 **Loop status**: running
-**Ultimo heartbeat**: 2026-05-24T15:49:39Z
+**Ultimo heartbeat**: 2026-05-24T15:53:42Z
 
 ## Iter / decisao
 
-- **Iter atual UlFor (runner)**: 33
+- **Iter atual UlFor (runner)**: 34
 - **Ultimo plan_step modo**: MODO_1_CONTINUACAO
 - **Ultimo plan_step razao**: sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE
 - **err_streak**: 0
@@ -16,19 +16,19 @@
 
 ## UlFor master (estado observado)
 
-- **HEAD**: d9aefdd1 ulfor checkpoint: 15:46Z — fase 4, proximo: Breno decide promote v3 (val14d real revisado SE para h22_MA)
+- **HEAD**: 1bd8638f docs(forecast): FINDING_RIDGE_ALPHA — bloco val14d real + divergencia SE
 - **Branch**: master
-- **Ultimo commit observado (state)**: d9aefdd1
+- **Ultimo commit observado (state)**: 1bd8638f
 - **Ultimo checkpoint**: ulfor_2026-05-24T15-46.md
-  - **Idade**: 0 min
+  - **Idade**: 4 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
 
 ## Budget (reset diario 00:00 UTC)
 
 - **Data UTC**: 2026-05-24
-- **Iters hoje**: 1 / 30
-- **Horas hoje**: 0.0711 / 12
+- **Iters hoje**: 2 / 30
+- **Horas hoje**: 0.12 / 12
 - **Custo hoje**: $1.4356 / $50
 
 ---
