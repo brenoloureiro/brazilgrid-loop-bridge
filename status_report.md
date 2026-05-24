@@ -1,8 +1,8 @@
-# Loop status — 2026-05-24T13:33:37Z
+# Loop status — 2026-05-24T13:35:37Z
 
 **Saude**: yellow (STOP file presente)
 
-**Loop continuo**: yes (pid=272863, .STOP=yes)
+**Loop continuo**: no (pid=272863, .STOP=yes)
 
 **Iter atual**: 24
 **Alvo ativo**: recon_delta_ulfor_post_4427a718
@@ -16,7 +16,7 @@
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 5941dc9 bridge: sync iter 24 (37 seconds ago)
+**Bridge ultimo sync**: 2ddf6d1 bridge: sync iter 24 (2 minutes ago)
 
 **UlFor HEAD**: 756457c7 ulfor checkpoint: 14:25Z — Acao #2 (val14d) + ADDENDUM z-score, convergencia com parallel agent
 

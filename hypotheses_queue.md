@@ -616,6 +616,21 @@ hypotheses:
       Verdict formal CONFIRMADO_PARCIAL preservado por auditoria (iter_0016
       entregou o acessivel naquele momento). Leaderboard linhas 4 champions
       atualizadas em iter_0017 com MAE_exato + F1_p50.
+
+      MATERIALIZADO em iter_0025 (2026-05-24T20:30Z, manual por pedido Breno):
+      leaderboard.md REESCRITO com estrutura canonica (Champions / Baselines /
+      Overlay producao / Candidatos sucessores) e suite COMPLETA por sub:
+      MAE / R² / F1_p50 / RMSE / NMAE / bias / skill_vs_persist_d1 / nmae_safe.
+      Skill_vs_persist (1 - MAE_champion/MAE_persist) computado direto do
+      parquet: NE +17.7%, SE +34.0%, S +34.5%, N +16.4% (todos POSITIVOS - 4/4
+      subs champion bate persist em MAE no CV puro, independente de bias_corr).
+      Historico do replay loop n=11 (iter_0002..0006) movido para secao
+      "deprecada" no rodape para nao poluir leaderboard ativo. Pendencias
+      catalogadas: (a) bias_corr CV per-fold (req-0008 candidato P3), (b) F1_p50
+      em S NaN estrutural (P75 alt em H32 emergente), (c) holdout 14d real
+      h22_per_fold (H31 emergente), (d) skill_ens_vs_persist H24 derivavel.
+      Verdict permanece CONFIRMADO_PARCIAL (F1 em S e' NaN inerente do P50
+      protocolo; iter_0025 nao destrava esse gap teorico).
     expected_value: leaderboard internamente consistente (MAE/R²/F1 em todas linhas)
     created_at: 2026-05-24T06:00:00Z
     completed_at: 2026-05-24T13:30:00Z

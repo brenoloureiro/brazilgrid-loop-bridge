@@ -253,6 +253,7 @@ iterations/iter_0002 a iter_0006.
 | 0016 | H19 extracao champion metrics | CONFIRMADO_PARCIAL (MAE_derived ~10% slack) | iter_0017 (MAE exato) |
 | 0020 | H21 pdp_residual engineered | REFUTADO (OLS + LGBM CV convergem) | — (definitivo) |
 | 0022 | H24 ensemble champion+persist | CONFIRMADO_3SUBS (NE/SE/N) | — (vivo, candidato runtime) |
+| 0024 | RECON_DELTA UlFor 4427a718..5d41d063 | validation_gap dos 7 promovieis FECHADA (4 PROMOVER, 1 REFUTADO, 1 decisao Breno, 1 marginal) + 2 achados novos (lgbm em SE+N regime atual) | — (handoff) |
 
 ## Lessons learned (transferiveis)
 
