@@ -1,7 +1,7 @@
 {
-  "iter_atual": 17,
+  "iter_atual": 18,
   "mode": "self_planning",
-  "alvo_ativo": "recon_delta_ulfor_post_5dacb5a2",
+  "alvo_ativo": "recon_delta_ulfor_post_5c7963d4",
   "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
@@ -135,6 +135,27 @@
       "source_commit": "c8e27784",
       "mlflow_alias": "ridge_curt_n_d1@staging v2",
       "decision": "FRAGIL atenuado \u2014 v2 clean_plus reduz NMAE -1.5pp / std -5.6pp vs v1 full; @staging mantido (nao @champion). UlFor H10 (clean_plus = CLEAN \u222a {cmo_range, ter_verif_lag1, carga_mwmed_rmean7}) PARCIALMENTE CONFIRMADA iter_0015.",
+      "bias_correction_productized": {
+        "iter_absorbed": 18,
+        "ulfor_hypothesis": "H14-B (sweep window 28/60/90d)",
+        "default_apply": true,
+        "window_days": 60,
+        "formula": "corrected_D = max(0, pred_D - mean(pred - actual)[ultimos 60d causais])",
+        "cv_5x60d_NMAE_delta_mean_pp": -19.63,
+        "cv_5x60d_wins_loses": "3/1/5",
+        "applied_in_route": "/api/forecast/d1 response: predicted_curt_mwh (raw), predicted_curt_mwh_corrected, predicted_curt_mwh_default (per-sub default), bias_correction.{...}",
+        "source_commits": [
+          "eb9fca05",
+          "515041e1"
+        ],
+        "note": "Janela 60d (vs 28d NE) \u2014 N@28d era MAYBE (3/5 wins, 2/5 loses); aumentar p/ 60d reduz loses para 1/5 mantendo 3 wins. Fold-4 (2025-07/09 seca) e dominante (-78pp em 60d, raw 226%). Modelo (ridge_curt_n_d1@staging v2) INALTERADO. Smoke: N pred 246 -> default 267 (bias -21, applied=True).",
+        "smoke_e2e": {
+          "bias_mw": -21,
+          "applied_in_default": true,
+          "raw_mw": 246,
+          "corrected_mw": 267
+        }
+      },
       "history_v1": {
         "version": "v3.3+ridge_full",
         "feature_set": "full",
@@ -442,10 +463,10 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0017_recon_delta.md",
+  "ultimo_handoff": "iter_0018_recon_delta.md",
   "budget_consumido": {
-    "iter": 17,
-    "horas": 0.5,
+    "iter": 18,
+    "horas": 0.4,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -737,6 +758,72 @@
       ],
       "data_ceiling_extending": "MEMORY fase4_v3_curtailment_d1_data_ceiling agora aplica a NE+SE (era so NE). Implicacao: hipoteses do nosso queue que tentam mover SE D+1 sem feature/dado novo (H24/H25/H26/H27 sobre champion SE) tem teto baixo no regime atual.",
       "nota_nomenclatura_aplicada": "Convencao Hxx_ulfor adotada nesta iter. 6 colisoes em 1 recon (UlFor H10/H13/H14/H18-A/H19/H20/H21 todos colidem com nosso queue). Consolidar como standard."
+    },
+    "iter0018_inicio_head": "5c7963d4",
+    "iter0018_fim_head": "515041e1",
+    "novos_commits_durante_iter0018": [
+      {
+        "hash": "0c2f7429",
+        "msg": "ulfor checkpoint 12:13Z — fase 4, proximo: H22 ou H14-B (autopilot idle)",
+        "absorbed": true,
+        "interpretacao": "Checkpoint FORCADO pelo runner headless (gatilho 348 min > 240 min sem checkpoint). Sessao zero-trabalho, HEAD inalterado em 5c7963d4 (06:25Z), tree limpo. Estado: H21 REFUTADA, H14 PARCIAL (NE produtizado), H22+H14-B+H14-D abertas. 25 commits ahead origin/master aguardam push do Breno (deploy EC2)."
+      },
+      {
+        "hash": "2b262f51",
+        "msg": "ulfor checkpoint 12:11Z (idle 2x)",
+        "absorbed": true,
+        "interpretacao": "Marker idle. UlFor aguardando autorizacao Breno (deploy EC2 = PARAR E PERGUNTAR) ou retomar H22/H14-B/H14-D."
+      },
+      {
+        "hash": "1804c496",
+        "msg": "ulfor checkpoint 12:15Z (idle 3x)",
+        "absorbed": true,
+        "interpretacao": "3o marker idle do dia. Sinal sessional, sem impacto operacional."
+      },
+      {
+        "hash": "4871998c",
+        "msg": "H14-D ulfor bias correction threshold k*sigma_resid_train (REFUTADA)",
+        "absorbed": true,
+        "interpretacao": "UlFor H14-D testou aplicar bias correction so quando |bias_window_28d| > k*sigma_resid_train (k=1,2,3). Hipotese: bias rolling 28d e noisy em SE/S/N e adiciona ruido na maioria dos folds, mas seria sinal quando supera ruido residual. Resultado NAO produtizar: NE@k=1 wins 1/5 (perde os 3/5 que H14-C garante); SE/S/N zero wins (threshold filtra demais, apply_rate ~0-10%). Threshold NAO destrava SE/S/N. Bonus: parametrizou bias_window em h14c.fold_one (preparacao para H14-B)."
+      },
+      {
+        "hash": "eb9fca05",
+        "msg": "H14-B ulfor sweep da janela bias correction (28/60/90d)",
+        "absorbed": true,
+        "interpretacao": "UlFor H14-B sweep cross-window. NE: 28d melhor (4/5 wins, -7.07pp) ja produtizado; NE@60d regride a 2/5 wins. N: 60d melhor (3/5 wins, 1/5 loses, -19.63pp media) -> PRODUTIZAR [NOVO]. SE/S nenhuma janela qualifica (SE zero wins; S 2 wins max vs 3 loses em qualquer janela). Tabela cross-window: FINDING_H14B_WINDOW_SWEEP.md. Fold-4 N (2025-07/09 seca) dominante (-78pp em 60d, raw 226%, modelo colapsa, bias compensa). Gatilho para commit 6."
+      },
+      {
+        "hash": "515041e1",
+        "msg": "PRODUTIZAR bias correction em N (window=60d) per H14-B",
+        "absorbed": true,
+        "interpretacao": "PRODUCAO. loader.py: BIAS_CORRECTION_DEFAULTS[N] False->True; novo BIAS_CORRECTION_WINDOW_BY_SUB = {NE:28, SE:28, S:28, N:60}; predict_d1 usa sub_window dinamico; response.bias_correction.window_days reflete window real per-sub; source = FINDING_H14C_BIAS_CV.md + FINDING_H14B_WINDOW_SWEEP.md. Smoke 4 subs: N pred 246 -> default 267 (bias -21, applied=True, era applied=False iter_0017). NE inalterado window=28d apply=True. SE/S default OFF. Backward-compat: predicted_curt_mwh (raw) inalterado; callers que ja usam predicted_curt_mwh_default em N passam a receber corrected. analytics_api NAO deployada ainda no EC2."
+      }
+    ],
+    "delta_resumo_iter0018": {
+      "champions_status_change": "Champion N efetivo MUDA em PRODUCAO: bias_correction_60d default ON em N (era OFF iter_0017). Modelo treinado (ridge_curt_n_d1@staging v2 clean_plus) INALTERADO no MLflow Registry. NE/SE/S inalterados (NE ja tinha bias_correction_28d default ON desde iter_0017).",
+      "novos_requests": [],
+      "requests_fechados_extras": [],
+      "novas_hipoteses_loop_geradas": [],
+      "h_loop_impactadas": [
+        {
+          "id": "H21_nosso",
+          "status_change": "queued->queued (sequencia inalterada)",
+          "motivo": "pdp_residual feature engineering ortogonal a bias correction post-processing. Sem impacto cruzado."
+        },
+        {
+          "id": "H24",
+          "status_change": "queued->queued (baseline NE+N muda)",
+          "motivo": "ensemble Ridge/LR vs persist agora compete com baseline operacional NE@bias_28d + N@bias_60d. Comparacao H24 precisa contemplar Ridge+bias como nova baseline antes de declarar ganho."
+        },
+        {
+          "id": "H29_emergente",
+          "status_change": "nao criada formalmente nesta iter — candidata a proxima",
+          "motivo": "Aplicar bias_correction per-sub (28d NE/SE/S, 60d N) sobre H10 ensemble (LGBM+persist) no replay loop. Ortogonal a H10. Pode compor."
+        }
+      ],
+      "search_space_bias_correction_status": "ESGOTANDO. H14 (janela fixa 28d), H14-B (sweep 28/60/90d), H14-C (CV producao 28d), H14-D (threshold sigma). Variacoes simples esgotadas. Proximos uteis: (a) regime detection (apply OFF em transicao chuvoso->seco), (b) sub-stratificacao (per-conjunto), (c) target alternativo (log1p, classifier). Confirma data ceiling iter_0017 (SE/S nao destravam sem dado novo).",
+      "per_sub_hyperparam_emerging": "PADRAO ADOTADO: BIAS_CORRECTION_WINDOW_BY_SUB explicito {NE:28, SE:28, S:28, N:60}. Lesson: toda hipotese com hiperparam global deve testar variacao per-sub no loop. Aplicar a futuras hipoteses (H21 pdp_residual: testar coef por sub; H24 ensemble: testar peso por sub).",
+      "nota_idle_sessao_ulfor": "3 checkpoints idle em sequencia (12:11/12:13/12:15Z) sinalizam UlFor em pausa aguardando decisao Breno (deploy EC2 ou nova frente). 25 commits ahead origin/master. Nao afeta plano loop."
     }
   },
   "open_requests": [],

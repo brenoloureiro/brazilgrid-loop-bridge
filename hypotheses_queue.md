@@ -568,13 +568,18 @@ hypotheses:
       F1_p50 + per-fold parquet publicados em
       experiments/bakeoff_curtailment_multisub/outputs/cv_summary_per_fold_{full,clean_plus}.parquet
       (140 rows cada = 4 subs * 7 modelos * 5 folds, schema MAE/RMSE/NMAE/bias/R²/
-      F1_p50/ymean_test/threshold_p50/n_train/n_test/janelas). F1_p50 clean_plus
-      headline: NE ridge/lr=0.80 / SE xgb=0.71 / N ridge=0.79 / S=NaN (P50=0).
-      Follow-up cheap (<0.5h) destrava upgrade CONFIRMADO_PARCIAL -> CONFIRMADO:
-      (1) parser parquet 'full' p/ extrair F1_p50 dos champions ridge/lr per sub;
-      (2) substituir MAE-em-MWh derivado pelo per-fold real (remove caveat 1a
-      ordem ~10-15%); (3) re-escrever 4 linhas champion do leaderboard com F1
-      preenchido. Recomendar warmup iter_0018 (notas_iter0017 do planner_config).
+      F1_p50/ymean_test/threshold_p50/n_train/n_test/janelas).
+      EXTRACT realizado em PHASE B do iter_0017_recon_delta.md — parquet lido,
+      champions_metrics_consolidated em state.json reescrito com numeros EXATOS:
+        NE ridge full:    MAE 27317±11920 / R² +0.469±0.098 / F1 0.808±0.170
+        SE lr    full:    MAE  6117±  873 / R² +0.383±0.094 / F1 0.785±0.108
+        S  lr    full:    MAE   805±  441 / R² +0.371±0.164 / F1 NaN (esperado, P50=0)
+        N  ridge clean_plus: MAE 425± 149 / R² +0.170±0.185 / F1 0.790±0.048
+      Slack derivacao iter_0016 confirmado dentro envelope: NE +7%, SE +9%,
+      S -12%, N ~0%. state.json `verdict_post_req_0007_iter_0017=COMPLETED`.
+      Verdict formal CONFIRMADO_PARCIAL preservado por auditoria (iter_0016
+      entregou o acessivel naquele momento). Leaderboard linhas 4 champions
+      atualizadas em iter_0017 com MAE_exato + F1_p50.
     expected_value: leaderboard internamente consistente (MAE/R²/F1 em todas linhas)
     created_at: 2026-05-24T06:00:00Z
     completed_at: 2026-05-24T13:30:00Z
