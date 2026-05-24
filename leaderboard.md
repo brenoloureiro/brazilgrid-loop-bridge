@@ -18,12 +18,21 @@ gerar req desnecessario ao UlFor.
 redundante com gen (corr 0.95, r2_extra <=0.12). Mecanismo: residual(pdp_prev - gen) e' proxy
 de curtailment. Implicacao: manter pdp_prev_*; pdp_prog_* candidato a drop. H21+H22 derivadas.
 
+**Iter 0011 (RECON_DELTA):** 7 commits UlFor `4e0fc7b4..c8df4077` absorvidos. Champions
+**PROMOVIDOS** no MLflow Registry (ridge_NE / lr_SE / lr_S @champion; ridge_N @staging) +
+**endpoint `/api/forecast/d1` LIVE** servindo D+1 (cold 6.5s, warm <50ms). VIF analise
+confirma multicolinearidade massiva (38/55 features VIF>=10, cond_num >1e17), mas drop
+universal CLEAN ajuda so NE/N — feature_set=full continua default. VIF greedy iterativo
+**REFUTADO** (dropa drivers economicos primarios). lr_N instability isolada em fold 4
+(jul-set/2025 = blowup 208%) → ridge_curt_n_d1@staging continua a defesa. Sem novos
+requests; sem novas hipoteses do loop geradas. Detalhe em `iterations/iter_0011_recon_delta.md`.
+
 | layer | alvo | sub | baseline (MAE_mwh, CV) | best_metric (MAE/R²/F1, modelo) | NMAE secundario | last_iter | sanity_ok | data_utc |
 |---|---|---|---|---|---|---|---|---|
-| curtailment | d1_ENE_CNF | NE | persist_d1 (UlFor CV 5 folds — MAE pendente extracao) | **ridge_alpha10 (UlFor CV 5 folds, R² +0.469±0.098)** | NMAE 33.7±8.1% | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
-| curtailment | d1_ENE_CNF | SE | persist_d1 (UlFor CV 5 folds) | **lr_sklearn (UlFor CV 5 folds, R² +0.380±0.139)** | NMAE 46.6±13.4% | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
-| curtailment | d1_ENE_CNF | S | persist_d1 (UlFor CV 5 folds) | **lr_sklearn (UlFor CV 5 folds, R² +0.447±0.202, lr CORTA xgb)** | NMAE 89.6±31.2% (mas iter_0008 mostra NMAE unsafe em test n=11 — S baixo ymean) | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
-| curtailment | d1_ENE_CNF | N | persist_d1 (UlFor CV 5 folds) | ridge_alpha10 (UlFor CV, FRAGIL std alta, ma7 compete) | NMAE 86.3±31.8% | 0007 | nao promovivel ainda | 2026-05-24T05:30Z |
+| curtailment | d1_ENE_CNF | NE | persist_d1 (UlFor CV 5 folds — MAE pendente extracao) | **ridge_curt_ne_d1 @champion (R² +0.469±0.098 CV; in-sample R²=0.830)** | NMAE 33.7±8.1% | 0011 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T08:30Z |
+| curtailment | d1_ENE_CNF | SE | persist_d1 (UlFor CV 5 folds) | **lr_curt_se_d1 @champion (R² +0.380±0.139 CV; in-sample R²=0.619)** | NMAE 46.6±13.4% | 0011 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T08:30Z |
+| curtailment | d1_ENE_CNF | S | persist_d1 (UlFor CV 5 folds) | **lr_curt_s_d1 @champion (R² +0.447±0.202 CV; in-sample R²=0.725)** | NMAE 89.6±31.2% (NMAE unsafe em test n=11 — S baixo ymean, iter_0008) | 0011 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T08:30Z |
+| curtailment | d1_ENE_CNF | N | persist_d1 (UlFor CV 5 folds) | **ridge_curt_n_d1 @staging (R² +0.196±0.289 CV; in-sample R²=0.472)** FRAGIL — lr_N investigado iter_0011, fold 4 blowup 208% | NMAE 86.3±31.8% | 0011 | nao promovivel ainda — staging only | 2026-05-24T08:30Z |
 | meta | metric_suite | — | NMAE (Principio 6 violado) | **MAE/R²/F1 primario + NMAE secundario com flag** | 3/4 subs (NE,SE,N) conflict NMAE↔R²/F1 em iter_0002 replay; S NMAE unsafe | 0008 | H9 CONFIRMADO | 2026-05-24T06:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | NE | persist_d1 | NMAE 35.7% xgb UlFor v3.3 (superseded por ridge_alpha10) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | SE | persist_d1 | NMAE 46.0% xgb UlFor v3.3 (superseded por lr) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
@@ -311,3 +320,55 @@ Separacao PDP_prev vs PDP_prog e' a chave:
 Sem req externo necessario. Crosswalk + parser inline funciona; tabela
 `feat_pdp_renovavel` no UlFor (cobertura 82%) ja' faz a agregacao
 materializada — H21/H22 podem rodar la' diretamente com mais cobertura.
+
+## Iter 0011 — RECON_DELTA UlFor (4e0fc7b4 -> c8df4077)
+
+7 commits absorvidos. Champions de candidates do iter_0007 viraram
+producao real:
+
+| commit | acao | impacto |
+|---|---|---|
+| `d1fe9777` | CV walk-forward 5x60d (impl) | numeros oficiais iter_0007 materializados; MLflow 140 runs + 28 CV_SUMMARY |
+| `83bc79c2` | promote_champions MLflow | ridge_NE/lr_SE/lr_S @champion, ridge_N @staging |
+| `3ac5916a` | VIF + CLEAN bake-off | H4 ulfor CONFIRMADA estrutural; CLEAN ajuda NE/N, HURTS SE/S (R² S cai 0.35); FULL default |
+| `4d6dd73a` | checkpoint marker 04:00Z | — |
+| `d2bf38e4` | VIF greedy iterativo | H8 ulfor REFUTADA — multicolin estat != redundancia preditiva |
+| `a7edb1ef` | endpoint /api/forecast/d1 | **PRODUCAO LIVE** — cold 6.5s, warm <50ms, cache 1h modelo + 15min predicao |
+| `c8df4077` | investigate_lr_N instability | fold 4 (jul-set/2025) = blowup 208% FULL -> 128% CLEAN; envenenadoras: cmo_range, taxa_penetracao, ter_verif_lag1, carga_mwmed_rmean7; ridge_curt_n_d1@staging continua a defesa |
+
+### O que mudou na nossa interpretacao
+
+- **Champions agora estao em PRODUCAO** (nao mais "candidate aguardando OOT 2x").
+  MLflow Registry com aliases setados. Endpoint /api/forecast/d1 servindo
+  os 4 subs. linhas `curtailment | d1_ENE_CNF | <sub>` da tabela top
+  atualizadas para refletir status PROMOVIDO + in-sample R² + nota LIVE.
+- **VIF nao destrava drop universal**. Multicolinearidade massiva confirmada
+  (38/55 features VIF>=10, cond_num >1e17), mas drop padrao CLEAN ajuda
+  so NE+N. feature_set=full continua default. CLEAN candidato Staging
+  NE proximo round (potencial robustez +1pp stdev / NMAE -0.5pp).
+- **lr_N instabilidade isolada por fold**: fold 4 (jul-set/2025, train=221d,
+  mais antigo) puxa stdev=65.4%. CLEAN reduz stdev 52.4->22.7pp.
+  Envenenadoras especificas N: cmo_range, taxa_penetracao, ter_verif_lag1,
+  carga_mwmed_rmean7. Em CLEAN ainda aparecem curt_lag1/curt_rmean7
+  instaveis (N tem muitos zeros estruturais -> OLS extrapola mal).
+  ridge_curt_n_d1@staging continua. Possivel `feature_set=clean_plus_n`
+  proximo round.
+
+### Reqs / hipoteses
+
+- Sem novos requests pendentes. Os 3 antigos (req-0001/2/3) continuam DONE.
+- Sem novas hipoteses do **loop** geradas. UlFor numera seus proprios H1/H2/H4/H8/H9
+  no PLANO_FINAL — **nao confundir**. Em particular: commit `c8df4077` diz
+  "H9 RESPONDIDA" referindo-se ao H9 ulfor (lr_N), **nao** ao nosso H9
+  (metric_suite MAE/R²/F1, iter_0008 CONFIRMADO).
+- Status H18 (sanity B1-B6 sobre champions Ridge/LR) ainda blocked por
+  req-0005 — sanity local requer ou (a) UlFor publicar predicoes em
+  parquet acessivel ou (b) loop ganhar acesso ao MLflow tracking URI.
+  Candidato a req-0004 (dump MLflow CV_SUMMARY) **nao** emitido nesta
+  iter — auto-pesado, evitar duplicar trabalho ja resumido em FINDING.
+
+### Proxima iter
+
+`iter_0012` retoma planner_config: **H21** (P2 feature engineering
+`pdp_residual = pdp_prev - gen`). Derivada de H3 iter_0010, codavel
+localmente, sem dep externa. Alt: H10, H22, H19.

@@ -1,8 +1,8 @@
 {
-  "iter_atual": 10,
+  "iter_atual": 11,
   "mode": "self_planning",
-  "alvo_ativo": "feat_pdp_renovavel_residual",
-  "layer_ativa": "curtailment",
+  "alvo_ativo": "recon_delta_ulfor_post_4e0fc7b4",
+  "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
     "version": "1.0",
@@ -119,10 +119,10 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0010_h3_pdp_residual_signal.md",
+  "ultimo_handoff": "iter_0011_recon_delta.md",
   "budget_consumido": {
-    "iter": 10,
-    "horas": 0.7,
+    "iter": 11,
+    "horas": 0.4,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -146,11 +146,39 @@
     "iter0006_fim_head": "be2c9186",
     "iter0007_inicio_head": "4e0fc7b4",
     "iter0007_fim_head": "4e0fc7b4",
+    "iter0011_inicio_head": "4e0fc7b4",
+    "iter0011_fim_head": "c8df4077",
     "novos_commits_durante_iter0007": [
       {"hash": "76732289", "msg": "Ridge baseline-controle BATE XGB em NE (-4.4pp) e S (-8.6pp)", "absorbed": true},
       {"hash": "4e0fc7b4", "msg": "ulfor checkpoint: 02:15Z fase 3, proximo CV Ridge + @champion + multicolinearidade", "absorbed": true}
     ],
-    "note": "UlFor commitou Ridge/LR baseline-controle + CV walk-forward 5 folds entre iter_0006 e iter_0007. Champions per-sub mudaram em 3/4 subs. Sem novos requests do loop necessarios — UlFor ja' executando @champion registry plan."
+    "novos_commits_durante_iter0011": [
+      {"hash": "d1fe9777", "msg": "CV walk-forward 5 folds — H2 ulfor CONFIRMADA (Ridge nao e overfit)", "absorbed": true,
+       "interpretacao": "Implementacao do CV 5x60d que produziu os numeros oficiais do iter_0007 (NE 33.7%, SE 46.6%, S 89.6%, N 86.3%). MLflow: 140 runs + 28 CV_SUMMARY."},
+      {"hash": "83bc79c2", "msg": "promote_champions: ridge_NE/lr_SE/lr_S @champion + ridge_N @staging no MLflow Registry", "absorbed": true,
+       "interpretacao": "Champions PROMOVIDOS no MLflow Model Registry com aliases. Estado mudou de 'candidate' para 'producao'. In-sample R²: NE 0.830, SE 0.619, S 0.725, N 0.472 (gap CV 0.24-0.36 = overfit modesto esperado de modelos lineares)."},
+      {"hash": "3ac5916a", "msg": "VIF multicolinearidade — H4 ulfor CONFIRMADA estrutural / PARCIAL acionavel", "absorbed": true,
+       "interpretacao": "38/55 features VIF>=10. Cond_num matriz X > 1e17 (singular). Padroes obvios: ger_renovavel=eolica+solar (corr +1.000), val_net=export-import (-0.998), pdp_prog vs pdp_prev (0.995). FEATURE_DROPS_CLEAN dropa 17 features. Bake-off CV: clean ajuda NE (-0.5pp NMAE / stdev MENOR) e N (-17.7pp / stdev halved), mas HURTS SE/S (+9 a +25pp NMAE, R² cai 0.35 em S). DECISAO UlFor: manter feature_set=full default."},
+      {"hash": "4d6dd73a", "msg": "ulfor checkpoint 04:00Z — H2+H4 ulfor validados, 3 champions promovidos", "absorbed": true,
+       "interpretacao": "Checkpoint marker; ja absorvido via 83bc79c2."},
+      {"hash": "d2bf38e4", "msg": "VIF greedy iterativo — H8 ulfor REFUTADA (greedy nao bate CLEAN)", "absorbed": true,
+       "interpretacao": "Greedy converge em 16-18 drops/sub mas remove drivers economicos primarios (carga_mwmed, cmo_mwmed, ger_eolica_mwh). Score final: CLEAN vence 7 cells, FULL 3, GREEDY 1 (SE ridge). Conclusao: multicolinearidade estatistica != redundancia preditiva."},
+      {"hash": "a7edb1ef", "msg": "endpoint /api/forecast/d1 — serve champions D+1 MLflow", "absorbed": true,
+       "interpretacao": "PRODUCAO. FastAPI route serve os 4 champions via MLflow Registry. Smoke test local: /api/forecast/d1/NE = 62.3k MWh (persist 59.1k, ma7 36.2k). Cold 6.5s (CH+download model), warm <50ms (cache 1h modelo + 15min predicao). Safe-failing: 503 se MLflow inacessivel."},
+      {"hash": "c8df4077", "msg": "investigar lr_N instabilidade — fold 4 e o blowup, CLEAN derruba stdev 57%", "absorbed": true,
+       "interpretacao": "FULL NMAE=208.6% no fold 4 (jul-set/2025) -> CLEAN=128.5% (stdev 52.4->22.7pp). Envenenadoras recorrentes FULL: cmo_range, taxa_penetracao, ter_verif_lag1, carga_mwmed_rmean7. Em CLEAN ainda aparecem curt_lag1/curt_rmean7 instaveis -> N tem muitos zeros estruturais e OLS extrapola mal. Decisao: ridge_curt_n_d1@staging continua a defesa, nao promover lr_N. Possivel feature_set=clean_plus_n proximo round."}
+    ],
+    "delta_resumo_iter0011": {
+      "champions_status_change": "candidate -> PRODUCAO (MLflow Registry alias @champion para NE/SE/S; @staging para N)",
+      "production_endpoint": "/api/forecast/d1 LIVE (cache 1h modelo + 15min predicao)",
+      "vif_verdict": "feature_set=full continua default. CLEAN candidato Staging para NE (potencial robustez +1pp stdev / NMAE -0.5pp)",
+      "lr_n_verdict": "nao promovivel (fold 4 jul-set/2025 = blowup 208%). ridge_curt_n_d1@staging continua",
+      "novos_requests": [],
+      "requests_fechados_extras": [],
+      "novas_hipoteses_loop_geradas": [],
+      "nota_nomenclatura": "UlFor numera seus proprios H1/H2/H4/H8/H9 (PLANO_FINAL internos). NAO confundir com nosso queue. UlFor H9 = lr_N instability (commit c8df4077), nao = nosso H9 (metric_suite, iter_0008)."
+    },
+    "note": "Recon iter_0011: 7 commits UlFor entre 4e0fc7b4 e c8df4077, todos implementacao das 3 acoes prometidas no checkpoint 02:15Z (CV 5 folds, promote champions, VIF) + 4 acoes do checkpoint 04:00Z (VIF greedy refutado, endpoint /api/forecast/d1, lr_N investigation). Champions agora ESTAO em PRODUCAO. Sem novos requests pendentes. Sem novos req fechados (todos 3 antigos ja DONE)."
   },
   "open_requests": [],
   "closed_requests": [
@@ -171,8 +199,9 @@
   ],
   "planner_config": {
     "mode": "self_planning",
-    "next_iter_should_be": "H21 (P2 feature engineering pdp_residual = pdp_prev - gen). Derivada direta de H3 iter_0010. Mecanismo identificado (residual = proxy de curt) sugere testar feature unica densa vs 2 brutas. Codavel localmente: bake-off replay iter_0002 + adicionar coluna pdp_residual_mwh + comparar PI/perm + check coliner com pdp_prev_* originais. Sanity B1 leak (pdp_prev D-1 safe, gen D-only) + B2 perm + B4 baseline.",
-    "alt_next": "H10 (P2 ensemble v2_LGBM + persist_d1, unblocked desde H9), H22 (P3 GBDT vs OLS gap para curt~gen+pdp), H19 (P2 extrair MAE/R²/F1 dos champions UlFor Ridge/LR), H7 (P2 XGB vs LGBM CV), H20 (P3 auto-flag n_test<30)."
+    "next_iter_should_be": "H21 (P2 feature engineering pdp_residual = pdp_prev - gen). Continua valida pos-iter_0011: derivada direta de H3 iter_0010, codavel localmente, sem dep externa. Bake-off replay iter_0002 + adicionar coluna pdp_residual_mwh + comparar PI/perm + check coliner com pdp_prev_* originais. Sanity B1 leak (pdp_prev D-1 safe, gen D-only) + B2 perm + B4 baseline.",
+    "alt_next": "H10 (P2 ensemble v2_LGBM + persist_d1, unblocked desde H9), H22 (P3 GBDT vs OLS gap para curt~gen+pdp), H19 (P2 extrair MAE/R²/F1 dos champions UlFor Ridge/LR — agora pode parsear FINDING_MULTICOLINEARITY.md + commit 3ac5916a CV outputs), H7 (P2 XGB vs LGBM CV), H20 (P3 auto-flag n_test<30).",
+    "notas_iter0011": "Pos-recon: champions promovidos no MLflow + endpoint /api/forecast/d1 LIVE. H18 (sanity B1-B6 sobre champions Ridge/LR) ainda blocked por req-0005 — sanity local requer ou (a) UlFor publicar predicoes em parquet acessivel ou (b) loop ganhar acesso ao MLflow tracking URI. Candidato a novo req-0004: pedir dump MLflow do CV_SUMMARY (140 runs + 28 CV) em parquet — destrava H18+H19 simultaneamente. Decisao: NAO emitir agora (auto-pesado, evitar duplicar trabalho ja resumido em FINDING). H21 e codavel + da skill incremental sem dep externa."
   },
   "kill_requested": false
 }

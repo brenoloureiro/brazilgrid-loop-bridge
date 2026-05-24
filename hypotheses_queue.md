@@ -410,6 +410,15 @@ hypotheses:
       (model serializer + drift monitor); se >=2 falham, request investigacao.
       Considerar tambem multicolinearidade (VIF) sugerida por UlFor — pode
       ser nova H19.
+
+      ATUALIZADO iter_0011: champions PROMOVIDOS no MLflow Registry
+      (commit 83bc79c2) + endpoint /api/forecast/d1 LIVE (commit a7edb1ef).
+      VIF (commit 3ac5916a) ja' coberto por UlFor — H19_VIF nao foi
+      criada. Bloqueio req-0005 segue: sanity local requer (a) UlFor
+      publicar predicoes em parquet ou (b) acesso MLflow tracking URI
+      do loop. Loop NAO emite req-0004 nesta iter (auto-pesado vs valor
+      incremental: FINDING_MULTICOLINEARITY + FINDING_LR_N_INSTABILITY
+      ja' resumem o que B1-B6 reconfirmaria).
     type: methodology
     layer: curtailment
     target: ridge_lr_champion_audit_pre_fase4

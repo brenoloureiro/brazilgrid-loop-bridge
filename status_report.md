@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T03:15:48Z
+# Loop status — 2026-05-24T03:23:09Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=54759, .STOP=no)
 
-**Iter atual**: 10
-**Alvo ativo**: feat_pdp_renovavel_residual
+**Iter atual**: 11
+**Alvo ativo**: recon_delta_ulfor_post_4e0fc7b4
 
-**Budget**: 10 iters / 0.7 horas consumidas
+**Budget**: 11 iters / 0.4 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0010_h3_pdp_residual_signal.md
-  decision: |
+**Ultimo handoff**: iter_0011_recon_delta.md
+  decision: 
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 6e82dc6 bridge: sync iter 9 (18 minutes ago)
+**Bridge ultimo sync**: 9657436 bridge: sync ulfor iter 1 (5 minutes ago)
 
-**UlFor HEAD**: c8df4077 feat(forecast): investigar lr_N instabilidade — fold 4 e o blowup, CLEAN derruba stdev 57%
+**UlFor HEAD**: 0481a5a6 ulfor checkpoint: 05:15Z — H8 refutada, endpoint API operacional, H9 respondida
 
 ---
 
