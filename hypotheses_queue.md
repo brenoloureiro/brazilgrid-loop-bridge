@@ -1121,13 +1121,38 @@ hypotheses:
     layer: curtailment
     target: curtailment_d1_point_p50
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0038
+    verdict: CONFIRMADO
+    verdict_summary: |
+      D1 (target N+S) PASS: P50 bate LGB-mean em 6/6 cells de N+S (100%),
+      muito acima de 67% threshold. N mean delta -17.9% MAE (15/15 folds
+      P50 wins). S mean delta -13.8% MAE (11/15 folds). Bonus: delta_R2
+      mean N+S = +0.287 (mean tinha R² negativo em varios folds N; P50
+      puxa para positivo). D2 (constraint NE+SE) PASS na sub-mean: NE
+      +4.5% (just under +5% threshold, mas NE/v2 +5.6% e NE/v3 +8.4%
+      individuais ultrapassam), SE -1.6%. Decision: PROMOVE_NS_FLAG_NE
+      (P50 default para N+S+SE; NE mantem LGB-mean por cauda densa).
+      Mecanismo NE explica gap: cauda densa premia mean, cauda esparsa+
+      massa em zero premia mediana (KS p<0.0001 iter_0012 confirma shift).
+      Re-analise direta de H11 iter_0014 (mesmo experimento, criterios
+      diferentes; random_state=0 bit-exato).
     estimated_effort_hours: 1.0
+    actual_effort_hours: 0.6
     depends_on: [H11]
     blocks: []
     sanity_checks_required: [holdout, baseline]
+    sanity_checks_status:
+      B1_leak: skipped_inherited (iter_0010 H3 p=0)
+      B2_perm: skipped_inherited (iter_0010 H3 p=0)
+      B3_holdout: passed_embedded (gap=7d, 60 folds)
+      B4_baseline: passed_embedded (12/12 cells P50 >= persist_d1)
+      B5_dist_shift: annotated_reuse (KS p<0.0001 NE+SE — explica gap NE)
+      B6_n_test: passed (n_test 58-60, threshold >=30)
+    follow_ups_created: []  # H28/H37 ja cobrem NGBoost/CQR-asymmetric
     expected_value: ganho barato sem novo modelo, robustez vs outliers
     created_at: 2026-05-24T11:30:00Z
+    completed_at: 2026-05-25T15:30:00Z
 
   - id: H28
     summary: NGBoost vs LGBM quantile — distribuicao parametrica resolve under-coverage?

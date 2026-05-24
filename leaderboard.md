@@ -1,6 +1,27 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0037 (2026-05-25T08:00Z, **H26 conformal prediction
+Atualizado em iter_0038 (2026-05-25T15:30Z, **H27 P50 quantile como
+point estimate substituto em N+S — CONFIRMADO**: re-analise direta de
+H11 iter_0014 (bit-exato; random_state=0 + same X + same split). D1
+target N+S **PASS 6/6 cells** (100%, threshold >=4/6=67%): N mean delta
+**-17.9% MAE** (15/15 folds wins, queue dizia "-18%"), S mean delta
+**-13.8% MAE** (11/15 folds, queue dizia "-14%"). D2 constraint NE+SE
+**PASS na sub-mean**: NE +4.5% (just under +5% threshold), SE -1.6%
+(empate). Bonus: **delta_R2 mean N+S = +0.287** (LGB-mean tem R²
+negativo em varios folds N/v1; P50 puxa para positivo — sample
+extremo N/v1 fold5 flipa de R²=-0.676 para R²=0.218, magnitude 0.89);
+delta_F1 mean N+S = +0.022. Decision **PROMOVE_NS_FLAG_NE**: P50
+canonical em N+S+SE (drop-in superior, custo zero, mesmo treino mesmo
+X swap de hiperparametro); NE mantem LGB-mean por cauda densa (NE/v2
++5.6%, NE/v3 +8.4% individuais > 5% threshold — mecanismo: cauda densa
+premia mean, KS p<0.0001 iter_0012 confirma shift NE). Sanity B3
+holdout passed_embedded (gap=7d, 60 folds), B4 baseline passed_embedded
+(12/12 cells P50 >= persist_d1), B5 dist_shift annotated_reuse (KS NE
+explica gap), B1/B2 skipped_inherited (PI iter_0010 p=0), B6 n_test
+passed (n_test 58-60 > 30). **0 follow-ups criados**: H28 (NGBoost) e
+H37 (CQR-asymmetric+Mondrian) ja queued cobrem "cauda densa precisa de
+cauda-aware model" gap NE.
+Atualizado anteriormente em iter_0037 (2026-05-25T08:00Z, **H26 conformal prediction
 post-hoc INDETERMINADO_NE + bonus CONFIRMADO_SE_S**: split conformal
 (Lei et al. 2018 + Romano CQR 2019 symmetric) sobre LGBM quantile fica
 borderline em NE — cov_cal mean 74.7% (falha [75%,85%] strict por 0.3pp),
