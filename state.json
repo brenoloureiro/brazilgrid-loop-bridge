@@ -1,8 +1,8 @@
 {
-  "iter_atual": 35,
-  "mode": "hypothesis_test",
-  "alvo_ativo": "h25_stacker_ridge",
-  "layer_ativa": "curtailment",
+  "iter_atual": 36,
+  "mode": "recon_delta",
+  "alvo_ativo": "recon_delta_ulfor_post_80620230",
+  "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "last_verdict": "REFUTADO_NO_GAIN",
   "last_verdict_iter": 35,
@@ -927,10 +927,10 @@
       "warn": ""
     }
   },
-  "ultimo_handoff": "iterations/iter_0034_h22_gbdt_vs_ols.md",
+  "ultimo_handoff": "iterations/iter_0036_recon_delta.md",
   "budget_consumido": {
-    "iter": 34,
-    "horas": 0.8,
+    "iter": 36,
+    "horas": 0.2,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -1947,6 +1947,64 @@
       "push_origin_status": "Master agora ~37 ahead origin (iter_0031 era ~32). Acao Breno pendente para deploy EC2.",
       "discrepancia_champion_atual_doc_status": "PERMANECE NAO INVESTIGADA. Esta iter so toca tests/ + experiments/bakeoff_d1.py -- nao toca CHAMPION_DECISION_MATRIX nem loader.py. Hipotese (B) bug documentacao matriz continua mais plausivel.",
       "nota_nomenclatura_aplicada": "Convencao Hxx_ulfor mantida. 13a iter consecutiva recon-style. Esta iter NAO introduz novas H_ulfor formais -- sprints sao infra-de-teste + bugfix, nao hipoteses experimentais."
+    },
+    "iter0036_inicio_head": "80620230",
+    "iter0036_fim_head": "4f4e21f4",
+    "novos_commits_durante_iter0036": [
+      {
+        "hash": "33d5344d",
+        "msg": "ulfor checkpoint: 17:23Z -- fase 4, 7o forcado, 2a janela seguida com commit substantivo 80620230 fix wrap stdout",
+        "absorbed": true,
+        "interpretacao": "Checkpoint heartbeat marker pos-80620230 (que ja foi absorvido em iter_0033). Referencia retroativa ao fix wrap stdout. Sem novo conteudo."
+      },
+      {
+        "hash": "7b2f1297",
+        "msg": "ulfor checkpoint: 17:24Z -- fase 4, 7o forcado, mas com 1 commit substantivo 80620230 fix bakeoff_d1 stdout wrap destrava 5 smoke offline",
+        "absorbed": true,
+        "interpretacao": "Checkpoint heartbeat 1 min apos 33d5344d -- refinamento de wording sobre o mesmo fix 80620230. Padrao auto-repete."
+      },
+      {
+        "hash": "2cf0b301",
+        "msg": "ulfor checkpoint: 17:32Z -- fase 4, proximo: Breno desbloqueia (8o forcado, SEM substantive, standby puro tunnels DOWN)",
+        "absorbed": true,
+        "interpretacao": "PRIMEIRO checkpoint a admitir 0 commit substantivo na janela apos o par 33d5344d+7b2f1297. UlFor entra em standby puro zero-trabalho. Tunnels CH+MLflow continuam exit=28."
+      },
+      {
+        "hash": "3545d8bb",
+        "msg": "ulfor checkpoint: 17:38Z -- fase 4, proximo: Breno desbloqueia (9o forcado, SEM substantive, standby puro tunnels DOWN, sinal/ruido 23.5%)",
+        "absorbed": true,
+        "interpretacao": "9o checkpoint forcado consecutivo. UlFor expoe sinal/ruido=23.5% auto-medido na mensagem. Standby puro mantem-se."
+      },
+      {
+        "hash": "4f4e21f4",
+        "msg": "ulfor checkpoint: 17:44Z -- fase 4, proximo: Breno desbloqueia (10o forcado, SEM substantive, standby puro tunnels DOWN, sinal/ruido 22.2%)",
+        "absorbed": true,
+        "interpretacao": "10o checkpoint forcado consecutivo. SNR cai marginalmente de 23.5% para 22.2%. UlFor matematicamente expoe que ~77% dos commits sao heartbeat puro. HEAD final desta iter."
+      }
+    ],
+    "delta_resumo_iter0036": {
+      "champions_status_change": "INALTERADO em producao (loader.py + MLflow Registry intocados). Mesmo bloqueio infra iter_0031/0033 -- tunnels CH+MLflow exit=28. Decisao Breno promote v3 (iter_0031) NAO EXECUTADA.",
+      "novos_requests": [],
+      "requests_fechados_extras": [],
+      "novas_hipoteses_loop_geradas": [],
+      "regime_ulfor_multi_agente": "STANDBY PURO -- pior janela substantiva desde iter_0028. 0 substantivos (0%) em 5 commits, contra iter_0033 40% / iter_0031 25% / iter_0028 25%. UlFor consumiu ~27 min reais apenas em heartbeat forcado (~5-6 min entre cada checkpoint).",
+      "snr_auto_medido_ulfor": "22.2% (commit 4f4e21f4) / 23.5% (commit 3545d8bb) -- UlFor runner agora expoe meta-metrica de sinal/ruido na propria mensagem de commit. Auto-confirmacao de standby legitimo (NAO de bug).",
+      "promote_v3_execucao_status": "NAO EXECUTADO. Mesmo bloqueio iter_0031/0033. Smoke test pos-promote pronto (iter_0033) continua aguardando tunnels.",
+      "h_loop_impactadas": [
+        {
+          "id": "todas as H queued (analytics-related)",
+          "status_change": "INALTERADO",
+          "motivo": "5 checkpoints heartbeat zero-conteudo. Nenhuma feature/model/champion tocado. Queue intacta."
+        },
+        {
+          "id": "H18 (MLflow read-only via tunnel)",
+          "status_change": "blocked-acao-Breno-trivializa -> blocked-acao-Breno-trivializa (sem mudanca)",
+          "motivo": "Tunnels continuam exit=28. CF Access setup MLflow pendente em Breno desde iter_0019."
+        }
+      ],
+      "push_origin_status": "Master ainda ~37 ahead origin (igual iter_0033). UlFor NAO pushou nesta janela.",
+      "nota_nomenclatura_aplicada": "Convencao Hxx_ulfor mantida. 14a iter consecutiva recon-style. Esta iter NAO introduz novas H_ulfor formais -- UlFor literalmente nao tocou nenhuma hipotese.",
+      "lesson_emergent": "Padrao 'standby puro' emerge quando sprints envelope-safe se esgotam. iter_0033 entregou smoke test + fix stdout (2 vitimas triviais); iter_0036 ja nao tem candidato proximo (proximos sprints exigem CH ou MLflow). Loop deve PARAR de pollar UlFor e fazer trabalho proprio (H30, H27) ate Breno desbloquear infra."
     }
   },
   "open_requests": [],
@@ -2023,8 +2081,8 @@
   ],
   "planner_config": {
     "mode": "self_planning",
-    "next_iter_should_be": "iter_0034 candidatos: (A) MONITOR / RECON_DELTA se UlFor HEAD avancou alem 80620230 -- regime multi-agente parcialmente reativado em iter_0033 (40% substantivo, sprints envelope-safe enquanto tunnels CH+MLflow continuam exit=28); (B) H30 (P3 ~1h): Ridge_alpha=10 + Ridge_alpha=1 sobre pdp_residual CV (script ja pronto; alpha sweep + val14d iter_0028 reforcam recomendacao); (C) H22 nosso (P3 ~1h): GBDT vs OLS gap em pdp, com PI-com-GBDT lesson H23_ulfor/H22_MA; (D) H33 (P3 ~0.3h): joint-drop SE em LR -- atratividade DIMINUIDA por iter_0028 (val14d) + iter_0031 (decisao Breno opt A = 3a evidencia independente model-aware). RECOMENDACAO: (A) se HEAD UlFor advance; senao (B) -- H30 fecha frente H3-family residual e responde alpha sweep simultaneamente.",
-    "alt_next": "Se HEAD UlFor avancou: monitor RECON_DELTA. Senao: H30 (zero dep, fecha H3-family) ou H22 nosso (PI lesson aplicada a GBDT).",
+    "next_iter_should_be": "iter_0037 candidatos: (A) SKIP recon_delta a menos que HEAD UlFor avance substancialmente alem de 4f4e21f4 -- iter_0036 mostrou standby puro 0% substantivo e SNR auto-medido 22.2%; loop deve parar de pollar; (B) H30 (P3 ~1h): Ridge_alpha=10 + alpha=1 sobre pdp_residual CV (script ja pronto; alpha sweep iter_0026 + val14d iter_0028 reforcam recomendacao) -- ATRATIVIDADE SOBE pelo 4o iter consecutivo sem UlFor mover; (C) H27 (P50 substituto custo zero, ortogonal a UlFor): iter_0014 mostrou P50 quantile robusto bate LGB-mean em magnitude N -18% / S -14% / SE -1.6% -- ganho transversal garantido; (D) H33 (P3 ~0.3h, joint-drop SE LR): ATRATIVIDADE CONTINUA DIMINUIDA -- 4a evidencia model-aware (H8 iter_0027 + val14d iter_0028 + Breno opt A iter_0031 + standby UlFor iter_0036). RECOMENDACAO: (B) H30 ou (C) H27. Explicito: se HEAD em iter_0037 == 4f4e21f4 (sem movimento UlFor), NAO emitir novo recon_delta.",
+    "alt_next": "Se HEAD UlFor avancou substancialmente: monitor RECON_DELTA. Senao (mais provavel): H30 (zero dep, fecha H3-family) ou H27 (P50 substituto, custo zero, ortogonal a UlFor).",
     "notas_iter0014": "H11 fechada como REFUTADO_NE. Bandas LGBM quantile com defaults sistemicamente undercovered (cov_band 41-53% vs 80% nominal) \u2014 distribution shift (iter_0012 KS p<0.0001) + LGBM sem heteroscedasticidade explicita = causa raiz. Bonus inesperado: P50 BATE LGB-mean em magnitude em N/S/SE (-1% a -18%) \u2014 mediana robusta vs cauda longa. 3 follow-ups derivados (H26 conformal, H27 P50 substituto, H28 NGBoost). H27 e' o mais barato (objective swap custo zero, ganho universal). H21 mantida como plan natural \u2014 H3 confirmado da' feature mais informativa antes de tentar arquitetura alt. Considerar inserir H27 entre H21 e H24 (custo 1h, ganho garantido em N+S baseado em evidencia hoje).",
     "notas_iter0015": "Recon limpo. 7 commits UlFor absorvidos (c8df4077..5dacb5a2): champion N atualizado v1->v2 clean_plus (NMAE 84.8\u00b126.2%, std -5.6pp); Fase 4 observabilidade (validate_d1+drift PSI+Telegram alert) FECHADA pelo UlFor em paralelo aos iters 0012-0014. Nenhuma H do loop resolvida, nenhuma nova gerada. H18 segue blocked mas urgencia diminui (validate_d1 da cobertura empirica continua); H19 atratividade cresce (summary JSON daily acessivel quando schedule ativar). Acao Breno pendente: gerar BRAZILGRID_TELEGRAM_BOT_TOKEN/CHAT_ID + ativar schedule forecast_validate_d1_daily. Planner mantem H21 como next: H3 confirmou pdp_residual como mecanismo, codavel local sem dep externa.",
     "notas_iter0016": "H19 fechada como CONFIRMADO_PARCIAL. Extracao funcionou sem MLflow tunnel: parser regex em FINDING_RIDGE_BEATS_GBDT.md + leitura literal de promote_champions.py:CV_METRICS_BY_FS. Consistency check NMAE_persist FINDING vs state.json OK 4/4 (validacao de protocol identity entre iter_0013 baseline e UlFor CV). MAE-em-MWh derivado (NE 25.5k / SE 5.6k / S 916 / N 429) com caveat 1a ordem ~10-15%. R\u00b2 direto. F1_p50 gap real (nenhuma fonte UlFor computa) -> req-0007 emitido. Leaderboard reescrito com 4 linhas curtailment/d1_ENE_CNF agora consistentes (MAE_derived / R\u00b2 / F1=N/A / NMAE / in-sample_R\u00b2). Bonus: ymean_test_per_sub agora disponivel para reusar em bake-offs futuros. Planner mantem H21 como next iter (zero deps externa).",
@@ -2041,7 +2099,8 @@
     "notas_iter0028": "RECON_DELTA. 5 commits UlFor absorvidos (83abab3e..27152e16) em ~76 min reais (12:25-13:42 BRT). Conteudo: (1) Val14d alpha sweep parquets publicados (commit f7c56c3d): holdout train 2024-12 -> 2026-03-23, test 2026-03-24 -> 2026-05-21 n~58d, 3 candidatos ridge (h22_MA+\u03b1=1, h22_pf+\u03b1=1, h22_pf+\u03b1=100). (2) Convergencias CV vs val14d em NE (empate h22_MA=h22_pf=30.88%), N (\u03b1=100+h22_pf 71.51% MELHOR val que CV concept-drift positivo), S (todas variantes ridge perdem persist em ambos -- MANTER lr+full status quo). (3) Divergencia SE: h22_MA+\u03b1=1 (43.03% val14d) BATE h22_pf+\u03b1=1 (44.67%) por -1.64pp NMAE em val14d -- INVERTE veredito CV onde h22_pf vencia. Decisao em aberto Breno: opt_A (val14d) vs opt_B (CV+coerencia). (4) Diff features SE: h22_MA preserva 10 features que h22_pf dropa (CMO x3, intercambio x2, regime x2, carga+prev_solar+ter_verif). Mecanismo: Ridge universal PI mascara importance via L2; LR sem shrinkage usa esses canais; val14d regime recente favorece preservacao (CMO sobe, intercambio inverte, taxa_penetracao em alta). (5) Convergencia com H8 iter_0027: val_export+val_import estao nas 10 features divergentes -- val14d empiricamente reforca lesson 'joint-drop intercambio em SE Ridge alpha=1 e harmful'. (6) 2 checkpoints markers + 1 ADDENDUM FINDING + 1 diff features doc + 1 parquet artefato. UlFor PARAR E PERGUNTAR ativo desde 14:35Z aguardando Breno decidir SE opt_A vs opt_B + promote v3. Branch 26+ ahead origin. NENHUMA H do loop fechada/criada. Validation gap parcial iter_0026 (SE ridge+h22_pf+\u03b1=1 nao val14d) FECHADA -- UlFor self-actionou em <90min como esperado. H33 atratividade DIMINUI marginalmente (val14d ja deu evidencia model-aware indireta via h22_MA vs h22_pf). H30 atratividade SOBE marginal (alpha=1 reforcado em val14d). Planner proximo: monitor recon OR H30 (1h, fecha H3-family residual).",
     "notas_iter0031": "RECON_DELTA. 8 commits UlFor absorvidos (27152e16..2917289c) em ~28 min reais (13:20-13:49 BRT). Conteudo: 2 substantivos + 6 checkpoints. (1) DECISAO BRENO oficializada promote v3 final (commit 0971c699): NE PROMOVER ridge+h22_pf+a=1, SE PROMOVER opt A ridge+h22_MA+a=1 (val14d > CV+coerencia), S MANTER lr+full, N PROMOVER ridge+h22_pf+a=100. Justificativa SE opt A: val14d e sinal recente do regime real, as 10 features que h22_MA preserva (CMO+intercambio+taxa_penetracao) carregam sinal nesse regime. 3a evidencia independente (H8 iter_0027 + val14d iter_0028 + decisao Breno) confirma model-aware. (2) H14-G implementacao decidida: em promote_champions.py, NAO em loader.py (registrado como H25_ulfor; binding ao modelo via MLflow tag). (3) FINDING_LOCAL_CH_STALE_FEAT_TABLES (commit 6111cda4): CH local Docker tem feat_termico congelada 2024-12-31, MLflow tambem offline local -- bloqueia promote v3 local. Convergente com auto-memory [[ch_local_feat_termico_stale]]. Promote NAO executado, aguarda EC2 setup ou raw sync. NENHUMA H do loop fechada/criada. H8 lesson REFORCADO 3a evidencia. H18 SOBE criticidade (parte da decisao infra Breno). Planner proximo: monitor recon OR H30.",
     "notas_iter0032": "H20 (auto-flag bake-off n_test<30 warning) CONFIRMADO_DISPLAY. C1 cobertura: 100% nos artefatos quantitativos do loop (12 meta runs + 21 outros JSON + 18 parquets UlFor = 51 cobertos). C2 propagation runner: run_bakeoff_replay.py patcheado para escrever low_confidence_n_test em meta.json + summary_replay.csv. C3 display leaderboard: secao 'Historico iter loop (deprecado)' ganhou coluna n_test + low_confidence_n_test por linha; aviso textual de janela curta migrado de titulo para celula. C4 false-negative top: 0 linhas com n<30 marcadas FALSE nas tabelas ativas (Champions/Baselines/Overlay/Sucessores). Threshold n=30 herdado de B6 v1.1 (H16 iter_0009 sintetico). Outputs: outputs/iter_0032/h20_leaderboard_low_n_test_warning/{n_test_audit.json,n_test_audit.md}. Lesson: display de confianca amostral deve ser per-row, nao por secao -- evita citacao individual sem contexto. Planner proximo: monitor recon OR H30.",
-    "notas_iter0033": "RECON_DELTA. 5 commits UlFor absorvidos (2917289c..80620230) em ~24 min reais (13:54-14:17 BRT). Conteudo: 2 substantivos + 3 checkpoints PARAR-E-PERGUNTAR. (1) Smoke test loader pos-promote v3 (commit 3971124d, 218 LoC novo tests/services/test_forecast_loader_smoke.py): 5 offline passed (CHAMPIONS keys=SUBS, registered_name+alias coerencia loader<->promote, BIAS_CORRECTION cobre subs, load_champion ValueError, _inference_git_sha cache) + 8 online skipped (gated CH/MLflow). Pos-tunnels: 1 comando certifica v3 NE/SE/N do registry bate end-to-end com loader. Pre-empta potencial req loop 'exigir smoke pos-promote v3'. (2) Fix wrap stdout (commit 80620230, -3/+2 linhas em experiments/bakeoff_curtailment_multisub/bakeoff_d1.py): bugfix Windows-only sys.stdout=TextIOWrapper(...) em import-time fechava tempfile pytest capture, quebrando 13 smoke tests + 19 importers (incluindo services/analytics_api/forecast/loader.py em PROD). Fix: wrap so executa em __main__ (CLI mode). Tambem destrava scripts do loop (h7, h8, h10, h11, h21, h24) que importam de bakeoff_d1 -- side-effect mute ate agora. Promote v3 NAO EXECUTADO (mesmo bloqueio infra iter_0031: tunnels CH+MLflow exit=28). Champions, loader.py defaults, MLflow Registry INTOCADOS. NENHUMA H do loop fechada/criada. Regime UlFor PARCIALMENTE reativado (40% substantivo vs 25% iter_0031) com sprints envelope-safe sem CH/MLflow. Branch ~37 ahead origin. Planner proximo: monitor recon (se HEAD avancar) OR H30 (1h, fecha H3-family + alpha sweep)."
+    "notas_iter0033": "RECON_DELTA. 5 commits UlFor absorvidos (2917289c..80620230) em ~24 min reais (13:54-14:17 BRT). Conteudo: 2 substantivos + 3 checkpoints PARAR-E-PERGUNTAR. (1) Smoke test loader pos-promote v3 (commit 3971124d, 218 LoC novo tests/services/test_forecast_loader_smoke.py): 5 offline passed (CHAMPIONS keys=SUBS, registered_name+alias coerencia loader<->promote, BIAS_CORRECTION cobre subs, load_champion ValueError, _inference_git_sha cache) + 8 online skipped (gated CH/MLflow). Pos-tunnels: 1 comando certifica v3 NE/SE/N do registry bate end-to-end com loader. Pre-empta potencial req loop 'exigir smoke pos-promote v3'. (2) Fix wrap stdout (commit 80620230, -3/+2 linhas em experiments/bakeoff_curtailment_multisub/bakeoff_d1.py): bugfix Windows-only sys.stdout=TextIOWrapper(...) em import-time fechava tempfile pytest capture, quebrando 13 smoke tests + 19 importers (incluindo services/analytics_api/forecast/loader.py em PROD). Fix: wrap so executa em __main__ (CLI mode). Tambem destrava scripts do loop (h7, h8, h10, h11, h21, h24) que importam de bakeoff_d1 -- side-effect mute ate agora. Promote v3 NAO EXECUTADO (mesmo bloqueio infra iter_0031: tunnels CH+MLflow exit=28). Champions, loader.py defaults, MLflow Registry INTOCADOS. NENHUMA H do loop fechada/criada. Regime UlFor PARCIALMENTE reativado (40% substantivo vs 25% iter_0031) com sprints envelope-safe sem CH/MLflow. Branch ~37 ahead origin. Planner proximo: monitor recon (se HEAD avancar) OR H30 (1h, fecha H3-family + alpha sweep).",
+    "notas_iter0036": "RECON_DELTA. 5 commits UlFor absorvidos (80620230..4f4e21f4) em ~27 min reais (14:18-14:45 BRT). Conteudo: 0 substantivos (0%) + 5 checkpoints PARAR-E-PERGUNTAR puros. PIOR janela substantiva do recon-style (iter_0028 25% / iter_0031 25% / iter_0033 40% / iter_0036 0%). UlFor entrou em STANDBY PURO ZERO-TRABALHO. (1) 33d5344d + 7b2f1297 sao marker pair (~1min separados) referenciando retroativamente o fix 80620230 ja absorvido em iter_0033. (2) 2cf0b301/3545d8bb/4f4e21f4 sao 8o/9o/10o checkpoints forcados consecutivos -- mensagens admitem explicitamente 'SEM substantive, standby puro tunnels DOWN'. (3) NOVIDADE: UlFor runner agora expoe SNR auto-medido na mensagem de commit (23.5% no 9o, 22.2% no 10o) -- runner calculou sozinho que ~77% dos commits sao heartbeat. Auto-confirmacao de standby legitimo (NAO bug). Tunnels CH+MLflow exit=28 mantem-se. Promote v3 NAO EXECUTADO (igual iter_0031/0033). Champions, loader.py, MLflow Registry INTOCADOS. NENHUMA H do loop fechada/criada/impactada. NENHUM req-NNNN recebeu ulfor_response. Branch ainda ~37 ahead origin (UlFor nao pushou). Lesson emergent: padrao 'standby puro' emerge quando sprints envelope-safe se esgotam (iter_0033 ja consumiu smoke + fix wrap; iter_0036 sem candidato proximo). RECOMENDACAO planner: 4o iter consecutivo aguardando UlFor; loop deve PARAR de pollar e rodar H30 (P3 ~1h, fecha H3-family residual + alpha sweep) OU H27 (P50 substituto custo zero, ganho garantido N+S). Explicito: se HEAD em iter_0037 == 4f4e21f4, NAO emitir novo recon_delta -- rodar H30 ou H27 mesmo."
   },
   "kill_requested": false,
   "budget_consumido_today": {

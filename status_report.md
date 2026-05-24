@@ -1,22 +1,22 @@
-# Loop status — 2026-05-24T17:54:59Z
+# Loop status — 2026-05-24T18:03:13Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=554874, .STOP=no)
 
-**Iter atual**: 35
-**Alvo ativo**: h25_stacker_ridge
+**Iter atual**: 36
+**Alvo ativo**: recon_delta_ulfor_post_80620230
 
-**Budget**: 34 iters / 0.8 horas consumidas
+**Budget**: 36 iters / 0.2 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0035_h25_stacker_ridge.md
-  decision: |
+**Ultimo handoff**: iter_0036_recon_delta.md
+  decision: 
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: ee3125a bridge: sync ulfor iter 93 (7 minutes ago)
+**Bridge ultimo sync**: a1ad93f bridge: sync iter 35 (8 minutes ago)
 
 **UlFor HEAD**: 4f4e21f4 ulfor checkpoint: 17:44Z — fase 4, proximo: Breno desbloqueia (10o forcado, SEM substantive, standby puro tunnels DOWN, sinal/ruido 22.2%)
 

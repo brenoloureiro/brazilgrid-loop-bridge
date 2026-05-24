@@ -1,7 +1,20 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0035 (2026-05-25T06:30Z, **H25 stacker Ridge meta-modelo
-REFUTADO_NO_GAIN**: Ridge sobre 4 bases [lgb, persist_d1, ma7, clim_doy]
+Atualizado em iter_0036 (2026-05-25T07:00Z, **RECON_DELTA UlFor
+`80620230..4f4e21f4`, 5 commits — 0 substantivos + 5 checkpoints
+PARAR-E-PERGUNTAR**). Pior janela substantiva do recon-style (iter_0028
+25% / iter_0031 25% / iter_0033 40% / iter_0036 **0%**). UlFor entrou em
+**standby puro zero-trabalho** — sprints envelope-safe esgotados em
+iter_0033 (smoke loader + fix wrap stdout). NOVIDADE: runner UlFor agora
+expoe **SNR auto-medido na mensagem de commit** (23.5% no 9o, 22.2% no
+10o checkpoint) — confirmacao matematica de standby legitimo (NAO bug).
+Tunnels CH+MLflow `exit=28` mantem-se. Promote v3 (Breno iter_0031) NAO
+EXECUTADO. Champions, loader.py e MLflow Registry **INTOCADOS**.
+Recomendacao planner para iter_0037: **NAO emitir novo recon_delta** se
+HEAD == `4f4e21f4` — rodar H30 (P3 ~1h, fecha H3-family) ou H27 (P50
+substituto custo zero, ortogonal a UlFor).
+Atualizado anteriormente em iter_0035 (H25 stacker Ridge meta-modelo
+REFUTADO_NO_GAIN: Ridge sobre 4 bases [lgb, persist_d1, ma7, clim_doy]
 treinado em inner_val=30d **perde para H10 inv_mae em 12/12 cells**, pct_delta
 +2.1% a +90.0% (NE +10.1%, SE +14.2%, S +57.1%, N +33.3% mean). Best variante
 e' `ridge_no_intercept_a10` mas mesmo sem intercept o estimador overfit
