@@ -1,18 +1,18 @@
-# UlFor headless runner — status — 2026-05-24T12:14:43Z
+# UlFor headless runner — status — 2026-05-24T12:15:02Z
 
 **Saude**: green (runner saudavel)
 
 **Runner**: alive=yes pid=273001 .STOP=no
 **Loop status**: running
-**Ultimo heartbeat**: 2026-05-24T12:14:43Z
+**Ultimo heartbeat**: 2026-05-24T12:15:02Z
 
 ## Iter / decisao
 
-- **Iter atual UlFor (runner)**: 8
+- **Iter atual UlFor (runner)**: 9
 - **Ultimo plan_step modo**: MODO_3_CHECKPOINT
 - **Ultimo plan_step razao**: ultimo checkpoint tem 396 min > 240 min. Forcar checkpoint para nao perder estado.
 - **err_streak**: 0
-- **iters_sem_commit**: 0
+- **iters_sem_commit**: 1
 
 ## UlFor master (estado observado)
 
@@ -27,9 +27,9 @@
 ## Budget (reset diario 00:00 UTC)
 
 - **Data UTC**: 2026-05-24
-- **Iters hoje**: 8 / 30
-- **Horas hoje**: 2.6056 / 12
-- **Custo hoje**: $55.9492 / $50
+- **Iters hoje**: 9 / 30
+- **Horas hoje**: 2.6625 / 12
+- **Custo hoje**: $57.0402 / $50
 
 ---
 
