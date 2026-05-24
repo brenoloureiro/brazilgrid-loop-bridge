@@ -1,35 +1,35 @@
-# UlFor headless runner — status — 2026-05-24T17:07:33Z
+# UlFor headless runner — status — 2026-05-24T17:09:51Z
 
-**Saude**: yellow (UlFor sem commits ha 4 iters — proxima e MODO_3)
+**Saude**: green (runner saudavel)
 
 **Runner**: alive=yes pid=571987 .STOP=no
 **Loop status**: running
-**Ultimo heartbeat**: 2026-05-24T17:07:33Z
+**Ultimo heartbeat**: 2026-05-24T17:09:50Z
 
 ## Iter / decisao
 
-- **Iter atual UlFor (runner)**: 68
-- **Ultimo plan_step modo**: MODO_1_CONTINUACAO
-- **Ultimo plan_step razao**: sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE
+- **Iter atual UlFor (runner)**: 69
+- **Ultimo plan_step modo**: MODO_3_CHECKPOINT
+- **Ultimo plan_step razao**: iters_sem_commit=4 >= 3: UlFor nao gerou commits nas ultimas iters. Pode estar travado.
 - **err_streak**: 0
-- **iters_sem_commit**: 4
+- **iters_sem_commit**: 0
 
 ## UlFor master (estado observado)
 
-- **HEAD**: 3971124d test(forecast): smoke pos-promote v3 do loader (5 offline + 8 online gated)
+- **HEAD**: 279f7260 ulfor checkpoint: 17:08Z — fase 4, proximo: Breno desbloqueia (6o forcado, mas com 1 commit substantivo 3971124d smoke test loader)
 - **Branch**: master
-- **Ultimo commit observado (state)**: 3971124d
-- **Ultimo checkpoint**: ulfor_2026-05-24T16-54.md
-  - **Idade**: 12 min
+- **Ultimo commit observado (state)**: 279f7260
+- **Ultimo checkpoint**: ulfor_2026-05-24T17-08.md
+  - **Idade**: 0 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
 
 ## Budget (reset diario 00:00 UTC)
 
 - **Data UTC**: 2026-05-24
-- **Iters hoje**: 36 / 30
-- **Horas hoje**: 2.0497 / 12
-- **Custo hoje**: $35.574 / $50
+- **Iters hoje**: 37 / 30
+- **Horas hoje**: 2.0858 / 12
+- **Custo hoje**: $36.2884 / $50
 
 ---
 
