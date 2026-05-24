@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
   "runner_id": "ulfor-headless",
-  "iter_atual_ulfor": 29,
+  "iter_atual_ulfor": 30,
   "last_checkpoint": null,
   "last_checkpoint_at": null,
-  "last_commit_observed": "34abdd49",
-  "iters_sem_commit": 0,
+  "last_commit_observed": "83abab3e",
+  "iters_sem_commit": 1,
   "iters_sem_checkpoint": 0,
   "last_plan_mode": "MODO_1_CONTINUACAO",
   "last_plan_reason": "sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE",
   "loop_requests_done": [],
-  "err_streak": 0,
+  "err_streak": 1,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 29,
-    "horas": 6.4737,
-    "usd": 113.1477
+    "iter": 30,
+    "horas": 6.4943,
+    "usd": 113.7667
   },
   "started_at": "2026-05-24T02:58:18Z",
-  "last_heartbeat_at": "2026-05-24T13:43:40Z",
+  "last_heartbeat_at": "2026-05-24T13:45:02Z",
   "loop_status": "running"
 }
