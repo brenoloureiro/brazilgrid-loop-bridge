@@ -1,6 +1,18 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0041 (2026-05-25T22:00Z, **H33 joint-drop SE em LinearRegression
+Atualizado em iter_0042 (2026-05-26T00:00Z, **CONSOLIDATION refuted_streak_2**: 5
+frentes encerradas em 5 iters (NGBoost defaults H28; H3-family residual H21+H30+
+iter_0020 supplement; bundle intercambio drop SE H8+H33; conformal symmetric NE H26;
+stacker Ridge H25; GBDT-3feat H22). Ultimas 3 iters (0039-0041): 0 mudancas em
+champion, 3 follow-ups derivados (H38 P4 + H39 P5 + H40 P5) ja no queue. **Sem
+rollback de champion** -- Ridge/LR + bias correction productized intactos. Promote v3
+Breno opt A SE iter_0031 NAO EXECUTADO permanece bloqueado por infra (CH local
+stale + MLflow offline local). Proximo alvo iter_0043 acordado: **H37**
+(CQR-asymmetric + Mondrian conformal NE+N, P3 2h, sem dep externa) -- fecha
+gap borderline H26 NE (0.3pp do limite strict, cov 74.7%) + corrige N over-coverage
+(90.8% -> [75,90]%). Atratividade pos-consol: H37 ALTA, H36 DIMINUIDA, H38 BAIXA,
+H39+H40 AGRUPAR (governance sprint 0.5h), H35 BAIXA blocked. Custo iter 0.3h.
+Atualizado anteriormente em iter_0041 (2026-05-25T22:00Z, **H33 joint-drop SE em LinearRegression
 vs Ridge (H8 iter_0027) — CONFIRMADO_LR**: SE LR joint_dnmae_pp = +1.316 (> +0.5pp
 threshold). 4/5 folds positivos (sinal robusto). Direcao 4/4 subs consistente cross-model:
 NE -4.285 (vs Ridge a10/a1 -1.167/-3.951), SE +1.316 (vs +0.270/+1.205), S -7.376

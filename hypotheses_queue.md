@@ -1791,3 +1791,67 @@ notas_iter0031:
       mesmos artefatos algebricos (perm em col duplicado, PI em
       col perfeito) ao limpar a interpretacao no playbook.
     created_at: 2026-05-25T22:00:00Z
+
+notas_iter0042:
+  mode: consolidation
+  trigger: quality_gate.refuted_streak_2 (iter_0040 REFUTADO_RIDGE + iter_0041 CONFIRMADO_LR metodologico sem mudanca champion)
+  data_utc: 2026-05-26T00:00:00Z
+  resolved: []        # nenhuma H fechada nesta iter (governance)
+  newly_blocked: []
+  newly_queued: []    # H38+H39+H40 ja criados nos iters 0040+0041; nada de novo
+  newly_done: []
+  rollback_leaderboard: false  # champions Ridge/LR + bias correction intactos
+  scope: |
+    Reavaliacao da queue apos 5 frentes encerradas em ~5 iters (H21+H30
+    H3-family residual; H28 NGBoost defaults; H8+H33 bundle intercambio;
+    H26 conformal symmetric NE; H25 stacker Ridge; H22-3feat GBDT vs OLS).
+    Ultimas 3 iters (0039-0041): 0 mudancas em champion, 3 follow-ups
+    derivados (H38 P4 + H39 P5 + H40 P5), todos ja no queue.
+  proximo_alvo_acordado: H37
+  proximo_alvo_justificativa: |
+    H37 (CQR-asymmetric + Mondrian conformal NE+N, P3, 2h, sem dep externa)
+    e' a unica hipotese queued *executavel local* com deliverable
+    substantivo: bandas P10/P90 calibradas em NE (fecha gap borderline
+    H26 0.3pp do limite strict) + corrige over-coverage N (90.8% para
+    [75,90]%). H26 ja entregou SE+S como bonus (cov 76.6/79.5% strict);
+    H37 fecha as 2 subs restantes ou encerra o caminho conformal
+    classico CV no replay loop. Aceitacao no queue, sem mudanca.
+  atratividade_pos_consolidation:
+    H37: ALTA (deliverable real, dependencia zero, fecha gap conhecido)
+    H36: DIMINUIDA (convergencia H21+H22 esgota linear/nao-linear sobre
+         mesmas variaveis; lesson canonica "novo sinal exige novas
+         variaveis" formada; rodar com 37 feats tem prob. baixa de win
+         substantivo)
+    H38: BAIXA (P4, 0.3h, fecha caveat tecnico de H30 mas explicitamente
+         baixo impacto pratico mesmo se CONFIRMADO)
+    H39+H40: AGRUPAR (P5, ambos em sanity_checks/B2_interpretation.md;
+             custo combinado 0.5h; rodar em sprint governance quando
+             houver janela inativa)
+    H35: BAIXA (blocked sem pedido formal Breno; alerta binario S nao
+         e prioridade vs forecast continuo)
+    H5/H12/H14/H18: blocked (req externos OR acao Breno EC2/Cloudflare)
+  observacao_meta: |
+    Padrao recorrente das ultimas 5 iters (0037-0041): hipoteses P3
+    fechando frentes derivadas (caminhos de pesquisa) sem mover
+    champion. Isso e' SAUDAVEL — significa que o loop esta saturando
+    seu envelope local (features iter_0002 + CV 5x60d + replay
+    proxies). Para destravar a proxima onda de ganhos, ou (a) H37
+    confirma e abrimos frente "conformal asymmetric productizado",
+    ou (b) UlFor publica dado novo (DESSEM/Sintegre full / WeatherNext)
+    OR Breno desbloqueia EC2/CF para H18 audit empirico champions.
+    Loop nao precisa mais derivar P3-P5 follow-ups a partir de H3
+    family / intercambio / NGBoost — esses caminhos sao now CLOSED.
+
+  refuted_streak_audit:
+    streak_count: 2  # iter_0040 REFUTADO_RIDGE + iter_0041 CONFIRMADO_LR-sem-mudanca-champion
+    iters: [0040, 0041]
+    full_streak_extended: 5  # iter_0037..0041 = 0 mudancas em champion
+    iters_extended: [0037, 0038, 0039, 0040, 0041]
+    refuted_in_extended: [0037 (INDETERMINADO_NE bonus), 0039 (INDETERMINADO_PINBALL), 0040 (REFUTADO_RIDGE)]
+    confirmed_in_extended_methodological_only: [0038 (CONFIRMADO mas e' recomendacao UlFor, loop nao executa), 0041 (CONFIRMADO_LR mas decisao Breno ja tomada iter_0031)]
+    interpretacao: |
+      "Confirmado metodologico sem mudanca champion" e' epistemicamente
+      proximo de "refuted_for_the_purpose_of_promoting" — gate tratou
+      como streak_2 corretamente. 3 frentes derivadas + 2 deliverables
+      informativos saidas em 5 iters; tempo de consolidar e' agora.
+
