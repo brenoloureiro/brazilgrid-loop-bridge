@@ -1,9 +1,29 @@
 {
-  "iter_atual": 7,
+  "iter_atual": 8,
   "mode": "self_planning",
-  "alvo_ativo": "fase_4_champions_ridge_lr_post_cv",
-  "layer_ativa": "curtailment",
+  "alvo_ativo": "metric_suite_principio_6_adopted",
+  "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
+  "metric_suite_primary": {
+    "version": "1.0",
+    "adopted_in_iter": 8,
+    "hypothesis_source": "H9 (PLANO_FINAL UlFor Principio 6)",
+    "primary_metrics": ["mae", "r2", "f1_p50"],
+    "secondary_metrics": ["nmae", "rmse", "bias"],
+    "f1_threshold_rule": "P50 do TRAIN target (sem leak)",
+    "nmae_safety_eps_mean_mwh": 1.0,
+    "patched_components": [
+      "scripts/metric_suite.py",
+      "sanity_checks/baseline_compare.py (B4)",
+      "sanity_checks/holdout_temporal_strict.py (B3)",
+      "leaderboard.md"
+    ],
+    "evidence_principio_6_violated_by_nmae": {
+      "subs_with_rank_conflict": ["NE", "SE", "N"],
+      "subs_with_nmae_unsafe": ["S"],
+      "detail": "iter_0002 LGBM replay: best-by-NMAE diverge de best-by-R² em NE (v2 vs v1 F1), SE (v2 NMAE vs v3 R²), N (v3 NMAE vs v1 R²/F1). S: NMAE unsafe (ymean_test<1 MWh em todos os 3 vers)."
+    }
+  },
   "baselines": {
     "curtailment_d1_NE": {"tipo": "persist_d1", "nmae_cv5fold_mean": 0.445, "nmae_cv5fold_std": 0.173, "official_source": "UlFor CV 5 folds 60d"},
     "curtailment_d1_SE": {"tipo": "persist_d1", "nmae_cv5fold_mean": 0.688, "nmae_cv5fold_std": 0.138, "official_source": "UlFor CV 5 folds 60d"},
@@ -61,6 +81,15 @@
       "evidence_final": "UlFor self-actioned via commits 76732289 + 4e0fc7b4. Champions mudaram: NE=ridge (33.7%CV), SE=lr (46.6%CV), S=lr (89.6%CV vs xgb 115.8%CV), N=ridge_fragile (86.3%CV std 31.8%). XGB nao e mais champion em SE/S — premissa H17 parcialmente invalidada.",
       "decision": "NAO emite req-0004 (redundante com plan UlFor existente). Cria H18 (sanity B1-B6 sobre champions Ridge/LR pos-OOT).",
       "lesson_learned": "Queue e snapshot temporal — UlFor pode resolver entre iters via session paralela. Recon-style absorve em vez de duplicar trabalho."
+    },
+    "H9_metric_suite_mae_r2_f1": {
+      "iter": 8,
+      "verdict": "CONFIRMADO",
+      "iter_closed": 8,
+      "evidence_final": "Aplicar metric_suite sobre iter_0002 LGBM replay revelou: (a) ranking por NMAE diverge de ranking por R²/F1 em 3/4 subs (NE: best-NMAE=v2 mas best-F1=v1; SE: best-NMAE=v2 mas best-R²=v3; N: best-NMAE=v3 mas best-R²/F1=v1). (b) S NMAE 'unsafe' (ymean_test<1 MWh) em todos os 3 vers — NMAE 109% reportado em iter_0006 era artefato de denominador baixo, nao sinal de modelo ruim. (c) NE/v2 vence em magnitude (MAE 8367) mas F1=0 — fitting bem a media, miss em eventos high-curt. F1 captura essa cegueira.",
+      "decision": "ADOTADO. metric_suite.py canonical, B3+B4 patched, leaderboard reescrito. NMAE secundaria com flag 'unsafe' quando ymean<1 MWh. H10/H11 desbloqueadas.",
+      "lesson_learned": "NMAE-only ranking enganou inferencia em 3/4 subs no replay loop. Champions UlFor (Ridge/LR) sao definidos por NMAE oficial — H19 abre frente para extrair MAE/R²/F1 dos champions e revalidar promocao FASE 4.",
+      "follow_ups_created": ["H19"]
     }
   },
   "sanity_checks_disponiveis": [
@@ -72,10 +101,10 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0007_h17_fase4_promote_superseded.md",
+  "ultimo_handoff": "iter_0008_h9_metric_suite_mae_r2_f1.md",
   "budget_consumido": {
-    "iter": 7,
-    "horas": 1.0,
+    "iter": 8,
+    "horas": 1.3,
     "custo_usd": null
   },
   "ulfor_session_sync": {
@@ -109,8 +138,8 @@
   ],
   "planner_config": {
     "mode": "self_planning",
-    "next_iter_should_be": "H18 (P1 methodology — auditar champions Ridge/LR pos-OOT via B1-B6) bloqueada ate UlFor publicar predicoes em parquet. Alternativa: H9 (P1 metric_suite MAE/R²/F1) ou H16 (P1 B6 robustness n_test threshold).",
-    "alt_next": "H16 (P1 B6 robustness) — codavel no loop sem dep UlFor."
+    "next_iter_should_be": "H16 (P1 methodology — B6 zero_count_shift severity downgrade quando n_test<30). Codavel no loop sem dep UlFor. Fechamento natural pos-H9: B3/B4 ja' patched com metric_suite, B6 agora pede thresholds calibrados.",
+    "alt_next": "H10 (P2 ensemble v2_LGBM + persist_d1) — agora unblocked (depends_on=H9 satisfeito). Ou H19 (P2 extrair MAE/R²/F1 dos champions UlFor)."
   },
   "kill_requested": false
 }

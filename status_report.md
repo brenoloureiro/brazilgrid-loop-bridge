@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T02:30:04Z
+# Loop status — 2026-05-24T02:44:07Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=54759, .STOP=no)
 
-**Iter atual**: 7
-**Alvo ativo**: fase_4_champions_ridge_lr_post_cv
+**Iter atual**: 8
+**Alvo ativo**: metric_suite_principio_6_adopted
 
-**Budget**: 7 iters / 1.0 horas consumidas
+**Budget**: 8 iters / 1.3 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0007_h17_fase4_promote_superseded.md
+**Ultimo handoff**: iter_0008_h9_metric_suite_mae_r2_f1.md
   decision: |
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: b0d5fb6 bridge: sync iter 7 (24 seconds ago)
+**Bridge ultimo sync**: f2e763a bridge: sync iter 7 (14 minutes ago)
 
-**UlFor HEAD**: 83bc79c2 feat(forecast): promote champions D+1 — ridge_NE/lr_SE/lr_S Champion, ridge_N Staging
+**UlFor HEAD**: 4d6dd73a ulfor checkpoint: 04:00Z — H2+H4 validados, 3 champions promovidos
 
 ---
 

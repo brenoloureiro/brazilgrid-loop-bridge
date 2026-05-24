@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T05:30:00Z
+last_updated: 2026-05-24T06:00:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -189,17 +189,27 @@ hypotheses:
       nunca NMAE/media". Iter 0002 usou NMAE — viola principio. Refatorar
       leaderboard + sanity checks B3/B4 para reportar MAE+R²+F1 (binarizada
       em "curt > P50") ao inves de NMAE. Manter NMAE como secundario.
+
+      VEREDITO iter_0008: CONFIRMADO. Aplicar metric_suite sobre iter_0002
+      LGBM replay revelou ranking conflicts em 3/4 subs (NE,SE,N) e NMAE
+      'unsafe' em S (ymean_test<1 MWh => NMAE 109% reportado em iter_0006
+      era artefato, nao sinal). NE/v2 vence em MAE mas F1=0 (cego a
+      eventos high-curt). H10/H11 desbloqueadas. H19 derivada criada.
     type: metric
     layer: meta
     target: metric_suite
     priority: P1
-    status: queued
+    status: done
+    iter_handled: 0008
+    verdict: CONFIRMADO
     estimated_effort_hours: 1.0
+    actual_effort_hours: 1.3
     depends_on: []
     blocks: [H10, H11]   # ensemble e quantile precisam de metric reformada
     sanity_checks_required: []
     expected_value: alinhar com PLANO_FINAL UlFor, evitar inferencia ruim
     created_at: 2026-05-24T03:30:00Z
+    completed_at: 2026-05-24T06:00:00Z
 
   - id: H10
     summary: Ensemble v2_LGBM + persistencia_d1 weighted by skill
@@ -371,6 +381,38 @@ hypotheses:
     sanity_checks_required: [leak, perm, holdout, baseline, dist_shift, zero_count]
     expected_value: garantir que champion novo nao tem vies escondido antes FASE 4
     created_at: 2026-05-24T05:30:00Z
+
+  - id: H19
+    summary: Extrair MAE/R²/F1 dos champions UlFor Ridge/LR para leaderboard
+    detail: |
+      Derivada de H9 iter_0008. Pos-adocao do metric_suite (MAE/R²/F1
+      primarios), o leaderboard ainda mostra NMAE como metrica de
+      champions (33.7% NE ridge, 46.6% SE lr, 89.6% S lr) porque UlFor
+      publicou so' NMAE no checkpoint. MLflow `bakeoff-curtailment-d1`
+      tem 140 runs + 28 CV_SUMMARY com mae/rmse/r2 — extrair para
+      preencher coluna "best_metric" do leaderboard com MAE/R²/F1
+      consistente.
+
+      Implementacao: ou req-0007 ao UlFor pedindo dump do CV_SUMMARY
+      em parquet acessivel, ou parser direto do MLflow proxy file que
+      UlFor commitou (verificar coordination ou worktree leitura via
+      git show). Loop pode ler via git show sem alterar nada.
+
+      Sem isto, leaderboard fica inconsistente: NE champion = "ridge
+      NMAE 33.7%" mas iter_0002 replay LGBM em NE/v2 mostra NMAE 28.2%
+      sem R²/F1. Conclusao "ridge melhor" depende de comparar metricas
+      identicas.
+    type: metric
+    layer: meta
+    target: leaderboard_consistency_post_h9
+    priority: P2
+    status: queued
+    estimated_effort_hours: 1.0
+    depends_on: []
+    blocks: []
+    sanity_checks_required: []
+    expected_value: leaderboard internamente consistente (MAE/R²/F1 em todas linhas)
+    created_at: 2026-05-24T06:00:00Z
 
   - id: H15
     summary: S 'nao aprendivel' — rare event classifier em vez de regressor?

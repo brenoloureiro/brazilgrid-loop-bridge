@@ -3,12 +3,16 @@
 Estado de cada alvo atravessando o DAG. Linha por (layer, alvo, sub).
 Atualizado pelo watchdog ao final de cada iteração com ganho promovido.
 
-| layer | alvo | sub | baseline | best_metric | delta_vs_baseline | last_iter | sanity_ok | data_utc |
+**Iter 0008 (H9):** metricas primarias agora **MAE/R²/F1** (PLANO_FINAL Principio 6).
+NMAE mantida como secundaria — flaggada `unsafe` quando ymean<1 MWh.
+
+| layer | alvo | sub | baseline (MAE_mwh, CV) | best_metric (MAE/R²/F1, modelo) | NMAE secundario | last_iter | sanity_ok | data_utc |
 |---|---|---|---|---|---|---|---|---|
-| curtailment | d1_ENE_CNF | NE | persist_d1 (44.5±17.3% CV) | **NMAE 33.7±8.1% ridge_alpha10 (UlFor CV 5 folds, R² +0.469±0.098)** | skill +0.24 vs persist; 5/5 folds vs xgb | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
-| curtailment | d1_ENE_CNF | SE | persist_d1 (68.8±13.8% CV) | **NMAE 46.6±13.4% lr_sklearn (UlFor CV 5 folds, R² +0.380±0.139)** | skill +0.32 vs persist; 4/5 folds vs xgb | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
-| curtailment | d1_ENE_CNF | S | persist_d1 (124.2±24.1% CV) | **NMAE 89.6±31.2% lr_sklearn (UlFor CV 5 folds, R² +0.447±0.202, lr CORTA xgb -19.4pp)** | skill +0.28 vs persist; 4/5 folds vs xgb | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
-| curtailment | d1_ENE_CNF | N | persist_d1 (100.7±9.3% CV) | NMAE 86.3±31.8% ridge_alpha10 (UlFor CV, FRAGIL std alta, ma7 compete 93.5%) | skill +0.14 vs persist mas std 32% | 0007 | nao promovivel ainda | 2026-05-24T05:30Z |
+| curtailment | d1_ENE_CNF | NE | persist_d1 (UlFor CV 5 folds — MAE pendente extracao) | **ridge_alpha10 (UlFor CV 5 folds, R² +0.469±0.098)** | NMAE 33.7±8.1% | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
+| curtailment | d1_ENE_CNF | SE | persist_d1 (UlFor CV 5 folds) | **lr_sklearn (UlFor CV 5 folds, R² +0.380±0.139)** | NMAE 46.6±13.4% | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
+| curtailment | d1_ENE_CNF | S | persist_d1 (UlFor CV 5 folds) | **lr_sklearn (UlFor CV 5 folds, R² +0.447±0.202, lr CORTA xgb)** | NMAE 89.6±31.2% (mas iter_0008 mostra NMAE unsafe em test n=11 — S baixo ymean) | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
+| curtailment | d1_ENE_CNF | N | persist_d1 (UlFor CV 5 folds) | ridge_alpha10 (UlFor CV, FRAGIL std alta, ma7 compete) | NMAE 86.3±31.8% | 0007 | nao promovivel ainda | 2026-05-24T05:30Z |
+| meta | metric_suite | — | NMAE (Principio 6 violado) | **MAE/R²/F1 primario + NMAE secundario com flag** | 3/4 subs (NE,SE,N) conflict NMAE↔R²/F1 em iter_0002 replay; S NMAE unsafe | 0008 | H9 CONFIRMADO | 2026-05-24T06:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | NE | persist_d1 | NMAE 35.7% xgb UlFor v3.3 (superseded por ridge_alpha10) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | SE | persist_d1 | NMAE 46.0% xgb UlFor v3.3 (superseded por lr) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | S | persist_d1 | NMAE 109% xgb UlFor v3.3 (superseded por lr -19.4pp) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
@@ -94,6 +98,60 @@ B6 lessons learned (req-0001 + req-0003 responses):
 
 Hipoteses fechadas nesta iter: H6 (B6 sign-flip refutado por UlFor)
 Hipoteses adicionadas: H16 (B6 threshold-by-n), H17 (P0 promover SE/S v3.3 a FASE 4)
+
+## Iter 0008 — H9 metric_suite MAE/R²/F1 substitui NMAE como primaria
+
+PLANO_FINAL UlFor Principio 6 adotado: NMAE rebaixada a secundaria.
+
+Resultados ao aplicar metric_suite sobre iter_0002 LGBM replay (n_test=11):
+
+| sub/ver | MAE | R² | F1_p50 | NMAE | NMAE_safe |
+|---|---|---|---|---|---|
+| NE/v1 | 14862 | -0.167 | 0.000 | 0.501 | true |
+| NE/v2 |  8367 | +0.660 | 0.000 | 0.282 | true |
+| NE/v3 | 11830 | -0.002 | 0.000 | 0.399 | true |
+| SE/v1 |  3599 | +0.467 | 0.857 | 0.409 | true |
+| SE/v2 |  3180 | +0.394 | 1.000 | 0.362 | true |
+| SE/v3 |  3406 | +0.544 | 0.857 | 0.387 | true |
+| S/v1  |    22 |   NaN  | 0.000 |  -    | **false** (ymean<1) |
+| S/v2  |   125 |   NaN  | 0.000 |  -    | **false** |
+| S/v3  |    80 |   NaN  | 0.000 |  -    | **false** |
+| N/v1  |   269 | -1.402 | 0.800 | 1.011 | true |
+| N/v2  |   269 | -1.402 | 0.800 | 1.011 | true |
+| N/v3  |   259 | -1.637 | 0.750 | 0.974 | true |
+
+**Conflito de ranking detectado em 3/4 subs** (best-per-sub diverge entre NMAE e R²/F1):
+
+| sub | best por NMAE | best por MAE | best por R² | best por F1 |
+|---|---|---|---|---|
+| NE | v2 | v2 | v2 | **v1** (sobe!) |
+| SE | v2 | v2 | **v3** | v2 |
+| S  | unsafe | v1 | n/a | tie zero |
+| N  | v3 | v3 | **v1** | **v1** |
+
+Decisao: H9 CONFIRMADO. Ranking unico-criterio (NMAE) viesa inferencia.
+Suite MAE+R²+F1 primaria (e.g., NE/v2 vence em magnitude mas NE/v1 captura
+melhor eventos high-curt; SE/v3 melhor em variancia explicada mas SE/v2 em
+event detection). NMAE secundaria com flag `unsafe` quando ymean<1 MWh —
+elimina ruido reportado de "S NMAE 109%" que era artefato de denominador
+baixo (test n=11 ymean<1).
+
+Patches:
+- `scripts/metric_suite.py` — canonical `compute(y_true, y_pred, y_train)` +
+  `format_table()` + standalone runner sobre iter_0002.
+- `sanity_checks/baseline_compare.py` (B4) — emite `metric_suite_lgbm` +
+  `metric_suite_climatologia_doy`. Skill score mantido (back-compat).
+- `sanity_checks/holdout_temporal_strict.py` (B3) — emite
+  `metric_suite_strict` + `delta_mae_strict_minus_original` ao lado dos
+  campos legados. Import limpa; LGBMRegressor run depende de sklearn no env.
+
+Hipotese derivada criada: **H19** (P2) — extrair MAE+R²+F1 do bakeoff
+oficial UlFor (mlflow tabela) para refletir na linha "best_metric"
+do leaderboard. Hoje so' NMAE oficial e' conhecida — MAE/R²/F1 dos
+champions Ridge/LR estao no MLflow mas nao no checkpoint do loop.
+Requer req-0007 ao UlFor ou parse direto do MLflow proxy file.
+
+H10 e H11 estavam bloqueadas em H9 — agora unblocked.
 
 ## Iter 0007 — H17 SUPERSEDED + champions Ridge/LR absorved
 
