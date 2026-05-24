@@ -2198,8 +2198,8 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 13,
-    "horas": 3.1573,
+    "iter": 14,
+    "horas": 3.3095,
     "usd": 57.0375
   },
   "low_n_test_policy": {
