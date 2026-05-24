@@ -1,35 +1,35 @@
-# UlFor headless runner — status — 2026-05-24T16:47:01Z
+# UlFor headless runner — status — 2026-05-24T16:49:47Z
 
-**Saude**: yellow (UlFor sem commits ha 4 iters — proxima e MODO_3)
+**Saude**: green (runner saudavel)
 
 **Runner**: alive=yes pid=571987 .STOP=no
 **Loop status**: running
-**Ultimo heartbeat**: 2026-05-24T16:47:00Z
+**Ultimo heartbeat**: 2026-05-24T16:49:47Z
 
 ## Iter / decisao
 
-- **Iter atual UlFor (runner)**: 55
-- **Ultimo plan_step modo**: MODO_1_CONTINUACAO
-- **Ultimo plan_step razao**: sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE
+- **Iter atual UlFor (runner)**: 56
+- **Ultimo plan_step modo**: MODO_3_CHECKPOINT
+- **Ultimo plan_step razao**: iters_sem_commit=4 >= 3: UlFor nao gerou commits nas ultimas iters. Pode estar travado.
 - **err_streak**: 0
-- **iters_sem_commit**: 4
+- **iters_sem_commit**: 0
 
 ## UlFor master (estado observado)
 
-- **HEAD**: cf3097cd ulfor checkpoint: 16:38Z — fase 4, proximo: Breno desbloqueia (3o standby consecutivo, tunnels CH+MLflow exit=28)
+- **HEAD**: 2917289c ulfor checkpoint: 16:48Z — fase 4, proximo: Breno desbloqueia (4o standby consecutivo, nada mudou desde 16:29Z)
 - **Branch**: master
-- **Ultimo commit observado (state)**: cf3097cd
-- **Ultimo checkpoint**: ulfor_2026-05-24T16-38.md
-  - **Idade**: 5 min
+- **Ultimo commit observado (state)**: 2917289c
+- **Ultimo checkpoint**: ulfor_2026-05-24T16-48.md
+  - **Idade**: 0 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
 
 ## Budget (reset diario 00:00 UTC)
 
 - **Data UTC**: 2026-05-24
-- **Iters hoje**: 23 / 30
-- **Horas hoje**: 1.6089 / 12
-- **Custo hoje**: $27.8107 / $50
+- **Iters hoje**: 24 / 30
+- **Horas hoje**: 1.6461 / 12
+- **Custo hoje**: $28.5083 / $50
 
 ---
 
