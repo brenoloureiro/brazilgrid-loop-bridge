@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T06:45:00Z
+last_updated: 2026-05-24T07:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -70,17 +70,38 @@ hypotheses:
       quase-perfeito de geracao realizada. Investigar se PDP adiciona algo
       alem disso via residuals(curt ~ gen) ~ PDP. Se r2_extra > 0.05,
       PDP traz sinal de saturacao/curtailment alem de gen.
+
+      VEREDITO iter_0010: CONFIRMADO. Teste OLS contemporaneo (curt,gen,PDP
+      no mesmo D, n=486 dias, 2024-12-01 -> 2026-05-01) revelou separacao
+      clara entre PDP_prev (previsao) e PDP_prog (programado):
+        - NE/pdp_prev: r2_extra = +0.308 (perm p=0.0; train/test 0.339/0.340)
+        - SE/pdp_prev: r2_extra = +0.251 (perm p=0.0; train/test 0.268/0.270)
+        - S/pdp_prev:  r2_extra = +0.157 train mas COLAPSA test (regime change
+          curt-S baixo + cobertura PDP-S so 12 usinas) — fragil
+        - NE/pdp_prog: r2_extra = +0.115 (significativo mas inferior)
+        - SE/pdp_prog: r2_extra = +0.005 (quase redundante com gen)
+      Leak check: corr(pdp[t],curt[t]) > corr(pdp[t],curt[t-1]) em 5/6
+      casos -> PDP forward-looking, sem leak. Mecanismo: discrepancia
+      (pdp_prev - gen) = proxy direta de curtailment. Implicacao: manter
+      pdp_prev_* (NE/SE definitivo, S condicional); pdp_prog_* candidato
+      a drop por colinearidade ~0.95 com ger_renovavel.
     type: feature
     layer: curtailment
     target: feat_pdp_renovavel_residual
     priority: P2
-    status: queued
+    status: done
+    iter_handled: 0010
+    verdict: CONFIRMADO
     estimated_effort_hours: 1.5
+    actual_effort_hours: 0.7
     depends_on: []
     blocks: []
     sanity_checks_required: [leak, perm, dist_shift]
+    sanity_checks_done: [leak, perm, dist_shift]
+    follow_ups_created: [H21, H22]
     expected_value: justificar manter PDP no modelo apos resolver gaps
     created_at: 2026-05-24T03:00:00Z
+    completed_at: 2026-05-24T07:30:00Z
 
   - id: H4
     summary: B6 zero_count_shift sanity check
@@ -454,6 +475,62 @@ hypotheses:
     sanity_checks_required: []
     expected_value: leaderboard auto-documentado para baixa confianca amostral
     created_at: 2026-05-24T06:45:00Z
+
+  - id: H21
+    summary: Feature derivada pdp_residual = pdp_prev_total - gen_renov (engineering)
+    detail: |
+      Derivada de H3 iter_0010. H3 confirmou que pdp_prev_* carrega sinal de
+      curtailment alem de gen (r2_extra +0.31 NE, +0.25 SE). Mecanismo
+      identificado: discrepancia entre previsao e gerado e' proxy direta de
+      curt. Testar feature engineering explicita
+      `pdp_residual_mwh = pdp_prev_total_mwh - gen_renov_mwh` no bake-off.
+
+      Hipotese: 1 canal denso (residual) pode substituir os 2 canais brutos
+      (pdp_prev_eolica + pdp_prev_solar) com mesma ou melhor performance,
+      reduzindo dimensionalidade e colinearidade.
+
+      Sanity: B1 leak (pdp_prev e D-1-safe, gen e D-only; usar como feature
+      em D para predizer D+1 -> ok), B2 perm (importancia vs random shuffle),
+      B4 baseline_compare.
+
+      Bonus: testar se pdp_prog_* pode ser DROPADO sem perda (corr 0.93-0.95
+      com gen -> quase redundante). Reducao de feature space sem dano.
+    type: feature
+    layer: curtailment
+    target: feat_pdp_residual_engineered
+    priority: P2
+    status: queued
+    estimated_effort_hours: 1.0
+    depends_on: [H3]
+    blocks: []
+    sanity_checks_required: [leak, perm, baseline]
+    expected_value: feature mais densa + reducao de dim sem perda de skill
+    created_at: 2026-05-24T07:30:00Z
+
+  - id: H22
+    summary: GBDT-only curt~gen+pdp para medir gap nao-linear vs OLS
+    detail: |
+      Derivada de H3 iter_0010. H3 usou OLS linear para r2_extra; GBDT
+      (XGB/LGBM) provavelmente extrai sinal adicional via interacoes
+      (pdp x gen, sazonalidade x pdp, regime x pdp). Treinar GBDT com
+      apenas `gen + pdp_prev_eolica + pdp_prev_solar` (3 features) e
+      comparar R² vs OLS no mesmo split temporal.
+
+      Se gap GBDT vs OLS >= 5pp R², valida que ha interacoes nao-lineares
+      relevantes -> bake-off completo deve continuar com GBDT (ja faz),
+      mas justifica MANTER pdp como features brutas (nao agregadas via
+      engineering linear como em H21).
+    type: model
+    layer: curtailment
+    target: pdp_gen_gbdt_vs_ols_gap
+    priority: P3
+    status: queued
+    estimated_effort_hours: 1.0
+    depends_on: [H3]
+    blocks: []
+    sanity_checks_required: [holdout, baseline]
+    expected_value: validar engineering linear vs deixar GBDT capturar interacoes
+    created_at: 2026-05-24T07:30:00Z
 
   - id: H15
     summary: S 'nao aprendivel' — rare event classifier em vez de regressor?

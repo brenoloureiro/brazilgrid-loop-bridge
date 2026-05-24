@@ -1,8 +1,8 @@
 {
-  "iter_atual": 9,
+  "iter_atual": 10,
   "mode": "self_planning",
-  "alvo_ativo": "sanity_check_b6_robustness_n_test_gating",
-  "layer_ativa": "meta",
+  "alvo_ativo": "feat_pdp_renovavel_residual",
+  "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
     "version": "1.0",
@@ -99,6 +99,15 @@
       "decision": "ADOTADO. sanity_checks/zero_count_shift.py patched (params n_test_downgrade_threshold=30, min_abs_corr_for_sign_flip=0.2; campos severity_raw, downgraded_due_to_small_n_test, n_test, sign_flip_blocked_by_min_abs_corr expostos). req-0003-style nao mais emitido para baixa-confianca sign-flips do replay n=11.",
       "lesson_learned": "B6 antigo era overconfident em test pequeno: corr amostral 0.05<|x|<0.2 com n=11 nao discrimina sinal de ruido. Gate calibrado destrava bake-off em janelas curtas do replay sem gerar req desnecessario.",
       "follow_ups_created": ["H20"]
+    },
+    "H3_pdp_residual_signal": {
+      "iter": 10,
+      "verdict": "CONFIRMADO",
+      "iter_closed": 10,
+      "evidence_final": "OLS contemporaneo curt~gen+PDP em n=486 dias (2024-12-01 -> 2026-05-01). r2_extra(pdp_prev): NE +0.308 (partial_corr +0.686, train/test 0.339/0.340), SE +0.251 (partial_corr +0.556, train/test 0.268/0.270), S +0.157 train mas COLAPSA test (0.001) — fragil em S. r2_extra(pdp_prog) max +0.115 NE — quase redundante com gen (corr 0.95). Perm 500 shuffles: 5/6 com p=0.0, observed >> p99 null. Leak: corr(pdp[t],curt[t]) > corr(pdp[t],curt[t-1]) em 5/6 -> PDP forward-looking, sem leak.",
+      "decision": "CONFIRMADO. pdp_prev_* devem permanecer no modelo (NE+SE definitivo, S condicional). Mecanismo: residual(pdp_prev - gen) e' proxy direta de curt. pdp_prog_* candidato a drop por colinearidade 0.95 com ger_*. Sem req externo (crosswalk inline funciona; UlFor ja tem cobertura 82% via seed_crosswalk_pdp_usina).",
+      "lesson_learned": "Separar PDP_prev (previsao independente) de PDP_prog (programado, copia do real) e' critico. Apenas PDP_prev tem informacao alem de gen — porque previsao - gen = restricao (=curtailment). Hipotese 'PDP e' so proxy de gen' era falsa para PDP_prev mas verdadeira para PDP_prog. Bug encontrado e corrigido no script: `(best.get('perm_p') or 1.0)` interpretava p=0.0 como missing — usar `p is None or p < 0.05` explicito.",
+      "follow_ups_created": ["H21", "H22"]
     }
   },
   "sanity_checks_disponiveis": [
@@ -110,9 +119,9 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0009_h16_b6_n_test_gating.md",
+  "ultimo_handoff": "iter_0010_h3_pdp_residual_signal.md",
   "budget_consumido": {
-    "iter": 9,
+    "iter": 10,
     "horas": 0.7,
     "custo_usd": null
   },
@@ -162,8 +171,8 @@
   ],
   "planner_config": {
     "mode": "self_planning",
-    "next_iter_should_be": "H10 (P2 ensemble v2_LGBM + persist_d1) — agora unblocked desde iter_0008 (H9 done) e nao tem dep externa. Codavel localmente com replay iter_0002 + persist_d1 dos baselines. Sanity B4/baseline_compare + B3/holdout_strict ja' patched.",
-    "alt_next": "H19 (P2 extrair MAE/R²/F1 dos champions UlFor Ridge/LR — leaderboard hoje so' tem NMAE deles). Pode ser feito por parse via git show do MLflow proxy file UlFor sem novo req. Ou H7 (P2 XGB vs LGBM com CV mesmo split). Ou H20 (P3 derivada da H16 — auto-flag n_test<30 no leaderboard)."
+    "next_iter_should_be": "H21 (P2 feature engineering pdp_residual = pdp_prev - gen). Derivada direta de H3 iter_0010. Mecanismo identificado (residual = proxy de curt) sugere testar feature unica densa vs 2 brutas. Codavel localmente: bake-off replay iter_0002 + adicionar coluna pdp_residual_mwh + comparar PI/perm + check coliner com pdp_prev_* originais. Sanity B1 leak (pdp_prev D-1 safe, gen D-only) + B2 perm + B4 baseline.",
+    "alt_next": "H10 (P2 ensemble v2_LGBM + persist_d1, unblocked desde H9), H22 (P3 GBDT vs OLS gap para curt~gen+pdp), H19 (P2 extrair MAE/R²/F1 dos champions UlFor Ridge/LR), H7 (P2 XGB vs LGBM CV), H20 (P3 auto-flag n_test<30)."
   },
   "kill_requested": false
 }

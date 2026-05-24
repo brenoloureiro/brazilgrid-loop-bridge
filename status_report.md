@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T02:57:28Z
+# Loop status — 2026-05-24T03:15:48Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=54759, .STOP=no)
 
-**Iter atual**: 9
-**Alvo ativo**: sanity_check_b6_robustness_n_test_gating
+**Iter atual**: 10
+**Alvo ativo**: feat_pdp_renovavel_residual
 
-**Budget**: 9 iters / 0.7 horas consumidas
+**Budget**: 10 iters / 0.7 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0009_h16_b6_n_test_gating.md
+**Ultimo handoff**: iter_0010_h3_pdp_residual_signal.md
   decision: |
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 5f160cc bridge: sync iter 8 (13 minutes ago)
+**Bridge ultimo sync**: 6e82dc6 bridge: sync iter 9 (18 minutes ago)
 
-**UlFor HEAD**: 4d6dd73a ulfor checkpoint: 04:00Z — H2+H4 validados, 3 champions promovidos
+**UlFor HEAD**: c8df4077 feat(forecast): investigar lr_N instabilidade — fold 4 e o blowup, CLEAN derruba stdev 57%
 
 ---
 

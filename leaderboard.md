@@ -12,6 +12,12 @@ SE/v3 lag (iter_0004 com n_test=11) automaticamente atenuado: curt_lag7 sign_fli
 severities raw=high downgrade para medium. Replay loop pode rodar em janelas curtas sem
 gerar req desnecessario ao UlFor.
 
+**Iter 0010 (H3):** PDP carrega sinal alem de gen via residual — **CONFIRMADO**. OLS decomp
+`curt ~ gen + pdp` em n=486 dias contemporaneos: r2_extra(pdp_prev) = +0.31 NE, +0.25 SE,
++0.16 S(train) mas COLAPSA test. perm p=0.0, train/test estavel em NE+SE. pdp_prog quase
+redundante com gen (corr 0.95, r2_extra <=0.12). Mecanismo: residual(pdp_prev - gen) e' proxy
+de curtailment. Implicacao: manter pdp_prev_*; pdp_prog_* candidato a drop. H21+H22 derivadas.
+
 | layer | alvo | sub | baseline (MAE_mwh, CV) | best_metric (MAE/R²/F1, modelo) | NMAE secundario | last_iter | sanity_ok | data_utc |
 |---|---|---|---|---|---|---|---|---|
 | curtailment | d1_ENE_CNF | NE | persist_d1 (UlFor CV 5 folds — MAE pendente extracao) | **ridge_alpha10 (UlFor CV 5 folds, R² +0.469±0.098)** | NMAE 33.7±8.1% | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
@@ -28,6 +34,9 @@ gerar req desnecessario ao UlFor.
 | meta | h2_off_by_one_pdp | — | dbt_join_correto | corr(PDP[t], gen[t])=0.9118 / corr(PDP[t], gen[t+1])=0.8211 | H2 REFUTADO | 0003 | n=484 dias | 2026-05-24T02:30Z |
 | meta | sanity_check_B6 | — | n/a | zero_count_shift + signal_collapse implementado e validado (sintetico high+collapse, real SE/v3 lag sign-flip) | adicionado a default pipeline | 0004 | passou | 2026-05-24T03:00Z |
 | meta | sanity_check_B6_v1.1 | — | B6 v1.0 (overconfident em n_test=11) | **B6 + n_test<30 downgrade + sign_flip gate \|corr\|>=0.2** | 5/20 FP sint n=10 / 0 perdas n=60 / SE/v3 lag iter_0002 downgrade high->medium | 0009 | regression + revalidation OK | 2026-05-24T06:45Z |
+| meta | h3_pdp_residual_signal | NE | r2_gen_only=0.346 | **r2_gen+pdp_prev=0.654 (r2_extra +0.308; partial_corr +0.69)** | perm p=0.0; test/train delta=+0.001 (estavel); leak ok | 0010 | H3 CONFIRMADO | 2026-05-24T07:30Z |
+| meta | h3_pdp_residual_signal | SE | r2_gen_only=0.187 | r2_gen+pdp_prev=0.438 (r2_extra +0.251; partial_corr +0.56) | perm p=0.0; test/train delta=+0.002; leak ok | 0010 | H3 CONFIRMADO | 2026-05-24T07:30Z |
+| meta | h3_pdp_residual_signal | S | r2_gen_only=0.053 | r2_gen+pdp_prev=0.210 (r2_extra +0.157 train; +0.001 test!) | perm p=0.0; **dist_shift FAIL** (test colapsa, cobertura 12 usinas) | 0010 | H3 fragil em S | 2026-05-24T07:30Z |
 
 ---
 
@@ -242,3 +251,63 @@ bake-off runner.
   corr de UlFor (n>=60). Loop agora pode rodar B6 em replay n=11 sem ruido.
 - Padrao geral: sanity checks devem expor `n_test` e ajustar severities por
   potencia estatistica — replica-se em B5 (PSI), B1 (leak corr).
+
+## Iter 0010 — H3 PDP residual signal (CONFIRMADO)
+
+Hipotese H3 testada com OLS contemporaneo `curt ~ gen + PDP` em n=486 dias
+(2024-12-01 -> 2026-05-01, sub NE/SE/S; N excluido por cobertura PDP local
+zero). Crosswalk inline via mapeamento_conjunto_pdp -> obt_conjunto (~208/606
+usinas mapeadas, vs UlFor 82% de 606).
+
+### Resultados por (sub, variant)
+
+| sub | variante | r2_gen | r2_gen+pdp | **r2_extra** | partial_corr | perm p | train→test delta |
+|---|---|---|---|---|---|---|---|
+| **NE** | pdp_prev | 0.346 | 0.654 | **+0.308** | +0.686 | 0.000 | +0.001 (estavel) |
+| NE | pdp_prog | 0.346 | 0.460 | +0.115 | +0.418 | 0.000 | +0.052 |
+| **SE** | pdp_prev | 0.187 | 0.438 | **+0.251** | +0.556 | 0.000 | +0.002 (estavel) |
+| SE | pdp_prog | 0.187 | 0.192 | +0.005 | -0.074 | 0.098 | +0.000 |
+| S  | pdp_prev | 0.053 | 0.210 | +0.157 | +0.408 | 0.000 | **-0.182** (fragil!) |
+| S  | pdp_prog | 0.053 | 0.083 | +0.030 | +0.178 | 0.000 | -0.027 |
+
+### Sanity checks (queue requeridos: leak, perm, dist_shift)
+
+- **leak**: PASS. corr(pdp[t], curt[t]) > corr(pdp[t], curt[t-1]) em 5/6
+  combinacoes. PDP e' forward-looking, nao back-cast (publicado D-1 -> safe).
+- **perm** (500 shuffles): 5/6 com p=0.0 (observado MUITO acima do p99 null
+  ~0.005-0.016). Apenas SE/pdp_prog com p=0.098 (mas r2_extra so 0.005,
+  irrelevante).
+- **dist_shift** (split 80/20 temporal): NE+SE estaveis (|delta|<0.003).
+  **S falha** (test r2_extra colapsa de 0.18 para 0.001) — regime change
+  curt-S baixo no Dez/2025-Mai/2026 + cobertura PDP-S so 12 usinas (todas
+  eolicas, nenhuma solar).
+
+### Interpretacao tecnica
+
+Separacao PDP_prev vs PDP_prog e' a chave:
+
+- **PDP_prog tracking-very-tight de gen** (corr 0.95 NE, 0.75 SE, 0.93 S).
+  Sinal redundante com geracao realizada. Programado D-1 ja' incorpora
+  dispatch real; mudou pouco apos a operacao.
+- **PDP_prev e previsao independente** (publicada D-1), recurso esperado.
+  A discrepancia `pdp_prev - gen` correlaciona com curtailment porque
+  gen = previsao - restricao. residual e' proxy direta de curt.
+
+### Decisao para o modelo
+
+- **Manter `pdp_prev_eolica_mwh`, `pdp_prev_solar_mwh`** (NE+SE definitivo,
+  S condicional). Valor agregado robusto.
+- **Considerar dropar `pdp_prog_eolica_mwh`, `pdp_prog_solar_mwh`** —
+  colinearidade ~0.95 com `ger_*_mwh`, sinal residual <=0.12.
+
+### Follow-ups
+
+- **H21 (P2 feature)**: engineering `pdp_residual_mwh = pdp_prev - gen` como
+  1 canal denso (vs 2 brutos), sanity B1 leak + B2 perm + B4 baseline.
+- **H22 (P3 model)**: GBDT-only `curt ~ gen + pdp_prev` vs OLS para medir
+  gap nao-linear. Se GBDT gap >= 5pp R², ha interacoes que justificam
+  manter features brutas em vez de engineering.
+
+Sem req externo necessario. Crosswalk + parser inline funciona; tabela
+`feat_pdp_renovavel` no UlFor (cobertura 82%) ja' faz a agregacao
+materializada — H21/H22 podem rodar la' diretamente com mais cobertura.
