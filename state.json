@@ -1,53 +1,19 @@
 {
-  "iter_atual": 7,
+  "iter_atual": 4,
   "alvo_ativo": "sanity_check_b6_implementation",
   "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "baselines": {
-    "curtailment_d1_NE": {
-      "tipo": "persist_d1",
-      "nmae_test_n11": 0.388,
-      "r2": -0.157
-    },
-    "curtailment_d1_SE": {
-      "tipo": "persist_d1",
-      "nmae_test_n11": 0.633,
-      "r2": -1.043
-    },
-    "curtailment_d1_S": {
-      "tipo": "persist_d7",
-      "nmae_test_n11": null,
-      "r2": null,
-      "nota": "ymean_test=0"
-    },
-    "curtailment_d1_N": {
-      "tipo": "persist_d1",
-      "nmae_test_n11": 0.342,
-      "r2": -0.072
-    }
+    "curtailment_d1_NE": {"tipo": "persist_d1", "nmae_test_n11": 0.388, "r2": -0.157},
+    "curtailment_d1_SE": {"tipo": "persist_d1", "nmae_test_n11": 0.633, "r2": -1.043},
+    "curtailment_d1_S":  {"tipo": "persist_d7", "nmae_test_n11": null, "r2": null, "nota": "ymean_test=0"},
+    "curtailment_d1_N":  {"tipo": "persist_d1", "nmae_test_n11": 0.342, "r2": -0.072}
   },
   "best_ml": {
-    "NE": {
-      "version": "v2",
-      "model": "lgbm",
-      "nmae_original": 0.282,
-      "nmae_strict": 0.317,
-      "r2_original": 0.66,
-      "r2_strict": 0.456,
-      "iter": 2
-    },
-    "SE": {
-      "version": "v2",
-      "model": "lgbm",
-      "nmae_original": 0.362,
-      "nmae_strict": 0.426,
-      "r2_original": 0.394,
-      "r2_strict": 0.28,
-      "iter": 2,
-      "warn": "v3_aparente_melhor_some_em_holdout_strict_+19.2pp; B6_iter0004_confirma_causa_e_sign_flip_lag_features"
-    },
-    "S": null,
-    "N": null
+    "NE": {"version": "v2", "model": "lgbm", "nmae_original": 0.282, "nmae_strict": 0.317, "r2_original": 0.660, "r2_strict": 0.456, "iter": 2},
+    "SE": {"version": "v2", "model": "lgbm", "nmae_original": 0.362, "nmae_strict": 0.426, "r2_original": 0.394, "r2_strict": 0.280, "iter": 2, "warn": "v3_aparente_melhor_some_em_holdout_strict_+19.2pp; B6_iter0004_confirma_causa_e_sign_flip_lag_features"},
+    "S":  null,
+    "N":  null
   },
   "hypotheses_verdict": {
     "H2_off_by_one_pdp_join": {
@@ -82,7 +48,7 @@
   "leaderboard_dirty": false,
   "ultimo_handoff": "iter_0004_b6_zero_count_and_req0003.md",
   "budget_consumido": {
-    "iter": 7,
+    "iter": 4,
     "horas": 1.2,
     "custo_usd": null
   },
@@ -91,35 +57,14 @@
     "iter0004_inicio_head": "1fb2bb50",
     "iter0004_fim_head": "9c1484e2",
     "novos_commits_durante_iter0004": [
-      "c418e4ab feat(forecast): UlFor FASE 3 NE per-conjunto v2 \u2014 H1 FALSIFICADA (sessao paralela, antes do loop)",
+      "c418e4ab feat(forecast): UlFor FASE 3 NE per-conjunto v2 — H1 FALSIFICADA (sessao paralela, antes do loop)",
       "9c1484e2 coord: req-0003 (loop iter 0004, exception unica)"
     ]
   },
   "open_requests": [
-    {
-      "id": "req-0001",
-      "from_iter": 3,
-      "priority": "P1",
-      "type": "investigation",
-      "summary": "Validar com test n>=60d que shift -1d em pdp_prev_eolica e ruido",
-      "status": "OPEN"
-    },
-    {
-      "id": "req-0002",
-      "from_iter": 3,
-      "priority": "P0",
-      "type": "feature_fix",
-      "summary": "forward-fill em vez de coalesce(0) para gaps PDP Abr/26",
-      "status": "OPEN"
-    },
-    {
-      "id": "req-0003",
-      "from_iter": 4,
-      "priority": "P1",
-      "type": "investigation",
-      "summary": "Validar H6 SE colapso strict (B6 caught lag sign-flip)",
-      "status": "OPEN"
-    }
+    {"id": "req-0001", "from_iter": 3, "priority": "P1", "type": "investigation", "summary": "Validar com test n>=60d que shift -1d em pdp_prev_eolica e ruido", "status": "OPEN"},
+    {"id": "req-0002", "from_iter": 3, "priority": "P0", "type": "feature_fix", "summary": "forward-fill em vez de coalesce(0) para gaps PDP Abr/26", "status": "OPEN"},
+    {"id": "req-0003", "from_iter": 4, "priority": "P1", "type": "investigation", "summary": "Validar H6 SE colapso strict (B6 caught lag sign-flip)", "status": "OPEN"}
   ],
   "kill_requested": false
 }
