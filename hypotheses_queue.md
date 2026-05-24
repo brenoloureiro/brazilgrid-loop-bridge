@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-26T08:00:00Z
+last_updated: 2026-05-26T12:00:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -1408,13 +1408,36 @@ hypotheses:
     layer: meta
     target: sanity_checks_doc_b2_interpretation
     priority: P5
-    status: queued
+    status: done
+    iter_handled: 0048
+    verdict: DOCUMENTADO
     estimated_effort_hours: 0.2
+    actual_effort_hours: 0.2
     depends_on: [H30]
     blocks: []
     sanity_checks_required: []
+    sanity_checks_done: [doc_aceitacao_3_criteria_PASS, doc_numbers_verified_6_of_6, doc_internal_links_REPORTED, default_six_NA_governance]
+    follow_ups_created: []
     expected_value: evitar futura confusao "perm passou logo o feature serve" em iter futuras
     created_at: 2026-05-25T20:00:00Z
+    completed_at: 2026-05-26T12:00:00Z
+    closure_summary: |
+      Doc PROMOVIDO em sanity_checks/B2_interpretation.md (153 linhas). 3 criterios
+      de aceitacao H39 satisfeitos: (a) exemplos H21 LGBM (NE/v3 set C perm
+      +6.6% / SE/v3 +10.8%, mean R² nao melhora — bake-off MAE delta NE +2.0pp /
+      SE +3.1pp); (b) exemplo H30 Ridge (NE/v3 alpha=10 set B perm +104.6% /
+      delta_R²=-0.064; SE alpha=10 perm +27.4% / delta_R²=-0.043); (c) paragrafos
+      "what perm_importance means" + "what it does NOT mean" com decoupling
+      explicito sinal_intrinseco vs ganho_incremental + heuristica operacional
+      (B2 PASSA + B4 FALHA -> REFUTADO + razao basis-redundancia). Tabela
+      convergencia H3+H21+H30+H38 anexada documentando arco residual encerrado.
+      6 numeros do doc verificados contra source artifacts (iter_0020 e 0040
+      sanity_summary.json + verdict.json): 6/6 match exato. Default 6-check
+      suite NA (governance/meta layer, sem modelo treinado); audit substitutivo
+      PASS. Champions UlFor INTACTOS (zero impacto operacional). 0 follow-ups.
+    artefatos: outputs/iter_0048/h39_perm_importance_doc/
+      (verdict.json + sanity_summary.json + summary.csv) +
+      sanity_checks/B2_interpretation.md (doc canonico, 153 linhas)
 
   - id: H33
     summary: Joint-drop SE em LR vs Ridge — fechar caveat model-aware H22_MA empirico

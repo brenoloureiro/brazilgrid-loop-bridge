@@ -1,6 +1,30 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0047 (2026-05-26T10:00Z, **H38 Ridge alpha-sensitivity em set
+Atualizado em iter_0048 (2026-05-26T12:00Z, **H39 Doc 'perm_importance confirms
+signal != feature_engineering gain' playbook — DOCUMENTADO**). Hipotese P5
+(custo 0.2h = estimado), derivada de H30 iter_0040 REFUTADO_RIDGE — caveat
+metodologico era loose-end. Doc-only iter, layer=meta, zero impacto operacional.
+**PROMOVE** `sanity_checks/B2_interpretation.md` (153 linhas). 3 criterios de
+aceitacao H39 satisfeitos: (a) exemplo H21 LGBM iter_0020 — residual perm
+**+6.6% NE / +10.8% SE** (set C, residual_split, NE/v3 importance_pct=6.6256,
+SE/v3=10.8001), mean R²/MAE bake-off nao bate A (delta_mae_C_pct: NE +2.0pp /
+SE +3.1pp); (b) exemplo H30 Ridge iter_0040 — `pdp_residual_total` perm
+**+104.6% NE alpha=10** (base_mae 17400 → perm_mae 35600, std 2489) e perm
+**+27.4% SE alpha=10**, ainda assim delta_R²_B = **−0.064 NE / −0.043 SE**;
+(c) paragrafos "what perm_importance means" (mede dependencia do modelo
+treinado tal-como-esta) + "what it does NOT mean" (nao mede ganho marginal
+se basis ja cobre span linear ou interacoes ja extraem sinal) + decoupling
+explicito `sinal_intrinseco != ganho_incremental` + heuristica operacional
+gate ("B2 PASSA + B4 FALHA → verdict REFUTADO + razao basis-redundancia,
+citar H21/H30"). Tabela convergencia H3+H21+H30+H38 anexada documentando
+arco residual encerrado. **Verificacao 6/6 numeros do doc** contra source
+artifacts (`outputs/iter_0020/.../sanity_summary.json` + `outputs/iter_0040/.../{sanity_summary,verdict}.json`):
+match exato. Default 6-check suite NA (governance/meta, sem modelo/dataset);
+audit substitutivo PASS. Champions UlFor (Ridge_alpha10 NE / LR SE+S /
+Ridge_clean_plus N) INTACTOS — zero rollback. **0 follow-ups**: arco residual
+H3+H21+H22+H30+H36+H38+H41 ja encerrado em iter_0046/0047; H39 sela so' o
+caveat metodologico. Custo iter 0.2h = estimado. Atualizado anteriormente em
+iter_0047 (2026-05-26T10:00Z, **H38 Ridge alpha-sensitivity em set
 minimal residual — INDETERMINADO_ALPHA_LOW**). Hipotese P4 (custo 0.3h), derivada
 do caveat tecnico H30 iter_0040 REFUTADO_RIDGE. Expandiu ALPHAS=[0.01, 0.1, 1.0, 10.0]
 sobre o protocolo H30 (CV 5x60d gap7d, NE+SE v3, sets A=brutos / B=residual_plus_gen
