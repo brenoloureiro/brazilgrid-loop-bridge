@@ -18,6 +18,6 @@
     "usd": 48.4431
   },
   "started_at": "2026-05-24T02:58:18Z",
-  "last_heartbeat_at": "2026-05-24T17:46:28Z",
-  "loop_status": "running"
+  "last_heartbeat_at": "2026-05-24T17:47:06Z",
+  "loop_status": "budget_iter_daily"
 }
