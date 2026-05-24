@@ -1,4 +1,4 @@
-# Loop status — 2026-05-24T12:34:11Z
+# Loop status — 2026-05-24T12:35:00Z
 
 **Saude**: green (loop saudavel)
 
@@ -16,9 +16,9 @@
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: d24350d bridge: sync iter 18 (3 minutes ago)
+**Bridge ultimo sync**: 6fb15d1 bridge: sync iter 18 (48 seconds ago)
 
-**UlFor HEAD**: cd12cf2a infra: expor mlflow.brazilgrid.com via Cloudflare Access
+**UlFor HEAD**: daf80a6a exp(forecast): H14-F window=60d + threshold sigma_bias (Pareto vs H14-B, NAO produtizar)
 
 ---
 
