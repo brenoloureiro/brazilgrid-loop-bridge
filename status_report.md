@@ -1,4 +1,4 @@
-# Loop status — 2026-05-24T16:21:02Z
+# Loop status — 2026-05-24T16:21:28Z
 
 **Saude**: green (loop saudavel)
 
@@ -16,9 +16,9 @@
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 31a2d7f bridge: sync iter 27 (11 minutes ago)
+**Bridge ultimo sync**: bec6314 bridge: sync iter 28 (25 seconds ago)
 
-**UlFor HEAD**: 0971c699 docs(forecast): promote v3 DECISAO Breno + bloqueio dataset local
+**UlFor HEAD**: 6111cda4 docs(forecast): FINDING_LOCAL_CH_STALE_FEAT_TABLES — CH local Docker tem feat_termico 2024-12-31, bloqueia bakeoff val14d
 
 ---
 

@@ -1755,9 +1755,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 38,
-    "horas": 7.95,
-    "usd": 121.4281,
+    "iter": 39,
+    "horas": 8.1356,
+    "usd": 128.1395,
     "note": "iter_0028 RECON_DELTA UlFor 83abab3e..27152e16 (5 commits val14d alpha sweep + diff features SE, 0.3h, no exec cost)",
     "last_update": "2026-05-24T23:30:00Z"
   }
