@@ -1,29 +1,38 @@
 {
-  "iter_atual": 6,
+  "iter_atual": 7,
   "mode": "self_planning",
-  "alvo_ativo": "ulfor_v3_3_metrics_absorbed",
-  "layer_ativa": "meta",
+  "alvo_ativo": "fase_4_champions_ridge_lr_post_cv",
+  "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
   "baselines": {
-    "curtailment_d1_NE": {"tipo": "persist_d1", "official_source": "UlFor v3.3 n=60d"},
-    "curtailment_d1_SE": {"tipo": "persist_d1", "official_source": "UlFor v3.3 n=60d"},
-    "curtailment_d1_S":  {"tipo": "persist_d1", "nmae_persist": 1.137, "official_source": "UlFor v3.3 n=60d"},
-    "curtailment_d1_N":  {"tipo": "persist_d1", "official_source": "UlFor v3.3 n=60d"}
+    "curtailment_d1_NE": {"tipo": "persist_d1", "nmae_cv5fold_mean": 0.445, "nmae_cv5fold_std": 0.173, "official_source": "UlFor CV 5 folds 60d"},
+    "curtailment_d1_SE": {"tipo": "persist_d1", "nmae_cv5fold_mean": 0.688, "nmae_cv5fold_std": 0.138, "official_source": "UlFor CV 5 folds 60d"},
+    "curtailment_d1_S":  {"tipo": "persist_d1", "nmae_cv5fold_mean": 1.242, "nmae_cv5fold_std": 0.241, "official_source": "UlFor CV 5 folds 60d"},
+    "curtailment_d1_N":  {"tipo": "persist_d1", "nmae_cv5fold_mean": 1.007, "nmae_cv5fold_std": 0.093, "official_source": "UlFor CV 5 folds 60d"}
   },
-  "best_ml_oficial_ulfor_v33": {
+  "best_ml_oficial_ulfor_cv_5folds": {
+    "NE": {"version": "v3.3+ridge", "model": "ridge_alpha10", "nmae_mean": 0.337, "nmae_std": 0.081, "r2_mean": 0.469, "r2_std": 0.098, "wins_vs_xgb": "5/5", "iter_handed_off": 7, "source_commit": "4e0fc7b4",
+           "decision": "@champion candidate (await OOT 2x)"},
+    "SE": {"version": "v3.3+lr",    "model": "lr_sklearn",   "nmae_mean": 0.466, "nmae_std": 0.134, "r2_mean": 0.380, "r2_std": 0.139, "wins_vs_xgb": "4/5", "iter_handed_off": 7, "source_commit": "4e0fc7b4",
+           "decision": "@champion-SE candidate (await OOT 2x)"},
+    "S":  {"version": "v3.3+lr",    "model": "lr_sklearn",   "nmae_mean": 0.896, "nmae_std": 0.312, "r2_mean": 0.447, "r2_std": 0.202, "wins_vs_xgb": "4/5", "iter_handed_off": 7, "source_commit": "4e0fc7b4",
+           "decision": "@champion-S candidate (std alta — monitor pos OOT)",
+           "note": "Champion shift dramatico vs iter_0006: xgb 109% -> lr 89.6% mean CV (-19.4pp); R² -0.135 -> +0.447 (+0.58 absoluto)"},
+    "N":  {"version": "v3.3+ridge", "model": "ridge_alpha10", "nmae_mean": 0.863, "nmae_std": 0.318, "r2_mean": 0.196, "r2_std": 0.289, "wins_vs_xgb": "2/5", "iter_handed_off": 7, "source_commit": "4e0fc7b4",
+           "decision": "FRAGIL — std 31.8%, ma7 ainda compete; nao promovivel ainda"}
+  },
+  "best_ml_oficial_ulfor_v33_xgb_DEPRECATED": {
+    "_note": "Superseded em iter_0007 pelo bake-off Ridge/LR CV. Mantido para audit.",
     "NE": {"version": "v3.3", "model": "xgb", "nmae": 0.357, "r2": 0.402, "iter_handed_off": 6, "source_commit": "b7acfdcd"},
-    "SE": {"version": "v3.3", "model": "xgb", "nmae": 0.460, "r2": 0.386, "iter_handed_off": 6, "source_commit": "b7acfdcd",
-           "decision": "PROMOVIVEL FASE 4 (req-0003 verdict)"},
-    "S":  {"version": "v3.3", "model": "xgb", "nmae": 1.090, "r2": -0.135, "iter_handed_off": 6, "source_commit": "b7acfdcd",
-           "note": "ML AGORA bate baseline persist_d1=1.137 — pre PDP fix era 1.172 (perdia para persist)"},
-    "N":  {"version": "v3.3", "model": "lgbm", "nmae": 0.722, "r2": 0.041, "iter_handed_off": 6, "source_commit": "b7acfdcd",
-           "note": "lags atrapalham — remover para ganho marginal"}
+    "SE": {"version": "v3.3", "model": "xgb", "nmae": 0.460, "r2": 0.386, "iter_handed_off": 6, "source_commit": "b7acfdcd"},
+    "S":  {"version": "v3.3", "model": "xgb", "nmae": 1.090, "r2": -0.135, "iter_handed_off": 6, "source_commit": "b7acfdcd"},
+    "N":  {"version": "v3.3", "model": "lgbm", "nmae": 0.722, "r2": 0.041, "iter_handed_off": 6, "source_commit": "b7acfdcd"}
   },
   "best_ml_loop_replay_n11": {
     "NE": {"version": "v2", "model": "lgbm", "nmae_original": 0.282, "nmae_strict": 0.317, "iter": 2,
-           "deprecated_by": "UlFor v3.3 oficial n=60d (iter_0006)"},
+           "deprecated_by": "UlFor CV 5 folds champion ridge (iter_0007)"},
     "SE": {"version": "v2", "model": "lgbm", "nmae_original": 0.362, "nmae_strict": 0.426, "iter": 2,
-           "deprecated_by": "UlFor v3.3 oficial n=60d (iter_0006)"}
+           "deprecated_by": "UlFor CV 5 folds champion lr (iter_0007)"}
   },
   "hypotheses_verdict": {
     "H2_off_by_one_pdp_join": {
@@ -44,6 +53,14 @@
       "iter": 4,
       "verdict": "implementado",
       "iter6_note": "Caso real iter_0004 (SE/v3 sign-flip) era falso positivo (n=11). H16 nova proposta para downgrade severity quando n_test<30."
+    },
+    "H17_fase4_promote_SE_S_xgb": {
+      "iter": 7,
+      "verdict": "SUPERSEDED_BY_ULFOR_RIDGE_LR_CV",
+      "iter_closed": 7,
+      "evidence_final": "UlFor self-actioned via commits 76732289 + 4e0fc7b4. Champions mudaram: NE=ridge (33.7%CV), SE=lr (46.6%CV), S=lr (89.6%CV vs xgb 115.8%CV), N=ridge_fragile (86.3%CV std 31.8%). XGB nao e mais champion em SE/S — premissa H17 parcialmente invalidada.",
+      "decision": "NAO emite req-0004 (redundante com plan UlFor existente). Cria H18 (sanity B1-B6 sobre champions Ridge/LR pos-OOT).",
+      "lesson_learned": "Queue e snapshot temporal — UlFor pode resolver entre iters via session paralela. Recon-style absorve em vez de duplicar trabalho."
     }
   },
   "sanity_checks_disponiveis": [
@@ -55,18 +72,23 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0006_recon_delta_post_reqs.md",
+  "ultimo_handoff": "iter_0007_h17_fase4_promote_superseded.md",
   "budget_consumido": {
-    "iter": 6,
-    "horas": 1.8,
+    "iter": 7,
+    "horas": 1.0,
     "custo_usd": null
   },
   "ulfor_session_sync": {
     "iter0005_fim_head": "be2c9186",
     "iter0006_inicio_head": "be2c9186",
     "iter0006_fim_head": "be2c9186",
-    "novos_commits_durante_iter0006": [],
-    "note": "Nenhum novo commit UlFor durante iter_0006 (recon de commits ja existentes em be2c9186/b7acfdcd). Reqs DONE com ulfor_response preenchido (foram preenchidos durante iter_0005, loop estava ocupado para extrair)."
+    "iter0007_inicio_head": "4e0fc7b4",
+    "iter0007_fim_head": "4e0fc7b4",
+    "novos_commits_durante_iter0007": [
+      {"hash": "76732289", "msg": "Ridge baseline-controle BATE XGB em NE (-4.4pp) e S (-8.6pp)", "absorbed": true},
+      {"hash": "4e0fc7b4", "msg": "ulfor checkpoint: 02:15Z fase 3, proximo CV Ridge + @champion + multicolinearidade", "absorbed": true}
+    ],
+    "note": "UlFor commitou Ridge/LR baseline-controle + CV walk-forward 5 folds entre iter_0006 e iter_0007. Champions per-sub mudaram em 3/4 subs. Sem novos requests do loop necessarios — UlFor ja' executando @champion registry plan."
   },
   "open_requests": [],
   "closed_requests": [
@@ -87,8 +109,8 @@
   ],
   "planner_config": {
     "mode": "self_planning",
-    "next_iter_should_be": "hypothesis_test normal (top da queue agora = H9 P1 metric_suite)",
-    "alt_next": "H17 (P0 promover SE/S v3.3 a FASE 4) — mas e meta-acao via req, nao codigo no loop"
+    "next_iter_should_be": "H18 (P1 methodology — auditar champions Ridge/LR pos-OOT via B1-B6) bloqueada ate UlFor publicar predicoes em parquet. Alternativa: H9 (P1 metric_suite MAE/R²/F1) ou H16 (P1 B6 robustness n_test threshold).",
+    "alt_next": "H16 (P1 B6 robustness) — codavel no loop sem dep UlFor."
   },
   "kill_requested": false
 }

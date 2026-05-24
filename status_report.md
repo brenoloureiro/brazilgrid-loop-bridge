@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T02:18:34Z
+# Loop status — 2026-05-24T02:29:40Z
 
 **Saude**: green (loop saudavel)
 
-**Loop continuo**: no (pid=none, .STOP=no)
+**Loop continuo**: yes (pid=54759, .STOP=no)
 
-**Iter atual**: 6
-**Alvo ativo**: ulfor_v3_3_metrics_absorbed
+**Iter atual**: 7
+**Alvo ativo**: fase_4_champions_ridge_lr_post_cv
 
-**Budget**: 6 iters / 1.8 horas consumidas
+**Budget**: 7 iters / 1.0 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0006_recon_delta_post_reqs.md
-  decision: ABSORVED — UlFor oficial vira fonte de verdade do leaderboard.
+**Ultimo handoff**: iter_0007_h17_fase4_promote_superseded.md
+  decision: |
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 9d803d7 bridge: sync iter 5 (19 minutes ago)
+**Bridge ultimo sync**: b3783fe bridge: sync iter 6 (11 minutes ago)
 
-**UlFor HEAD**: 4e0fc7b4 ulfor checkpoint: 02:15Z — fase 3, próximo: CV Ridge + @champion + multicolinearidade
+**UlFor HEAD**: 83bc79c2 feat(forecast): promote champions D+1 — ridge_NE/lr_SE/lr_S Champion, ridge_N Staging
 
 ---
 

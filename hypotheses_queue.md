@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T03:30:00Z
+last_updated: 2026-05-24T05:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -315,25 +315,62 @@ hypotheses:
     created_at: 2026-05-24T05:00:00Z
 
   - id: H17
-    summary: Promover SE/v3 + S/v3.3 PDP-fixed para FASE 4 (decisao UlFor pendente)
+    summary: Promover SE/v3 + S/v3.3 PDP-fixed para FASE 4 (SUPERSEDED)
     detail: |
-      UlFor reportou v3.3 sub-level (iter_0006 extract): NE 35.7%, SE 46.0%,
-      S 109% (quebra teto persist 113.7%!), N 72.2%. SE/v3 promovivel
-      (confirmado em req-0003). S/v3.3 ML AGORA bate baseline (Was perdendo
-      117.2% vs 113.7%). Promover esses dois subsistemas para FASE 4 (model
-      serializer + drift monitor). Loop nao executa promocao — registra
-      como request P0 feature_fix para UlFor.
+      Premissa original: promover SE/v3 + S/v3.3 XGB para FASE 4.
+      VEREDITO iter_0007: SUPERSEDED_BY_ULFOR_RIDGE_LR_CV.
+      UlFor self-actionou entre iter_0006 e iter_0007 via commits 76732289
+      (Ridge baseline-controle) + 4e0fc7b4 (CV walk-forward 5 folds).
+      Champions mudaram em 3/4 subs:
+        NE: xgb 35.7% -> ridge 33.7%CV  (R² +0.402 -> +0.469)
+        SE: xgb 46.0% -> lr 46.6%CV     (R² +0.386 -> +0.380)
+        S:  xgb 109%  -> lr 89.6%CV     (R² -0.135 -> +0.447, +0.58 abs!)
+        N:  lgbm 72%  -> ridge 86.3%CV  (FRAGIL, std 31.8%, nao promovivel)
+      Loop NAO emite req-0004 (redundante — UlFor ja' executando
+      @champion registry plan, OOT 2x agendado).
+      Follow-up: H18 (sanity B1-B6 sobre champions Ridge/LR).
     type: model
     layer: curtailment
     target: fase_4_promote_SE_S
     priority: P0
-    status: queued
+    status: done
+    iter_handled: 0007
+    verdict: SUPERSEDED_BY_ULFOR_RIDGE_LR_CV
     estimated_effort_hours: 0.0
     depends_on: []
     blocks: []
     sanity_checks_required: []
     expected_value: deliverable real do UlFor para producao
     created_at: 2026-05-24T05:00:00Z
+    completed_at: 2026-05-24T05:30:00Z
+
+  - id: H18
+    summary: Auditar champions Ridge/LR pos-OOT via sanity B1-B6
+    detail: |
+      Derivada de H17 SUPERSEDED. Quando UlFor publicar predictions de
+      ridge_NE + lr_SE + lr_S em parquet acessivel (ou via req-0005 a
+      criar), loop roda pipeline B1-B6 completo:
+        B1 leak_detection — confirmar sem vazamento target em features
+        B2 permutation_importance — top features Ridge/LR per sub
+        B3 holdout_temporal_strict — gap 7d + janela OOT alternativa
+        B4 baseline_compare — vs persist_d1 e ma7 por fold
+        B5 distribution_shift — PSI train vs OOT
+        B6 zero_count_shift — atualizado para downgrade severity n_test<30 (H16)
+      Acceptance: se 5/6 passam clean, loop sinaliza GO para FASE 4
+      (model serializer + drift monitor); se >=2 falham, request investigacao.
+      Considerar tambem multicolinearidade (VIF) sugerida por UlFor — pode
+      ser nova H19.
+    type: methodology
+    layer: curtailment
+    target: ridge_lr_champion_audit_pre_fase4
+    priority: P1
+    status: blocked
+    estimated_effort_hours: 1.5
+    depends_on: [req-0005]  # publicar predicoes ridge_NE+lr_SE+lr_S em parquet
+    blocks: []
+    sanity_checks_required: [leak, perm, holdout, baseline, dist_shift, zero_count]
+    expected_value: garantir que champion novo nao tem vies escondido antes FASE 4
+    created_at: 2026-05-24T05:30:00Z
 
   - id: H15
     summary: S 'nao aprendivel' — rare event classifier em vez de regressor?

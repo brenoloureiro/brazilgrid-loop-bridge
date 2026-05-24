@@ -5,10 +5,14 @@ Atualizado pelo watchdog ao final de cada iteração com ganho promovido.
 
 | layer | alvo | sub | baseline | best_metric | delta_vs_baseline | last_iter | sanity_ok | data_utc |
 |---|---|---|---|---|---|---|---|---|
-| curtailment | d1_ENE_CNF | NE | persist_d1 | **NMAE 35.7% (UlFor v3.3 oficial, n=60d, R² +0.402)** | UlFor oficial sub-level | 0006 | UlFor n=60 | 2026-05-24T05:00Z |
-| curtailment | d1_ENE_CNF | SE | persist_d1 | **NMAE 46.0% (UlFor v3.3 oficial, n=60d, R² +0.386, PROMOVIVEL FASE 4)** | UlFor oficial + req-0003 verdict | 0006 | UlFor n=60 | 2026-05-24T05:00Z |
-| curtailment | d1_ENE_CNF | S | persist_d1 (113.7%) | **NMAE 109% xgb UlFor v3.3 (ML AGORA bate persist!)** | skill +0.04 vs persist_d1 | 0006 | UlFor n=60 | 2026-05-24T05:00Z |
-| curtailment | d1_ENE_CNF | N | persist_d1 | NMAE 72.2% lgbm (UlFor v3.3, sem-lags vence) | UlFor oficial | 0006 | UlFor n=60 | 2026-05-24T05:00Z |
+| curtailment | d1_ENE_CNF | NE | persist_d1 (44.5±17.3% CV) | **NMAE 33.7±8.1% ridge_alpha10 (UlFor CV 5 folds, R² +0.469±0.098)** | skill +0.24 vs persist; 5/5 folds vs xgb | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
+| curtailment | d1_ENE_CNF | SE | persist_d1 (68.8±13.8% CV) | **NMAE 46.6±13.4% lr_sklearn (UlFor CV 5 folds, R² +0.380±0.139)** | skill +0.32 vs persist; 4/5 folds vs xgb | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
+| curtailment | d1_ENE_CNF | S | persist_d1 (124.2±24.1% CV) | **NMAE 89.6±31.2% lr_sklearn (UlFor CV 5 folds, R² +0.447±0.202, lr CORTA xgb -19.4pp)** | skill +0.28 vs persist; 4/5 folds vs xgb | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
+| curtailment | d1_ENE_CNF | N | persist_d1 (100.7±9.3% CV) | NMAE 86.3±31.8% ridge_alpha10 (UlFor CV, FRAGIL std alta, ma7 compete 93.5%) | skill +0.14 vs persist mas std 32% | 0007 | nao promovivel ainda | 2026-05-24T05:30Z |
+| curtailment | d1_ENE_CNF (DEPRECATED) | NE | persist_d1 | NMAE 35.7% xgb UlFor v3.3 (superseded por ridge_alpha10) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
+| curtailment | d1_ENE_CNF (DEPRECATED) | SE | persist_d1 | NMAE 46.0% xgb UlFor v3.3 (superseded por lr) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
+| curtailment | d1_ENE_CNF (DEPRECATED) | S | persist_d1 | NMAE 109% xgb UlFor v3.3 (superseded por lr -19.4pp) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
+| curtailment | d1_ENE_CNF (DEPRECATED) | N | persist_d1 | NMAE 72.2% lgbm UlFor v3.3 single fold (CV mostra 99.5±37%) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
 | curtailment | d1_ENE_CNF | NE | persist_d1 (loop replay n=11) | NMAE 28.2% v2 LGBM original / 31.7% holdout strict | superado por UlFor v3.3 | 0002 | [4/5] | 2026-05-24T01:30Z |
 | curtailment | d1_ENE_CNF | SE | persist_d1 (loop replay n=11) | NMAE 36.2% v2 LGBM | superado por UlFor v3.3 | 0002 | [3/5] B3 fail | 2026-05-24T01:30Z |
 | meta | h2_off_by_one_pdp | — | dbt_join_correto | corr(PDP[t], gen[t])=0.9118 / corr(PDP[t], gen[t+1])=0.8211 | H2 REFUTADO | 0003 | n=484 dias | 2026-05-24T02:30Z |
@@ -90,3 +94,33 @@ B6 lessons learned (req-0001 + req-0003 responses):
 
 Hipoteses fechadas nesta iter: H6 (B6 sign-flip refutado por UlFor)
 Hipoteses adicionadas: H16 (B6 threshold-by-n), H17 (P0 promover SE/S v3.3 a FASE 4)
+
+## Iter 0007 — H17 SUPERSEDED + champions Ridge/LR absorved
+
+UlFor self-actionou entre iter_0006 e iter_0007 (~5h, sem novo req do loop):
+
+- commit `76732289` (2026-05-23 22:59): Ridge baseline-controle BATE XGB em NE/S
+- commit `4e0fc7b4` (2026-05-24 02:15Z): CV walk-forward 5 folds confirma
+
+Champions per-sub mudaram em 3/4 subs (mean ± std, CV 5 folds 60d):
+
+| sub | champion antes (iter_0006) | champion agora (iter_0007 CV) | delta NMAE | delta R² |
+|---|---|---|---|---|
+| NE | xgb 35.7% / +0.402 | **ridge_alpha10 33.7±8.1% / +0.469±0.098** | -2.0pp | +0.067 |
+| SE | xgb 46.0% / +0.386 | **lr_sklearn 46.6±13.4% / +0.380±0.139** | +0.6pp (tied) | -0.006 |
+| S  | xgb 109% / -0.135 | **lr_sklearn 89.6±31.2% / +0.447±0.202** | **-19.4pp** | **+0.58 absoluto!** |
+| N  | lgbm 72.2% / +0.041 | ridge_alpha10 86.3±31.8% / +0.196±0.289 FRAGIL | +14.1pp | +0.155 |
+
+H17 (P0 promover XGB SE/S a FASE 4) -> **SUPERSEDED_BY_ULFOR_RIDGE_LR_CV**:
+premissa XGB invalidada, mas a INTENCAO (promover algo a FASE 4) e' valida —
+champions Ridge/LR sao os candidatos reais. Loop NAO emite req-0004 pois
+UlFor JA executa @champion registry plan + OOT 2x agendado (autopilot).
+
+Lessons:
+- Queue e snapshot temporal. UlFor pode resolver em sessao paralela entre iters.
+- Recon-style absorve em vez de duplicar trabalho.
+- Single fold n=60d (iter_0006) overestima xgb e subestima lr — CV 5 folds
+  e ground truth oficial pos-iter_0007.
+
+H18 nova (P1 methodology, blocked por req-0005): auditar champions Ridge/LR
+via B1-B6 antes de FASE 4 final.
