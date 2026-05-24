@@ -1,8 +1,8 @@
-# Loop status — 2026-05-24T13:42:51Z
+# Loop status — 2026-05-24T13:44:24Z
 
-**Saude**: yellow (STOP file presente)
+**Saude**: green (loop saudavel)
 
-**Loop continuo**: no (pid=272863, .STOP=yes)
+**Loop continuo**: yes (pid=545663, .STOP=no)
 
 **Iter atual**: 25
 **Alvo ativo**: leaderboard_canonical_suite_h19_materialization
@@ -16,9 +16,9 @@
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 76e874b bridge: sync ulfor iter 28 (8 seconds ago)
+**Bridge ultimo sync**: 97c4513 bridge: sync ulfor iter 29 (42 seconds ago)
 
-**UlFor HEAD**: db3d2cb9 ulfor checkpoint: 15:00Z — H22 stricter REFUTADO + alpha sweep (paralelo), 0 commits proprios convergencia plena
+**UlFor HEAD**: 83abab3e docs(forecast): MATRIX coerencia — promote_champions.py JA tem --ridge-alpha
 
 ---
 
