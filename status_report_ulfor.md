@@ -1,10 +1,10 @@
-# UlFor headless runner — status — 2026-05-24T13:46:10Z
+# UlFor headless runner — status — 2026-05-24T13:46:19Z
 
-**Saude**: red (err_streak=3 — runner pausou aguardando humano)
+**Saude**: red (pid registrado mas processo nao esta vivo)
 
-**Runner**: alive=yes pid=273001 .STOP=no
+**Runner**: alive=no pid=273001 .STOP=no
 **Loop status**: budget_iter_daily
-**Ultimo heartbeat**: 2026-05-24T13:46:10Z
+**Ultimo heartbeat**: 2026-05-24T13:46:19Z
 
 ## Iter / decisao
 
