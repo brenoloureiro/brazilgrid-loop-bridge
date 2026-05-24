@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-25T05:30:00Z
+last_updated: 2026-05-26T02:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -1606,17 +1606,61 @@ notas_iter0031:
       Nota: H15 thr_p90 (rare event severo) NAO e' viavel — pos absoluto
       <5 por fold inviabiliza calibracao classifier; manter regressor
       binarizado se quiser alertar severo.
+
+      VEREDITO iter_0043: INDETERMINADO_BLOCKED_NO_PEDIDO_BRENO. Sub-claim
+      tecnico (LogReg > LR_reg binarizado +4.5pp AUC thr_zero / +6.8pp
+      thr_p75) CONFIRMADO_VIA_PRE_EXISTING_EVIDENCE iter_0030 (re-leitura
+      bit-exata: delta +4.55pp / +6.77pp / -1.63pp matches claim exato).
+      Sub-claim operacional (endpoint /api/forecast/d1/s_alert)
+      BLOCKED_NO_STAKEHOLDER por 3 blockers concorrentes:
+        B1_no_pedido_breno (detail H35 explicit)
+        B2_hard_rule_loop_scope (ZERO interacao com api/services/products/)
+        B3_consolidation_decision_iter_0042 (planner promoveu H37 explicit)
+      6 sanity checks tecnicos PASS_INHERITED ou WARN_INHERITED iter_0030
+      (4 verdes + 2 amarelos esperados em S por dist_shift). 1 sanity novo
+      desta iter (operational_gate) FAIL_NEW por design — gate de
+      governance NAO refuta tecnica. Nenhum follow-up criado (H15-family
+      esgotado tecnicamente iter_0030, lado operacional deferido aqui).
+      Lesson canonica: hipoteses cuja entrega exige tocar api/services/
+      products/ devem ser marcadas como `requires_handoff=true` no queue;
+      loop pode validar tecnica + arquivar evidencia, NAO pode executar
+      produtizacao. Custo iter 0.3h (vs estimado 2.5h — economia por evitar
+      re-execucao bit-exata).
     type: model
     layer: curtailment
     target: S_binary_alert_endpoint
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0043
+    verdict: INDETERMINADO_BLOCKED_NO_PEDIDO_BRENO
     estimated_effort_hours: 2.5
+    actual_effort_hours: 0.3
     depends_on: []
     blocks: []
     sanity_checks_required: [holdout, baseline, perm]
+    sanity_checks_done: [leak_PASS_INHERITED, perm_PASS_INHERITED, holdout_temporal_strict_PASS_INHERITED, baseline_compare_PASS_INHERITED, distribution_shift_WARN_INHERITED, zero_count_WARN_INHERITED, operational_gate_FAIL_NEW]
+    follow_ups_created: []
     expected_value: novo endpoint binario para dashboard operador, ganho 5pp AUC vs binarizar champion. Sem pedido formal, fica em backlog.
+    requires_handoff: true
+    handoff_target: ulfor_or_breno_decision
+    reopen_conditions:
+      - "Breno pedir explicitamente endpoint binario S"
+      - "UlFor decidir produtizar autonomamente (registry alias + rota services/analytics_api/routes/)"
+      - "Dado novo: novo regime, nova feature, nova familia de modelo"
     created_at: 2026-05-25T01:30:00Z
+    completed_at: 2026-05-26T02:30:00Z
+    closure_summary: |
+      Re-validacao bit-exata de evidencia pre-existente iter_0030 (H15
+      CONFIRMADO_PARCIAL_NON_RARE). Claim numerica do detail H35 confirmada
+      em 3/3 thresholds (matches +4.5pp/+6.8pp/-1.6pp exato). Sub-claim
+      operacional bloqueada por governance (sem pedido Breno) + escopo (loop
+      nao toca producao por regra hard). Verdict INDETERMINADO_BLOCKED
+      distingue de INDETERMINADO_PURO: bloqueio e' identificado e categorizado,
+      nao zona ruido. NAO emite req-NNNN, NAO toca champion, NAO cria H
+      derivada. Insight tecnico ja arquivado em leaderboard.md secao
+      "S binary alert (iter_0030 H15)" linhas 564-593.
+    artefatos: outputs/iter_0043/h35_s_binary_alert_logreg/
+      (verdict.json + sanity_checks.json + summary.md)
 
   - id: H36
     summary: GBDT vs OLS gap em features completas iter_0002 v3 (37+ feats)

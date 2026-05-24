@@ -561,7 +561,7 @@ vs 34.7%) e por estabilidade std.
    ausencia de CV. UlFor candidato a executar em proximo sprint
    envelope-safe.
 
-## S binary alert (iter_0030 H15) — classifier viavel para alerta operacional
+## S binary alert (iter_0030 H15 + iter_0043 H35) — classifier viavel para alerta operacional (DEFERIDO_DEPLOY)
 
 CV 5×60d gap 7d, S/v1 (37 feats iter_0002), LogReg(class_weight=balanced)
 vs LGBMClassifier vs LR_sklearn (champion S) vs Ridge_α10 binarizados.
@@ -590,7 +590,22 @@ do y_tr (sem leak).
   F1 thr_zero: LogReg 0.718 vs LR_reg 0.682 (close), recall LogReg 0.737
   vs LR_reg 0.900 (regressor recupera mais mas com 14pp menos precisao).
 
-Artefatos: `outputs/iter_0030/h15_s_classifier_vs_regressor/`.
+**Update iter_0043 (H35 INDETERMINADO_BLOCKED_NO_PEDIDO_BRENO)**: claim do
+detail H35 (+4.5pp / +6.8pp / rare event nao viavel) re-validada bit-exata
+contra iter_0030 verdict.json (matches 3/3 thresholds). Sub-claim
+operacional (endpoint `/api/forecast/d1/s_alert`) **DEFERIDO** por:
+(a) H35 detail explicit "alerta binario nao e prioridade Breno";
+(b) regra hard do loop "ZERO interacao com api/services/products/";
+(c) iter_0042 consolidation reafirma "H35 BAIXA blocked".
+Reabrir apenas se Breno pedir endpoint OU UlFor produtizar autonomamente
+OU dado novo emergir. H35 marcada `requires_handoff=true` + `status=done`
++ `verdict=INDETERMINADO_BLOCKED_NO_PEDIDO_BRENO` no queue. Lesson
+canonica nova: hipoteses "handoff-shaped" (cuja entrega exige tocar
+producao) merecem flag no queue para evitar ciclos de revisita do
+selector — aplicavel tambem a H27 (PROMOVE_NS_FLAG_NE).
+
+Artefatos: `outputs/iter_0030/h15_s_classifier_vs_regressor/` (CV evidencia)
++ `outputs/iter_0043/h35_s_binary_alert_logreg/` (verdict + governance gate).
 
 ## Historico iter loop (deprecado — replays n=11)
 
