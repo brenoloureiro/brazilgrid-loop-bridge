@@ -1,4 +1,4 @@
-# Loop status — 2026-05-24T19:12:04Z
+# Loop status — 2026-05-24T19:12:25Z
 
 **Saude**: green (loop saudavel)
 
@@ -16,7 +16,7 @@
 
 **Quality gate proximo**: force_consolidation — refuted_streak_2 (iters iter_0040_h30_pdp_residual_ridge_cv.md, iter_0041_h33_intercambio_lr.md)
 
-**Bridge ultimo sync**: 4245daf bridge: sync iter 40 (15 minutes ago)
+**Bridge ultimo sync**: f514e68 bridge: sync iter 41 (19 seconds ago)
 
 **UlFor HEAD**: 4f4e21f4 ulfor checkpoint: 17:44Z — fase 4, proximo: Breno desbloqueia (10o forcado, SEM substantive, standby puro tunnels DOWN, sinal/ruido 22.2%)
 
