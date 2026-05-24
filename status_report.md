@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T13:22:08Z
+# Loop status — 2026-05-24T13:23:47Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=272863, .STOP=no)
 
-**Iter atual**: 22
-**Alvo ativo**: ensemble_champion_persist
+**Iter atual**: 23
+**Alvo ativo**: recon_delta_ulfor_post_ec0fd937
 
-**Budget**: 22 iters / 1.4 horas consumidas
+**Budget**: 23 iters / 0.4 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0022_h24_ensemble_champion_persist.md
-  decision: |
+**Ultimo handoff**: iter_0023_recon_delta.md
+  decision: 
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 22ae074 bridge: sync iter 22 (4 minutes ago)
+**Bridge ultimo sync**: f0fd809 bridge: sync iter 22 (2 minutes ago)
 
-**UlFor HEAD**: 99af14b7 exp(forecast): validacao 14d real refuta promoves S/N de CHAMPION_DECISION_MATRIX
+**UlFor HEAD**: 5d41d063 exp(forecast): correcao N — ridge+h22 NAO foi refutado em 14d real
 
 ---
 

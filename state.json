@@ -1,8 +1,8 @@
 {
-  "iter_atual": 22,
+  "iter_atual": 23,
   "mode": "self_planning",
-  "alvo_ativo": "ensemble_champion_persist",
-  "layer_ativa": "curtailment",
+  "alvo_ativo": "recon_delta_ulfor_post_ec0fd937",
+  "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
     "version": "1.0",
@@ -517,10 +517,10 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0022_h24_ensemble_champion_persist.md",
+  "ultimo_handoff": "iter_0023_recon_delta.md",
   "budget_consumido": {
-    "iter": 22,
-    "horas": 1.4,
+    "iter": 23,
+    "horas": 0.4,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -1118,9 +1118,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 30,
-    "horas": 5.4881,
-    "usd": 86.5214,
+    "iter": 31,
+    "horas": 5.7231,
+    "usd": 91.9845,
     "note": "iter_0022 H24 ensemble_champion_persist (replay sklearn over iter_0002 features, no LLM cost)"
   }
 }
