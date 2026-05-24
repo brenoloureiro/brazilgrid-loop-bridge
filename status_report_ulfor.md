@@ -1,35 +1,35 @@
-# UlFor headless runner — status — 2026-05-24T16:27:21Z
+# UlFor headless runner — status — 2026-05-24T16:31:49Z
 
-**Saude**: yellow (UlFor sem commits ha 3 iters — proxima e MODO_3)
+**Saude**: green (runner saudavel)
 
 **Runner**: alive=yes pid=571987 .STOP=no
 **Loop status**: running
-**Ultimo heartbeat**: 2026-05-24T16:27:21Z
+**Ultimo heartbeat**: 2026-05-24T16:31:49Z
 
 ## Iter / decisao
 
-- **Iter atual UlFor (runner)**: 43
-- **Ultimo plan_step modo**: MODO_1_CONTINUACAO
-- **Ultimo plan_step razao**: sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE
+- **Iter atual UlFor (runner)**: 44
+- **Ultimo plan_step modo**: MODO_3_CHECKPOINT
+- **Ultimo plan_step razao**: iters_sem_commit=3 >= 3: UlFor nao gerou commits nas ultimas iters. Pode estar travado.
 - **err_streak**: 0
-- **iters_sem_commit**: 3
+- **iters_sem_commit**: 0
 
 ## UlFor master (estado observado)
 
-- **HEAD**: 6111cda4 docs(forecast): FINDING_LOCAL_CH_STALE_FEAT_TABLES — CH local Docker tem feat_termico 2024-12-31, bloqueia bakeoff val14d
+- **HEAD**: 655729cd ulfor checkpoint: 16:27Z — fase 4, proximo: Breno decide EC2 setup vs skip-local-revalidate (promote v3 DECIDIDO mas bloqueado por CH local stale + MLflow tunel down)
 - **Branch**: master
-- **Ultimo commit observado (state)**: 6111cda4
-- **Ultimo checkpoint**: ulfor_2026-05-24T16-02.md
-  - **Idade**: 21 min
+- **Ultimo commit observado (state)**: 655729cd
+- **Ultimo checkpoint**: ulfor_2026-05-24T16-29.md
+  - **Idade**: 0 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
 
 ## Budget (reset diario 00:00 UTC)
 
 - **Data UTC**: 2026-05-24
-- **Iters hoje**: 11 / 30
-- **Horas hoje**: 1.1634 / 12
-- **Custo hoje**: $20.7324 / $50
+- **Iters hoje**: 12 / 30
+- **Horas hoje**: 1.2376 / 12
+- **Custo hoje**: $21.822 / $50
 
 ---
 
