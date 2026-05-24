@@ -1,5 +1,5 @@
 {
-  "iter_atual": 18,
+  "iter_atual": 19,
   "mode": "self_planning",
   "alvo_ativo": "leaderboard_consistency_post_h9",
   "layer_ativa": "meta",
@@ -589,7 +589,7 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 2,
+    "iter": 3,
     "horas": 0.0,
     "usd": 0.0
   }
