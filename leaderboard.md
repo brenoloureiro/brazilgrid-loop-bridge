@@ -6,6 +6,21 @@ Atualizado pelo watchdog ao final de cada iteração com ganho promovido.
 **Iter 0008 (H9):** metricas primarias agora **MAE/R²/F1** (PLANO_FINAL Principio 6).
 NMAE mantida como secundaria — flaggada `unsafe` quando ymean<1 MWh.
 
+**Iter 0016 (H19):** MAE+R²+NMAE dos champions UlFor Ridge/LR extraidos para
+leaderboard — **CONFIRMADO_PARCIAL**. Fontes acessiveis sem MLflow tunnel:
+(1) `FINDING_RIDGE_BEATS_GBDT.md` parser regex (NMAE+R² mean±std 6 modelos × 4 subs);
+(2) `promote_champions.py:CV_METRICS_BY_FS` hard-coded por feature_set (full/clean/clean_plus);
+(3) state.json baselines + iter_0013 baseline persist_d1 MAE em MWh.
+**MAE em MWh derivado** por `NMAE_champ × (MAE_persist_mwh / NMAE_persist)` →
+NE 25.5k / SE 5.6k / S 916 / N 429 MWh. Caveat 1a ordem (~10-15%): ymean varia
+entre folds (iter_0014: NE 32k-72k). Consistency check `NMAE_persist FINDING vs
+state.json` = OK 4/4 subs (0.445/0.688/1.242/1.007). **F1_p50 NAO DISPONIVEL** —
+gap real: bakeoff_d1/promote_champions/validate_d1 nao computam F1 binarizada.
+**req-0007 emitido** ao UlFor pedindo (a) F1_p50 logado por fold, (b) dump
+parquet do CV_SUMMARY com per-fold MAE em MWh. Sem isto, leaderboard inconsistente
+viraria permanente. Detalhe + CSVs em
+`outputs/iter_0016/h19_champion_metrics/`.
+
 **Iter 0009 (H16):** B6 zero_count_shift v1.1 — `n_test<30 -> downgrade severity 1 nivel`
 e sign_flip exige `|corr_train| >= 0.2 AND |corr_test| >= 0.2` (era >0.05). Falso positivo
 SE/v3 lag (iter_0004 com n_test=11) automaticamente atenuado: curt_lag7 sign_flip bloqueado,
@@ -78,10 +93,10 @@ queue. Detalhe em `iterations/iter_0013_h10_ensemble_v2_persist.md`.
 
 | layer | alvo | sub | baseline (MAE_mwh, CV) | best_metric (MAE/R²/F1, modelo) | NMAE secundario | last_iter | sanity_ok | data_utc |
 |---|---|---|---|---|---|---|---|---|
-| curtailment | d1_ENE_CNF | NE | persist_d1 (UlFor CV 5 folds — MAE pendente extracao) | **ridge_curt_ne_d1 @champion (R² +0.469±0.098 CV; in-sample R²=0.830)** | NMAE 33.7±8.1% | 0011 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T08:30Z |
-| curtailment | d1_ENE_CNF | SE | persist_d1 (UlFor CV 5 folds) | **lr_curt_se_d1 @champion (R² +0.380±0.139 CV; in-sample R²=0.619)** | NMAE 46.6±13.4% | 0011 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T08:30Z |
-| curtailment | d1_ENE_CNF | S | persist_d1 (UlFor CV 5 folds) | **lr_curt_s_d1 @champion (R² +0.447±0.202 CV; in-sample R²=0.725)** | NMAE 89.6±31.2% (NMAE unsafe em test n=11 — S baixo ymean, iter_0008) | 0011 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T08:30Z |
-| curtailment | d1_ENE_CNF | N | persist_d1 (UlFor CV 5 folds) | **ridge_curt_n_d1 v2 @staging (clean_plus, 31 feat; R² +0.196±0.289 CV; in-sample R²=0.472)** FRAGIL atenuado — v2 reduz std -5.6pp vs v1 full | NMAE 84.8±26.2% (era 86.3±31.8% em v1) | 0015 | nao promovivel ainda — staging only (UlFor H10 PARCIALMENTE CONFIRMADA) | 2026-05-24T12:30Z |
+| curtailment | d1_ENE_CNF | NE | persist_d1 MAE≈33.7k MWh (CV 5x60d, NMAE 44.5%) | **ridge_curt_ne_d1 @champion — MAE≈25.5k MWh (derived) / R² +0.469±0.098 / F1 N/A (req-0007)**; in-sample R²=0.830 | NMAE 33.7±8.1% | 0016 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T13:30Z |
+| curtailment | d1_ENE_CNF | SE | persist_d1 MAE≈8.3k MWh (CV 5x60d, NMAE 68.8%) | **lr_curt_se_d1 @champion — MAE≈5.6k MWh (derived) / R² +0.380±0.139 / F1 N/A (req-0007)**; in-sample R²=0.619 | NMAE 46.6±13.4% | 0016 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T13:30Z |
+| curtailment | d1_ENE_CNF | S | persist_d1 MAE≈1.27k MWh (CV 5x60d, NMAE 124.2%) | **lr_curt_s_d1 @champion — MAE≈916 MWh (derived) / R² +0.447±0.202 / F1 N/A (req-0007)**; in-sample R²=0.725 FRAGIL (validate_d1 7-14d skill -37 a -41%) | NMAE 89.6±31.2% (CV ymean≈1k MWh > EPS=1 → safe; iter_0008 unsafe era replay n=11) | 0016 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T13:30Z |
+| curtailment | d1_ENE_CNF | N | persist_d1 MAE≈0.51k MWh (CV 5x60d, NMAE 100.7%) | **ridge_curt_n_d1 v2 @staging — MAE≈429 MWh (derived) / R² +0.179±0.176 / F1 N/A (req-0007)** (clean_plus, 31 feat; in-sample R²=0.472); FRAGIL atenuado vs v1 (era MAE≈440 MWh / R² +0.196±0.289) | NMAE 84.8±26.2% | 0016 | nao promovivel ainda — staging only | 2026-05-24T13:30Z |
 | meta | metric_suite | — | NMAE (Principio 6 violado) | **MAE/R²/F1 primario + NMAE secundario com flag** | 3/4 subs (NE,SE,N) conflict NMAE↔R²/F1 em iter_0002 replay; S NMAE unsafe | 0008 | H9 CONFIRMADO | 2026-05-24T06:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | NE | persist_d1 | NMAE 35.7% xgb UlFor v3.3 (superseded por ridge_alpha10) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | SE | persist_d1 | NMAE 46.0% xgb UlFor v3.3 (superseded por lr) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
@@ -700,4 +715,89 @@ Considerar usar ensemble post-processing (H10 nosso, iter_0013 confirmado)
 + LGBM (iter_0012 confirmado GBDT padrao) para baseline final do bake-off
 H21. Alt: H27 (P50 substituto custo zero), H24 (ensemble Ridge/LR), H19
 (MAE/R²/F1 dos champions — agora parseavel via summary JSON UlFor).
+
+## Iter 0016 — H19 extrai MAE/R²/F1 dos champions (CONFIRMADO_PARCIAL)
+
+Hipotese H19 (P2 metric, layer=meta): champions UlFor (ridge_curt_ne_d1 etc)
+estao publicados so' por NMAE no leaderboard. Pos-adocao do metric_suite H9
+(MAE/R²/F1 primarios), preciso extrair as 3 metricas para cada champion para
+o leaderboard ser internamente consistente.
+
+### Fontes acessiveis ao loop (sem MLflow tunnel ao EC2)
+
+| fonte | dado | localizacao |
+|---|---|---|
+| FINDING_RIDGE_BEATS_GBDT.md | tabela CV 5x60d: NMAE+R² mean±std de 6 modelos × 4 subs | `C:/Projetos/brazilgrid-ulfor/experiments/bakeoff_curtailment_multisub/FINDING_RIDGE_BEATS_GBDT.md` |
+| promote_champions.py | `CV_METRICS_BY_FS = {"full": ..., "clean": ..., "clean_plus": ...}` por sub | `C:/Projetos/brazilgrid-ulfor/experiments/bakeoff_curtailment_multisub/promote_champions.py:200-220` |
+| state.json baselines + iter_0013 baseline_metric | MAE persist_d1 em MWh por sub (CV 5x60d gap7d) + NMAE persist | `state.json` + `iterations/iter_0013_h10_ensemble_v2_persist.md` |
+
+### Derivacao MAE em MWh
+
+```
+ymean_test_estimated = MAE_persist_mwh / NMAE_persist
+MAE_champion_mwh     ≈ NMAE_champion_mean × ymean_test_estimated
+```
+
+| sub | ymean_test (MWh) | NMAE_champion | **MAE_champion derived** |
+|---|---:|---:|---:|
+| NE | 75730 | 0.337 | **25521 MWh** |
+| SE | 12064 | 0.466 | **5622 MWh** |
+| S  | 1023  | 0.896 | **916 MWh** |
+| N  | 506   | 0.848 | **429 MWh** |
+
+**Consistency check** (NMAE_persist do FINDING vs state.json):
+- NE 0.445 vs 0.445 OK
+- SE 0.688 vs 0.688 OK
+- S  1.242 vs 1.242 OK
+- N  1.007 vs 1.007 OK
+
+Confirma que `iter_0013` MAE_persist + `FINDING` NMAE_persist usam o MESMO
+target y_d1 e MESMA particao temporal — derivacao MAE valida em 1a ordem.
+
+### Caveat MAE derived
+
+NMAE publicado e' `mean(NMAE_per_fold)`, nao `mean(MAE_per_fold) / mean(ymean_per_fold)`.
+ymean varia entre folds (iter_0014: NE folds 32k → 72k → 67k → 46k → 32k MWh).
+Logo MAE_champion_derived ≠ MAE_champion_mean(folds) exatamente. Estimativa
+1a ordem; slack provavel ~10-15% se erro correlaciona com ymean.
+
+Para MAE-em-MWh exato precisa-se ou (a) dump per-fold MAE do MLflow, ou (b)
+re-rodar bakeoff_d1.py --cv-folds 5 com CH local — ambos fora do envelope
+desta iter (a requer MLflow tunnel, b requer execucao de codigo UlFor com
+features full em CH local).
+
+### Gap F1_p50
+
+`bakeoff_d1.py`, `promote_champions.py`, `validate_d1.py` — nenhum computa F1
+binarizada por P50 train. Source unica de F1 hoje e' `scripts/metric_suite.py`
+do loop (H9 iter_0008), aplicado so' a iter_0002 replay (LGBM, n_test=11,
+nao Ridge/LR). Para fechar o gap definitivamente -> **req-0007 emitido** ao
+UlFor pedindo (a) F1_p50 por fold no proximo CV bake-off; (b) dump
+CV_SUMMARY parquet acessivel ao loop.
+
+### Sanity checks (queue requeridos: []. Mas rodar 6 defaults)
+
+- **B1 leak**: N/A — meta-acao de extracao de metricas, sem treino.
+- **B2 perm**: N/A — sem modelo treinado.
+- **B3 holdout strict**: N/A_inherited_via_source — FINDING numbers vem
+  do CV 5x60d gap7d UlFor, que e' holdout estrito por construcao.
+- **B4 baseline_compare**: PASSED_DOUBLE — (i) skill_vs_persist computado
+  inline para cada champion (NE +24.3%, SE +32.3%, S +27.9%, N +15.8%);
+  (ii) consistency check NMAE_persist FINDING vs state.json em 4/4 subs.
+- **B5 dist_shift**: ANNOTATED_REUSE — std de NMAE/R² grande em S/N
+  (iter_0014 KS p<0.0001 NE+SE; iter_0012 ymean cai 3x em NE entre folds).
+  Capturado nos `_std` ao lado de cada metric.
+- **B6 zero_count**: N/A — sem features novas.
+
+### Decisao
+
+**CONFIRMADO_PARCIAL.** Leaderboard agora consistente para 2/3 metricas
+primarias (MAE_derived + R²) + NMAE secundaria. F1_p50 gap fechado via
+req-0007 (proximo round CV do UlFor). Bonus: ymean_test_per_sub agora
+disponivel para reusar em proximos bake-offs sem repetir derivacao.
+
+### Hipoteses derivadas
+
+Nenhuma. Plano natural pos-iter_0016 segue: **H21** (P2 feature
+engineering `pdp_residual = pdp_prev - gen`, derivada H3 iter_0010).
 

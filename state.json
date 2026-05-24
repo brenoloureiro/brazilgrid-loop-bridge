@@ -1,7 +1,7 @@
 {
-  "iter_atual": 15,
+  "iter_atual": 16,
   "mode": "self_planning",
-  "alvo_ativo": "recon_delta_ulfor_post_c8df4077",
+  "alvo_ativo": "leaderboard_consistency_post_h9",
   "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
@@ -129,6 +129,31 @@
       "lesson_learned": "Em inner_val pequeno (30d), pesos analiticos derivados de MAE/MSE generalizam melhor que pesos otimizados por grid-search empirico (ens_opt_alpha venceu 0/12 cells). BMA classico (weights proportional-to-precision) e' a melhor escolha default. alpha_opt funciona como diagnostic: spread 0.0-1.0 entre folds da mesma cell confirma distribution shift documentado em iter_0012 — ensemble responde ao regime. Tambem: H10 e' UNICA hipotese ate hoje que beneficia TODAS as 4 subs (mesmo S parcialmente) — ganho transversal raro no curt D+1.",
       "follow_ups_created": ["H24", "H25"]
     },
+    "H19_extract_champion_mae_r2_f1": {
+      "iter": 16,
+      "verdict": "CONFIRMADO_PARCIAL",
+      "iter_closed": 16,
+      "evidence_final": "Parser regex em FINDING_RIDGE_BEATS_GBDT.md (commit d1fe9777) extraiu CV mean±std de NMAE+R² para 6 modelos × 4 subs. promote_champions.py:CV_METRICS_BY_FS (commit 83bc79c2 / c8e27784) deu official cv_nmae_mean/std + cv_r2_mean/std por feature_set (full/clean/clean_plus). state.json baselines + iter_0013 baseline_metric deram MAE persist_d1 em MWh por sub (CV 5x60d gap7d, mesmo protocolo). Derivacao MAE-em-MWh dos champions: MAE_champion ≈ NMAE_champion_mean × (MAE_persist_mwh / NMAE_persist). Resultado: NE 25521 / SE 5622 / S 916 / N 429 MWh. Consistency check NMAE_persist FINDING vs state.json: 4/4 subs OK exato (0.445/0.688/1.242/1.007). Caveat 1a ordem (~10-15% slack): NMAE publicado e' mean(NMAE_per_fold) != mean(MAE)/mean(ymean); ymean varia entre folds (iter_0014 NE 32k-72k MWh). R² direto: NE +0.469±0.098 / SE +0.380±0.139 / S +0.447±0.202 / N +0.179±0.176. F1_p50 NAO DISPONIVEL em nenhuma fonte UlFor (bakeoff_d1/promote_champions/validate_d1 nao computam) — gap real, NAO derivavel.",
+      "decision": "CONFIRMADO_PARCIAL. Leaderboard atualizado para 2/3 metricas primarias (MAE_derived + R²) + NMAE secundaria. F1_p50 atrasado por req-0007 emitido ao UlFor (pedindo F1_p50 + dump per-fold MAE em parquet no proximo CV bake-off). Linhas NE/SE/S/N do bloco curtailment/d1_ENE_CNF reescritas com last_iter=0016.",
+      "lesson_learned": "Quando MLflow nao e' diretamente acessivel ao loop (EC2 atras de tunnel), comitar tabelas hard-coded em scripts (CV_METRICS_BY_FS) + tabelas em FINDING_*.md em formato regex-parseavel preserva auditabilidade. Parser literal de codigo Python e' robusto se o autor mantem layout estavel (UlFor mantem). Para MAE-em-MWh: derivacao via NMAE_persist e' boa 1a ordem (consistency 4/4 OK) mas slack ~10-15% e' real — solicitar dump per-fold para v1.0.",
+      "follow_ups_created": [],
+      "external_dependencies": ["req-0007 (P2 data_publish, F1+per-fold MAE parquet)"],
+      "champions_metrics_consolidated": {
+        "NE": {"model": "ridge_alpha10", "registered_name": "ridge_curt_ne_d1", "alias": "champion", "version": "1", "feature_set": "full", "n_features": 55,
+               "mae_mwh_derived": 25521, "r2_mean": 0.469, "r2_std": 0.098, "nmae_mean": 0.337, "nmae_std": 0.081, "f1_p50": null,
+               "in_sample_r2": 0.830, "ymean_test_estimated_mwh": 75730},
+        "SE": {"model": "lr_sklearn", "registered_name": "lr_curt_se_d1", "alias": "champion", "version": "1", "feature_set": "full", "n_features": 55,
+               "mae_mwh_derived": 5622, "r2_mean": 0.380, "r2_std": 0.139, "nmae_mean": 0.466, "nmae_std": 0.134, "f1_p50": null,
+               "in_sample_r2": 0.619, "ymean_test_estimated_mwh": 12064},
+        "S":  {"model": "lr_sklearn", "registered_name": "lr_curt_s_d1", "alias": "champion", "version": "1", "feature_set": "full", "n_features": 55,
+               "mae_mwh_derived": 916, "r2_mean": 0.447, "r2_std": 0.202, "nmae_mean": 0.896, "nmae_std": 0.312, "f1_p50": null,
+               "in_sample_r2": 0.725, "ymean_test_estimated_mwh": 1023,
+               "fragility_note": "lr_S em colapso operacional (validate_d1 7-14d skill -37 a -41%)"},
+        "N":  {"model": "ridge_alpha10", "registered_name": "ridge_curt_n_d1", "alias": "staging", "version": "2", "feature_set": "clean_plus", "n_features": 31,
+               "mae_mwh_derived": 429, "r2_mean": 0.179, "r2_std": 0.176, "nmae_mean": 0.848, "nmae_std": 0.262, "f1_p50": null,
+               "in_sample_r2": 0.472, "ymean_test_estimated_mwh": 506}
+      }
+    },
     "H11_quantile_regression_ne": {
       "iter": 14,
       "verdict": "REFUTADO_NE",
@@ -148,10 +173,10 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0015_recon_delta.md",
+  "ultimo_handoff": "iter_0016_h19_champion_metrics_extraction.md",
   "budget_consumido": {
-    "iter": 15,
-    "horas": 0.4,
+    "iter": 16,
+    "horas": 0.8,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -240,7 +265,12 @@
       "nota_nomenclatura": "UlFor H10 (clean_plus FEATURE_DROPS_N) != nosso H10 (LGBM+persist ensemble, iter_0013 CONFIRMADO). Disambiguar sempre por contexto. Convencao proposta proximo recon: prefixar Hs externos como 'Hxx_ulfor' em referencias internas."
     }
   },
-  "open_requests": [],
+  "open_requests": [
+    {"id": "req-0007", "from_iter": 16, "priority": "P2", "type": "data_publish",
+     "summary": "Logar F1_p50 por fold + dump CV_SUMMARY per-fold parquet no proximo CV bake-off",
+     "status": "OPEN",
+     "rationale": "Fechar gap F1_p50 + remover caveat 1a ordem do MAE-em-MWh derivado (slack ~10-15%)"}
+  ],
   "closed_requests": [
     {"id": "req-0001", "from_iter": 3, "priority": "P1", "type": "investigation",
      "summary": "Validar com test n>=60d que shift -1d em pdp_prev_eolica e ruido",
@@ -262,7 +292,8 @@
     "next_iter_should_be": "H21 (P2 feature engineering pdp_residual = pdp_prev - gen). Continua valida pos-iter_0014: derivada direta de H3 iter_0010, codavel localmente, sem dep externa. Bake-off replay iter_0002 + adicionar coluna pdp_residual_mwh + comparar PI/perm + check coliner com pdp_prev_* originais. Sanity B1 leak (pdp_prev D-1 safe, gen D-only) + B2 perm + B4 baseline. Usar LGBM (confirmado iter_0012 como GBDT padrao do loop) + considerar ensemble post-processing (H10 confirmado iter_0013) para baseline final.",
     "alt_next": "H24 (P2 ensemble sobre champions Ridge/LR — derivada de H10 iter_0013; reimplementar Ridge/LR no replay sobre features iter_0002 e aplicar mesmo CV+inner_val), H27 (P3 P50 quantile como point estimate substituto — derivada H11 iter_0014, ganho transversal -1% a -18% MAE em N/S/SE custo zero), H26 (P3 conformal prediction post-hoc — fix de H11 sem retreinar), H22 (P3 GBDT vs OLS gap para curt~gen+pdp), H25 (P3 stacker Ridge meta-modelo), H19 (P2 extrair MAE/R²/F1 dos champions UlFor Ridge/LR), H28 (P3 NGBoost vs LGBM quantile), H20 (P3 auto-flag n_test<30), H8 (P3 perm validation feat_intercambio).",
     "notas_iter0014": "H11 fechada como REFUTADO_NE. Bandas LGBM quantile com defaults sistemicamente undercovered (cov_band 41-53% vs 80% nominal) — distribution shift (iter_0012 KS p<0.0001) + LGBM sem heteroscedasticidade explicita = causa raiz. Bonus inesperado: P50 BATE LGB-mean em magnitude em N/S/SE (-1% a -18%) — mediana robusta vs cauda longa. 3 follow-ups derivados (H26 conformal, H27 P50 substituto, H28 NGBoost). H27 e' o mais barato (objective swap custo zero, ganho universal). H21 mantida como plan natural — H3 confirmado da' feature mais informativa antes de tentar arquitetura alt. Considerar inserir H27 entre H21 e H24 (custo 1h, ganho garantido em N+S baseado em evidencia hoje).",
-    "notas_iter0015": "Recon limpo. 7 commits UlFor absorvidos (c8df4077..5dacb5a2): champion N atualizado v1->v2 clean_plus (NMAE 84.8±26.2%, std -5.6pp); Fase 4 observabilidade (validate_d1+drift PSI+Telegram alert) FECHADA pelo UlFor em paralelo aos iters 0012-0014. Nenhuma H do loop resolvida, nenhuma nova gerada. H18 segue blocked mas urgencia diminui (validate_d1 da cobertura empirica continua); H19 atratividade cresce (summary JSON daily acessivel quando schedule ativar). Acao Breno pendente: gerar BRAZILGRID_TELEGRAM_BOT_TOKEN/CHAT_ID + ativar schedule forecast_validate_d1_daily. Planner mantem H21 como next: H3 confirmou pdp_residual como mecanismo, codavel local sem dep externa."
+    "notas_iter0015": "Recon limpo. 7 commits UlFor absorvidos (c8df4077..5dacb5a2): champion N atualizado v1->v2 clean_plus (NMAE 84.8±26.2%, std -5.6pp); Fase 4 observabilidade (validate_d1+drift PSI+Telegram alert) FECHADA pelo UlFor em paralelo aos iters 0012-0014. Nenhuma H do loop resolvida, nenhuma nova gerada. H18 segue blocked mas urgencia diminui (validate_d1 da cobertura empirica continua); H19 atratividade cresce (summary JSON daily acessivel quando schedule ativar). Acao Breno pendente: gerar BRAZILGRID_TELEGRAM_BOT_TOKEN/CHAT_ID + ativar schedule forecast_validate_d1_daily. Planner mantem H21 como next: H3 confirmou pdp_residual como mecanismo, codavel local sem dep externa.",
+    "notas_iter0016": "H19 fechada como CONFIRMADO_PARCIAL. Extracao funcionou sem MLflow tunnel: parser regex em FINDING_RIDGE_BEATS_GBDT.md + leitura literal de promote_champions.py:CV_METRICS_BY_FS. Consistency check NMAE_persist FINDING vs state.json OK 4/4 (validacao de protocol identity entre iter_0013 baseline e UlFor CV). MAE-em-MWh derivado (NE 25.5k / SE 5.6k / S 916 / N 429) com caveat 1a ordem ~10-15%. R² direto. F1_p50 gap real (nenhuma fonte UlFor computa) -> req-0007 emitido. Leaderboard reescrito com 4 linhas curtailment/d1_ENE_CNF agora consistentes (MAE_derived / R² / F1=N/A / NMAE / in-sample_R²). Bonus: ymean_test_per_sub agora disponivel para reusar em bake-offs futuros. Planner mantem H21 como next iter (zero deps externa)."
   },
   "kill_requested": false
 }

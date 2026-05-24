@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T04:24:55Z
+# Loop status — 2026-05-24T04:43:07Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=54759, .STOP=no)
 
-**Iter atual**: 15
-**Alvo ativo**: recon_delta_ulfor_post_c8df4077
+**Iter atual**: 16
+**Alvo ativo**: leaderboard_consistency_post_h9
 
-**Budget**: 15 iters / 0.4 horas consumidas
+**Budget**: 16 iters / 0.8 horas consumidas
 
-**Open requests ao UlFor**: 0
+**Open requests ao UlFor**: 1
 
-**Ultimo handoff**: iter_0015_recon_delta.md
-  decision: 
+**Ultimo handoff**: iter_0016_h19_champion_metrics_extraction.md
+  decision: |
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 4d4c720 bridge: sync iter 15 (25 seconds ago)
+**Bridge ultimo sync**: d0bfbf1 bridge: sync ulfor iter 4 (10 minutes ago)
 
-**UlFor HEAD**: 5dacb5a2 ulfor checkpoint: 07:15Z — Fase 4 step 1 fechada (Dagster+drift+Telegram)
+**UlFor HEAD**: f64cfbb7 coord: req-0007 (P2 data_publish, F1_p50 + per-fold MAE parquet) from loop iter_0016
 
 ---
 

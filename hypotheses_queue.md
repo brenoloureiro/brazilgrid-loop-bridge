@@ -531,17 +531,41 @@ hypotheses:
       filesystem ou MLflow URI, custo H19 cai de "parse MLflow proxy
       file" para "parse summary JSON daily". Manter P2; eligible para
       promover quando schedule estiver LIVE.
+
+      VEREDITO iter_0016: CONFIRMADO_PARCIAL. Loop extraiu via parser
+      regex sobre FINDING_RIDGE_BEATS_GBDT.md + leitura literal de
+      promote_champions.py:CV_METRICS_BY_FS (commit-acessivel sem
+      MLflow tunnel). MAE em MWh derivado por
+      `NMAE_champion × ymean_test_estimated`, onde
+      `ymean_test_estimated = MAE_persist_iter0013_mwh / NMAE_persist_FINDING`.
+      Resultado: NE 25.5k MWh / SE 5.6k / S 916 / N 429. Consistency
+      check NMAE_persist FINDING vs state.json: 4/4 subs OK
+      (0.445/0.688/1.242/1.007). R² direto do CV_METRICS_BY_FS:
+      NE +0.469 / SE +0.380 / S +0.447 / N +0.179. Caveat 1a ordem
+      (~10-15%) — ymean varia entre folds. **F1_p50 NAO DISPONIVEL**:
+      nenhuma fonte UlFor computa. req-0007 emitido para proximo CV
+      bake-off logar F1_p50 + dump per-fold MAE em parquet acessivel.
+      Leaderboard reescrito em iter_0016 com MAE/R²/F1(N/A)/NMAE
+      consistentes. Status reflexivo: closed in spirit (extracao
+      bem-sucedida no que era acessivel; F1 atrasado por req externo).
     type: metric
     layer: meta
     target: leaderboard_consistency_post_h9
     priority: P2
-    status: queued
+    status: done
+    iter_handled: 0016
+    verdict: CONFIRMADO_PARCIAL
     estimated_effort_hours: 1.0
+    actual_effort_hours: 0.8
     depends_on: []
     blocks: []
     sanity_checks_required: []
+    sanity_checks_done: [baseline]
+    follow_ups_created: []
+    related_external_request: req-0007
     expected_value: leaderboard internamente consistente (MAE/R²/F1 em todas linhas)
     created_at: 2026-05-24T06:00:00Z
+    completed_at: 2026-05-24T13:30:00Z
 
   - id: H20
     summary: Auto-flag bake-off com n_test < 30 — warning explicito no leaderboard
