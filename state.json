@@ -1,5 +1,5 @@
 {
-  "iter_atual": 6,
+  "iter_atual": 7,
   "alvo_ativo": "sanity_check_b6_implementation",
   "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
@@ -82,7 +82,7 @@
   "leaderboard_dirty": false,
   "ultimo_handoff": "iter_0004_b6_zero_count_and_req0003.md",
   "budget_consumido": {
-    "iter": 6,
+    "iter": 7,
     "horas": 1.2,
     "custo_usd": null
   },
