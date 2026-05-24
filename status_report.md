@@ -1,22 +1,22 @@
-# Loop status — 2026-05-24T20:50:40Z
+# Loop status — 2026-05-24T21:06:24Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=554874, .STOP=no)
 
-**Iter atual**: 48
-**Alvo ativo**: sanity_checks_doc_b2_interpretation
+**Iter atual**: 49
+**Alvo ativo**: sanity_checks_doc_b2_interpretation_caso3_colinears
 
 **Budget**: 41 iters / 0.25 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0048_h39_perm_importance_doc.md
+**Ultimo handoff**: iter_0049_h40_joint_drop_vs_pi_doc.md
   decision: DOCUMENTADO
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 05a713f bridge: sync iter 47 (10 minutes ago)
+**Bridge ultimo sync**: db995e0 bridge: sync iter 48 (16 minutes ago)
 
 **UlFor HEAD**: 4f4e21f4 ulfor checkpoint: 17:44Z — fase 4, proximo: Breno desbloqueia (10o forcado, SEM substantive, standby puro tunnels DOWN, sinal/ruido 22.2%)
 

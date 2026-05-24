@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-26T12:00:00Z
+last_updated: 2026-05-26T14:00:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -1981,6 +1981,48 @@ notas_iter0031:
 
   - id: H40
     summary: Documentar joint-drop > PI single-feat em colinears perfeitos (B2_interpretation)
+    status: done
+    iter_handled: 0049
+    verdict: DOCUMENTADO
+    actual_effort_hours: 0.3
+    completed_at: 2026-05-26T14:00:00Z
+    closure_summary: |
+      iter_0049 verdict DOCUMENTADO. EXTENDE sanity_checks/B2_interpretation.md
+      (153 -> 323 linhas, +170 linhas). 3 criterios H40 satisfeitos:
+        (a) Caso pedagogico 3 (H33 iter_0041 SE LR) adicionado com numeros
+            verbatim do verdict.json: PI single-feat SE val_export +327559,
+            val_import +383150, val_net +327975 pp dNMAE em colinears
+            perfeitos vs val_net_lag1 (nao-colinear) +0.18 pp -- ratio
+            ~1.8e6x same-sub same-model same-domain confirma artefato.
+        (b) Causa mecanistica documentada: sklearn.LinearRegression usa
+            scipy.linalg.lstsq (SVD) que para rank-deficient retorna
+            min-norm solution; coefs distribuidos com cancelamento
+            perfeito (val_net = val_import - val_export), permutar quebra
+            cancelamento -> erro arbitrariamente grande. Atenuado em Ridge
+            (L2 shrinkage), monotonico em alpha (LR > Ridge a1 > Ridge a10
+            em magnitude joint-drop SE).
+        (c) Regra geral "colinearidade + joint-drop" adicionada: SEMPRE
+            rodar joint-drop alongside PI single-feat quando VIF>=10 ou
+            identidade algebrica conhecida. Joint-drop refit dissolve
+            artefato (remove grupo inteiro, design matrix full-rank no
+            resto). Cross-model autoritativo: direcao 4/4 subs consistente
+            LR vs Ridge a1 vs Ridge a10 (NE -4.285 / SE +1.316 / S -7.376
+            / N -1.816 em LR).
+      Bonus: secao "Como evitar a armadilha" recebeu 5o bullet (colinearidade)
+      + heuristica operacional recebeu 4a linha (citar H8/H33). Nova tabela
+      "Convergencia H8 + H33 (arco intercambio encerrado)" anexada com
+      Ridge a10 (+0.270) + Ridge a1 (+1.205) + LR (+1.316) demonstrando
+      monotonicidade. Referencias internas + wikilinks estendidos com H8/H33.
+      11/11 numeros verificados contra source artifacts (iter_0041 verdict.json).
+      Default 6-check suite NA (governance/methodology, sem modelo treinado);
+      audit substitutivo PASS. Champions UlFor INTACTOS, zero rollback.
+      0 follow-ups: arco intercambio H8+H33 e arco residual H21+H30+H38
+      ambos encerrados; doc agora cobre os 2 modos de falha canonicos de B2.
+    artefatos:
+      - sanity_checks/B2_interpretation.md (323 linhas, doc extendido com 3 novas secoes)
+      - outputs/iter_0049/h40_joint_drop_vs_pi_doc/verdict.json
+      - outputs/iter_0049/h40_joint_drop_vs_pi_doc/sanity_summary.json
+      - outputs/iter_0049/h40_joint_drop_vs_pi_doc/summary.csv
     detail: |
       Derivada de H33 iter_0041 (CONFIRMADO_LR). Segundo caso canonico,
       apos H39 (P5, criada em iter_0040 sobre H30 NE alpha=10), para a
@@ -2032,11 +2074,12 @@ notas_iter0031:
     layer: methodology
     target: sanity_checks/B2_interpretation.md
     priority: P5
-    status: queued
     estimated_effort_hours: 0.5
     depends_on: [H33, H39]
     blocks: []
     sanity_checks_required: []
+    sanity_checks_done: [doc_aceitacao_3_criteria_PASS, doc_numbers_verified_11_of_11, doc_internal_links_REPORTED, default_six_NA_governance]
+    follow_ups_created: []
     expected_value: |
       Codifica 2 casos canonicos (H30 + H33) que evitam interpretacao
       errada de PI em iters futuras. Reduz custo de re-descobrir os

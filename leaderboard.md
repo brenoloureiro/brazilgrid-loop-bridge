@@ -1,6 +1,54 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0048 (2026-05-26T12:00Z, **H39 Doc 'perm_importance confirms
+Atualizado em iter_0049 (2026-05-26T14:00Z, **H40 Doc 'joint-drop > PI
+single-feat em colinears perfeitos' (B2_interpretation Caso 3) — DOCUMENTADO**).
+Hipotese P5 (custo 0.3h vs estimado 0.5h, economia 40%), derivada de H33
+iter_0041 CONFIRMADO_LR — segundo modo de falha canonico de B2 que escapou
+de H39. Doc-only iter, governance/methodology layer. **EXTENDE**
+`sanity_checks/B2_interpretation.md` de 153 -> 323 linhas (+170 linhas,
++3 secoes novas, +2 wikilinks). 3 criterios H40 satisfeitos com numeros
+verbatim do `outputs/iter_0041/h33_intercambio_lr_cv/verdict.json`:
+(a) **Caso pedagogico 3 H33 SE LR** adicionado documentando PI single-feat
+em colinears perfeitos `val_net = val_import - val_export` (VIF=1e8):
+**val_export +327559** / **val_import +383150** / **val_net +327975** pp
+dNMAE vs `val_net_lag1` (NAO-colinear) **+0.18** pp — ratio same-sub
+same-model same-domain **~1.8e6x** = artefato algebrico puro NAO sinal.
+Tabela cross-sub: NE val_export +172105 / val_net +246627 / val_net_lag1
++0.36 pp; S val_import +3027353 / val_net +3028080 pp; (b) **Mecanismo
+min-norm SVD** documentado verbatim: `sklearn.LinearRegression` usa
+`scipy.linalg.lstsq` que para rank-deficient retorna solucao min-norm,
+distribui coefs com cancelamento perfeito (`a*val_export + b*val_import +
+c*val_net = 0` para qualquer `(a,b,c)` sat `c=-b, a=b`), permutar uma
+quebra cancelamento -> predicoes saem dos eixos. Atenuado em Ridge (L2
+shrinkage), **monotonico em alpha** — tabela SE joint-drop: LR (alpha=0)
+**+1.316** > Ridge a1 **+1.205** > Ridge a10 **+0.270** pp demonstra
+spectrum; (c) **Regra geral "colinearidade + joint-drop"** adicionada:
+SEMPRE rodar joint-drop alongside PI single-feat quando VIF>=10 ou
+identidade algebrica conhecida. Tabela cross-sub mostra direcao
+**consistente 4/4 subs** LR vs Ridge a1 vs Ridge a10 (NE -4.285/-3.951/
+-1.167 / SE +1.316/+1.205/+0.270 / S -7.376/-6.989/-8.334 / N -1.816/
+-2.293/-2.742). Bonus: secao "Como evitar a armadilha" recebeu 5o bullet
+(colinearidade) + heuristica operacional recebeu 4a linha citando
+`[[H8]]/[[H33]]`; nova tabela **"Convergencia H8 + H33 (arco intercambio
+encerrado)"** anexada; referencias internas + wikilinks estendidos com
+`[[h8-validar-feat-intercambio-importance-via-permutation]]` e
+`[[h33-joint-drop-se-em-lr-vs-ridge]]`. **Verificacao 11/11 numeros**
+doc-vs-source artifacts (iter_0041 `verdict.json`: per_sub_feature_pi 7
+entries + joint_verdicts 4 subs + h8_ridge_baseline_dnmae_pp SE 2 alphas
++ ratio explosion derivado): match exato em todas. Default 6-check NA
+(governance/methodology); audit substitutivo PASS (doc_aceitacao_3_criteria
+PASS / doc_numbers_verified 11/11 / doc_internal_links REPORTED com 6
+wikilinks final vs 4 em iter_0048 / doc_section_count REPORTED 9 -> 12).
+Champions UlFor INTACTOS (zero rollback). **0 follow-ups**: arco intercambio
+(H8 iter_0027 + H33 iter_0041) e arco residual (H21+H30+H38) ambos
+ENCERRADOS; doc agora cobre os 2 modos de falha canonicos de B2 — (i)
+signal-vs-gain decoupling em features derivadas no span linear / interacoes
+saturadas, (ii) PI single-feat inflado a artefato algebrico em colinears
+perfeitos / VIF>=10. Lesson canonica auditavel: futura iter que ver
+`|PI_single_feat|` >> 100x da norma do dominio em features colineares deve
+tratar como **METRICA QUEBRADA** e rodar joint-drop refit como teste
+primario. Custo iter 0.3h (vs estimado 0.5h, economia 40%). Atualizado
+anteriormente em iter_0048 (2026-05-26T12:00Z, **H39 Doc 'perm_importance confirms
 signal != feature_engineering gain' playbook — DOCUMENTADO**). Hipotese P5
 (custo 0.2h = estimado), derivada de H30 iter_0040 REFUTADO_RIDGE — caveat
 metodologico era loose-end. Doc-only iter, layer=meta, zero impacto operacional.
