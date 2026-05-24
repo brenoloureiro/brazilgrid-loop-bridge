@@ -1,35 +1,35 @@
-# UlFor headless runner — status — 2026-05-24T16:01:10Z
+# UlFor headless runner — status — 2026-05-24T16:06:09Z
 
-**Saude**: yellow (UlFor sem commits ha 3 iters — proxima e MODO_3)
+**Saude**: green (runner saudavel)
 
 **Runner**: alive=yes pid=571987 .STOP=no
 **Loop status**: running
-**Ultimo heartbeat**: 2026-05-24T16:01:10Z
+**Ultimo heartbeat**: 2026-05-24T16:06:08Z
 
 ## Iter / decisao
 
-- **Iter atual UlFor (runner)**: 38
-- **Ultimo plan_step modo**: MODO_1_CONTINUACAO
-- **Ultimo plan_step razao**: sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE
+- **Iter atual UlFor (runner)**: 39
+- **Ultimo plan_step modo**: MODO_3_CHECKPOINT
+- **Ultimo plan_step razao**: iters_sem_commit=3 >= 3: UlFor nao gerou commits nas ultimas iters. Pode estar travado.
 - **err_streak**: 0
-- **iters_sem_commit**: 3
+- **iters_sem_commit**: 0
 
 ## UlFor master (estado observado)
 
-- **HEAD**: ff112a27 docs(forecast): FINDING_RIDGE_ALPHA — diff features SE h22_MA vs h22_pf (10 features divergentes)
+- **HEAD**: 27152e16 ulfor checkpoint: 16:02Z — fase 4, proximo: Breno decide promote v3 (tree limpo, paralelo fechou pendencias 15:46Z)
 - **Branch**: master
-- **Ultimo commit observado (state)**: ff112a27
-- **Ultimo checkpoint**: ulfor_2026-05-24T15-46.md
-  - **Idade**: 12 min
+- **Ultimo commit observado (state)**: 27152e16
+- **Ultimo checkpoint**: ulfor_2026-05-24T16-02.md
+  - **Idade**: 0 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
 
 ## Budget (reset diario 00:00 UTC)
 
 - **Data UTC**: 2026-05-24
-- **Iters hoje**: 6 / 30
-- **Horas hoje**: 0.3464 / 12
-- **Custo hoje**: $6.4093 / $50
+- **Iters hoje**: 7 / 30
+- **Horas hoje**: 0.4111 / 12
+- **Custo hoje**: $7.3308 / $50
 
 ---
 
