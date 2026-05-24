@@ -81,25 +81,49 @@ inferencia.
 Fonte: iter_0017 (NE) + iter_0018 (N) + iter_0019 (frente formalmente
 fechada SE/S declarados intrinsicamente nao-corrigiveis).
 
-## Candidatos sucessores (UlFor CV-only, **NAO promovidos em PROD**)
+## Candidatos sucessores (UlFor CV ∧ 14d real, **NAO promovidos em PROD**)
 
-Aguardam decisao Breno + holdout 14d real. Detalhes em iter_0021 e
-iter_0022.
+Aguardam decisao Breno. Validation gap **FECHADA em iter_0024** via
+single-fold 14d real (commits `99af14b7` + `5d41d063`). Detalhes em
+iter_0021, iter_0022, iter_0023, iter_0024.
 
-### Sucessores via feature engineering H22_ulfor (commit `10fa56d3`)
+### Veredito final post-validation (CV 5x60d ∧ 14d real)
 
-| sub | candidato | feature_set | MAE | R² | NMAE | delta NMAE vs champion |
-|---|---|---|---:|---:|---:|---:|
-| NE | ridge | h22_per_fold | TBD | +0.543 | 31.4% | **−2.3pp** |
-| NE | lr | h22_per_fold | TBD | +0.565 | 30.8% | **−9.5pp** (vs lr_full +0.302) |
-| SE | ridge | h22_per_fold | TBD | +0.390 | 48.3% | **−2.5pp** (vs ridge_full +0.196) |
-| S, N | — | h22_per_fold | TBD | neutral | neutral | sem ganho |
+Tabela consolidada das 7 acoes da CHAMPION_DECISION_MATRIX. Test 14d =
+2026-03-24..2026-05-21 (n=59 = ultimo fold CV).
 
-**SE LR fragilidade exposta** (commit `34478f93`): champion atual
-`lr_curt_se_d1@v1 full` tem cond_num(X) ~2.5e17 — NMAE 46.5% e' "acidental"
-(sorte amostral). Recomendacao implicita UlFor: **SE → ridge+h22** (R²
-essencialmente empate vs lr atual sem risco numerico). H31_emergente
-candidata (replicar h22_per_fold em holdout 14d real NE+SE).
+| sub | candidato | NMAE_CV | NMAE_14d | delta vs status quo | veredito | iter |
+|---|---|---:|---:|---:|---|---|
+| NE | ridge + h22_per_fold | 31.4% | 30.9% | CV −8.8pp / 14d tie −0.2pp | **CONFIRMADO — PROMOVER** | 0024 |
+| NE | bias H14-G(w=14,k=1) | strict Pareto vs H14-C | nao-testavel single-fold | -0.9pp + 4→5 wins / 0 loses | **CONFIRMADO — PROMOVER** | 0024 |
+| SE | lr + h22_model_aware | 48.1% | 43.2% | CV tie / 14d −2.0pp / -11 features | **CONFIRMADO — PROMOVER** (mitiga cond_num 2.5e17) | 0024 |
+| SE | ridge + h22_per_fold | 48.3% | 45.7% | CV −1.8pp / 14d −0.5pp (tradeoff NMAE↔estab) | promover marginal | 0024 |
+| S | lr + h22_per_fold | 84.3% | 94.4% | CV −2.9pp **mas 14d +0.8pp PIOR** | **REFUTADO — MANTER STATUS QUO** | 0024 |
+| N | ridge + h22_per_fold | 86.4% | 74.0% | CV −23.7pp / 14d −1.2pp vs `lr+full` | **CONFIRMADO — PROMOVER** (corrigido em `5d41d063`) | 0024 |
+| N | bias H14-G(w=60,k=1) | trade-off vs H14-B | nao-testavel single-fold | +8.4pp / 0→2 less loss | decisao Breno | 0024 |
+
+**SE LR fragilidade** (commit `34478f93` iter_0021): cond_num(X) ~2.5e17.
+h22_MA mitiga (-11 features) preservando familia LR. Promovivel sem trocar
+familia, vs alternativa ridge+h22 que mudaria modelo.
+
+### Achados novos 14d real (NAO promoviveis — falta CV win)
+
+UlFor sugere reabrir CV 5x60d para lgbm em SE+N como proximo sprint
+envelope-safe. Padrao: regime atual mais nao-linear que historico CV.
+
+| sub | candidato | NMAE_14d | gap | interpretacao |
+|---|---|---:|---|---|
+| SE | lgbm + h22_model_aware | **42.7%** (best 14d SE) | CV 5x60d nao testou lgbm × h22_MA | regime SE mais nao-linear que historico CV |
+| N | lgbm + full | **68.1%** (best 14d N) | CV 5x60d 96.4% (perde -10pp para ridge+h22) | mesmo padrao SE; viola "promover so apos CV win" |
+
+### Promote enxuto recomendado (UlFor autopilot post-validation iter_0024)
+
+**4 acoes alta-confianca** (CV ∧ 14d real):
+
+1. **NE**: `lr+full` → `ridge+h22_per_fold` + bias `H14-C` → `H14-G(w=14,k=1)`
+2. **SE**: `lr+full` → `lr+h22_model_aware`
+3. **N**: `lr+full` → `ridge+h22_per_fold` (bias H14-B vs H14-G decisao Breno)
+4. **S**: **MANTER STATUS QUO** `lr+full` (unica refutacao formal post-14d)
 
 ### Sucessores via H22_model_aware (commit `2daa5d40`, iter_0023)
 

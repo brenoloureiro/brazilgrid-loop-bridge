@@ -1070,7 +1070,7 @@
       }
     ],
     "delta_resumo_iter0023": {
-      "champions_status_change": "INALTERADO em producao. Loader.py + MLflow Registry intocados. PORÉM 3 candidatos sucessores novos consolidados em CHAMPION_DECISION_MATRIX (alem dos 2 de iter_0021): (a) SE lr+h22_model_aware (PRESERVA familia LR -- 48.1% NMAE / R^2 +0.381, recupera ter_verif_rmean7); (b) S lr+h22_per_fold (-2.9pp NMAE / +0.016 R^2, novo); (c) N bias H14-G w=14 k=1.5 (-31.87pp CV vs H14-B -19.63pp, 3W/1L apply 41%). Total candidatos PROMOVIVEIS aguardando decisao Breno: 7 (5 modelo+feature, 2 bias correction).",
+      "champions_status_change": "INALTERADO em producao. Loader.py + MLflow Registry intocados. POR\u00c9M 3 candidatos sucessores novos consolidados em CHAMPION_DECISION_MATRIX (alem dos 2 de iter_0021): (a) SE lr+h22_model_aware (PRESERVA familia LR -- 48.1% NMAE / R^2 +0.381, recupera ter_verif_rmean7); (b) S lr+h22_per_fold (-2.9pp NMAE / +0.016 R^2, novo); (c) N bias H14-G w=14 k=1.5 (-31.87pp CV vs H14-B -19.63pp, 3W/1L apply 41%). Total candidatos PROMOVIVEIS aguardando decisao Breno: 7 (5 modelo+feature, 2 bias correction).",
       "novos_requests": [],
       "requests_fechados_extras": [],
       "novas_hipoteses_loop_geradas": [],
@@ -1118,7 +1118,7 @@
         "hash": "99af14b7",
         "msg": "exp(forecast): validacao 14d real refuta promoves S/N de CHAMPION_DECISION_MATRIX",
         "absorbed": true,
-        "interpretacao": "FECHA validation_gap dos 7 promovieis da CHAMPION_DECISION_MATRIX iter_0023. Sprint autopilot envelope-safe (single-fold cv-folds=1, test=2026-03-24..2026-05-21 n=59) para 3 feature-sets {full, h22_per_fold, h22_model_aware} x {ridge,lr,lgbm,xgb} x 4 subs = 48 runs. Veredito CV ∧ 14d real: (a) CONFIRMADO NE ridge+h22 (CV -8.8pp, 14d tie -0.2pp), (b) CONFIRMADO SE lr+h22_MA (CV tie, 14d -2.0pp), (c) CONFIRMADO NE bias H14-G(w=14,k=1) Pareto strict CV, (d) PROMOVER MARGINAL SE ridge+h22 (CV -1.8pp, 14d -0.5pp), (e) REFUTADO S lr+h22 (CV -2.9pp mas 14d +0.8pp PIOR), (f) classificou erroneamente N ridge+h22 como REFUTADO -- corrigido em commit 2. Achados novos NAO promoviveis: SE prefere lgbm+h22_MA em 14d (42.7% vs xgb+full 44.2%), N prefere lgbm+full em 14d (68.1% vs lr+full 75.2%) -- ambos sem CV win. Artefatos: FINDING_14D_REAL_VALIDATION.md (157 lines), --out-suffix em bakeoff_d1.py, 3 parquets val14d. CHAMPION_DECISION_MATRIX secao 'Validation gap' FECHADA. Backward-compat: nenhuma mudanca em loader.py/Registry."
+        "interpretacao": "FECHA validation_gap dos 7 promovieis da CHAMPION_DECISION_MATRIX iter_0023. Sprint autopilot envelope-safe (single-fold cv-folds=1, test=2026-03-24..2026-05-21 n=59) para 3 feature-sets {full, h22_per_fold, h22_model_aware} x {ridge,lr,lgbm,xgb} x 4 subs = 48 runs. Veredito CV \u2227 14d real: (a) CONFIRMADO NE ridge+h22 (CV -8.8pp, 14d tie -0.2pp), (b) CONFIRMADO SE lr+h22_MA (CV tie, 14d -2.0pp), (c) CONFIRMADO NE bias H14-G(w=14,k=1) Pareto strict CV, (d) PROMOVER MARGINAL SE ridge+h22 (CV -1.8pp, 14d -0.5pp), (e) REFUTADO S lr+h22 (CV -2.9pp mas 14d +0.8pp PIOR), (f) classificou erroneamente N ridge+h22 como REFUTADO -- corrigido em commit 2. Achados novos NAO promoviveis: SE prefere lgbm+h22_MA em 14d (42.7% vs xgb+full 44.2%), N prefere lgbm+full em 14d (68.1% vs lr+full 75.2%) -- ambos sem CV win. Artefatos: FINDING_14D_REAL_VALIDATION.md (157 lines), --out-suffix em bakeoff_d1.py, 3 parquets val14d. CHAMPION_DECISION_MATRIX secao 'Validation gap' FECHADA. Backward-compat: nenhuma mudanca em loader.py/Registry."
       },
       {
         "hash": "5d41d063",
@@ -1128,7 +1128,7 @@
       }
     ],
     "delta_resumo_iter0024": {
-      "champions_status_change": "INALTERADO em producao. Loader.py + MLflow Registry intocados. PORÉM validation_gap dos 7 promovieis FECHADO. Veredito final post-validation 14d real: 4 acoes CONFIRMADAS (NE ridge+h22+H14-G, SE lr+h22_MA, N ridge+h22 + bias N H14-B vs H14-G decisao Breno), 1 REFUTADO (S lr+h22 mantem status quo), 1 nao-testavel single-fold (N bias H14-B vs H14-G). 2 achados novos NAO promoviveis (SE lgbm+h22_MA, N lgbm+full -- ambos sem CV win).",
+      "champions_status_change": "INALTERADO em producao. Loader.py + MLflow Registry intocados. POR\u00c9M validation_gap dos 7 promovieis FECHADO. Veredito final post-validation 14d real: 4 acoes CONFIRMADAS (NE ridge+h22+H14-G, SE lr+h22_MA, N ridge+h22 + bias N H14-B vs H14-G decisao Breno), 1 REFUTADO (S lr+h22 mantem status quo), 1 nao-testavel single-fold (N bias H14-B vs H14-G). 2 achados novos NAO promoviveis (SE lgbm+h22_MA, N lgbm+full -- ambos sem CV win).",
       "novos_requests": [],
       "requests_fechados_extras": [],
       "novas_hipoteses_loop_geradas": [],
@@ -1138,13 +1138,13 @@
         "implicacao_loop": "Reduz superficie de coordenacao 1 req. Padrao recorrente: UlFor multi-agente autopilot pre-empta requests que loop ia emitir quando o trabalho cai em envelope-safe (sem PARAR-E-PERGUNTAR). Manter recon-style absorption."
       },
       "validation_gap_status": "FECHADA. iter_0023 listou 'tudo CV, sem 14d real' como gap principal. UlFor entregou 14d real para todos 7 promovieis em ~10min autopilot. Lesson reforcada (iter_0019/iter_0017): UlFor multi-agente fecha gaps faster que loop pode emitir req formal. Recon e' mecanismo eficiente para detectar self-resolution.",
-      "frente_h22_ulfor_status": "ESTABILIZADA pos-validation. H22 (universal Ridge-PI) + H22_MA (model-aware PI) ambos validados em CV ∧ 14d real. h22_MA confirma como sucessor SE/lr robusto. NE ridge+h22 ≡ h22_MA (mesmo champion). UlFor agora aguarda decisao Breno antes de tocar loader.py.",
+      "frente_h22_ulfor_status": "ESTABILIZADA pos-validation. H22 (universal Ridge-PI) + H22_MA (model-aware PI) ambos validados em CV \u2227 14d real. h22_MA confirma como sucessor SE/lr robusto. NE ridge+h22 \u2261 h22_MA (mesmo champion). UlFor agora aguarda decisao Breno antes de tocar loader.py.",
       "frente_bias_correction_status": "ESTABILIZADA. H14-G(w=14,k=1) NE Pareto strict vs H14-C (validado CV). H14-G(w=60,k=1) N decisao trade-off (Pareto: 0 loses, mas -8.4pp menos agressivo). Single-fold 14d real nao testa bias correction diretamente (rolling residual).",
       "achados_novos_nao_promoviveis": [
         {
           "sub": "SE",
           "candidato": "lgbm + h22_model_aware",
-          "evidencia": "14d real 42.7% NMAE / R² +0.428 -- best 14d real em SE",
+          "evidencia": "14d real 42.7% NMAE / R\u00b2 +0.428 -- best 14d real em SE",
           "gap": "CV 5x60d nao testou lgbm x h22_MA",
           "interpretacao": "Regime atual SE mais nao-linear que historico medio do CV (LR/Ridge linear sub-aproveita). UlFor sugere reabrir CV para lgbm em SE+N como proximo sprint envelope-safe.",
           "atratividade_h_loop": "SUBE H27 (LGBM P50 quantile) e H22 nosso (GBDT vs OLS gap) -- ambos respondem 'lineares deixam variancia residual em SE+N regime atual'."
@@ -1152,7 +1152,7 @@
         {
           "sub": "N",
           "candidato": "lgbm + full",
-          "evidencia": "14d real 68.1% NMAE / R² +0.139 -- best 14d real em N (-7.1pp vs ridge+h22)",
+          "evidencia": "14d real 68.1% NMAE / R\u00b2 +0.139 -- best 14d real em N (-7.1pp vs ridge+h22)",
           "gap": "CV 5x60d lgbm+full N 96.4% perde para ridge+h22 86.4% (-10pp)",
           "interpretacao": "Mesmo padrao SE -- regime atual N favorece nao-linear. Mas principio 'CV win first' bloqueia promote.",
           "atratividade_h_loop": "Reforca atratividade H27."
@@ -1280,9 +1280,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 31,
-    "horas": 5.7231,
-    "usd": 91.9845,
+    "iter": 32,
+    "horas": 5.9645,
+    "usd": 98.6447,
     "note": "iter_0022 H24 ensemble_champion_persist (replay sklearn over iter_0002 features, no LLM cost)"
   }
 }
