@@ -1,35 +1,35 @@
-# UlFor headless runner — status — 2026-05-24T15:35:58Z
+# UlFor headless runner — status — 2026-05-24T15:49:40Z
 
-**Saude**: red (err_streak=3 — runner pausou aguardando humano)
+**Saude**: green (runner saudavel)
 
-**Runner**: alive=yes pid=554936 .STOP=no
-**Loop status**: budget_iter_daily
-**Ultimo heartbeat**: 2026-05-24T15:35:57Z
+**Runner**: alive=yes pid=571987 .STOP=no
+**Loop status**: running
+**Ultimo heartbeat**: 2026-05-24T15:49:39Z
 
 ## Iter / decisao
 
-- **Iter atual UlFor (runner)**: 32
+- **Iter atual UlFor (runner)**: 33
 - **Ultimo plan_step modo**: MODO_1_CONTINUACAO
 - **Ultimo plan_step razao**: sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE
-- **err_streak**: 3
-- **iters_sem_commit**: 3
+- **err_streak**: 0
+- **iters_sem_commit**: 0
 
 ## UlFor master (estado observado)
 
-- **HEAD**: 83abab3e docs(forecast): MATRIX coerencia — promote_champions.py JA tem --ridge-alpha
+- **HEAD**: d9aefdd1 ulfor checkpoint: 15:46Z — fase 4, proximo: Breno decide promote v3 (val14d real revisado SE para h22_MA)
 - **Branch**: master
-- **Ultimo commit observado (state)**: 83abab3e
-- **Ultimo checkpoint**: ulfor_2026-05-24T14-35.md
-  - **Idade**: 112 min
+- **Ultimo commit observado (state)**: d9aefdd1
+- **Ultimo checkpoint**: ulfor_2026-05-24T15-46.md
+  - **Idade**: 0 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
 
 ## Budget (reset diario 00:00 UTC)
 
 - **Data UTC**: 2026-05-24
-- **Iters hoje**: 32 / 30
-- **Horas hoje**: 6.7866 / 12
-- **Custo hoje**: $113.7667 / $50
+- **Iters hoje**: 1 / 30
+- **Horas hoje**: 0.0711 / 12
+- **Custo hoje**: $1.4356 / $50
 
 ---
 
