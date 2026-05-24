@@ -1016,9 +1016,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 23,
-    "horas": 2.5908,
-    "usd": 44.733,
+    "iter": 24,
+    "horas": 2.965,
+    "usd": 59.6835,
     "lgbm_supplement_added_to_iter0020": "+0.5h (paralelo)"
   }
 }

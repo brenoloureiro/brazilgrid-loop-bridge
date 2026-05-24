@@ -24,7 +24,15 @@ com gen"; conditional em pdp_prev ainda informa). Mecanismo do REFUTADO H21: OLS
 engineering nao expande basis. **H30 derivada** (P3): replicar H21 em Ridge_alpha10
 CV 5x60d UlFor protocolo. **H22** (GBDT vs OLS gap) sobe importancia: se GBDT extrair
 interacao nao-linear `gen × pdp_prev`, residual pode ainda valer no champion-class certa.
-Detalhe em `iterations/iter_0019_h21_pdp_residual_engineered.md`.
+**LGBM CV SUPPLEMENT 16:50Z** (sessao paralela HYPOTHESIS_TEST): `scripts/h21_pdp_residual_cv.py`
+RODADO. CV 5x60d/gap7d em NE/SE/S v3 com 5 feature_sets (A baseline / B additive / C replacement /
+D drop pdp_prog / E full simplification). A vence todas em mean MAE em 3/3 cells -- C +1.3 a +3.1%,
+B +0.7 a +2.1%, D +3.6 a +8.2%, E +1.8 a +8.0%. B2 perm fold-final: NE [C] +6.6%, SE [C] +10.8%,
+S [C] -0.2% -- residual carrega sinal real NE+SE mas e' redundante quando LGBM tem pdp_prev_eolica
++ pdp_prev_solar raw. **OLS + LGBM CV CONVERGEM no verdict REFUTADO**. H22 PARCIALMENTE
+pre-respondida (drop pdp_prog prejudicial em GBDT tambem, +3.6/6.9/8.2pp MAE NE/SE/S quando removido).
+Outputs em `outputs/iter_0020/h21_pdp_residual_engineered/lgbm_cv_supplement/`. Detalhe completo
+(OLS mainline + LGBM supplement) em `iterations/iter_0020_h21_pdp_residual_engineered.md`.
 
 **Iter 0019 (RECON_DELTA):** 6 commits UlFor `515041e1..daf80a6a` absorvidos em
 ~8 min reais (09:27-09:34 BRT). **Producao 100% inalterada** (loader.py +
