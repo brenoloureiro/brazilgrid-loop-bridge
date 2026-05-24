@@ -1,4 +1,4 @@
-# Loop status — 2026-05-24T18:03:13Z
+# Loop status — 2026-05-24T18:03:33Z
 
 **Saude**: green (loop saudavel)
 
@@ -16,7 +16,7 @@
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: a1ad93f bridge: sync iter 35 (8 minutes ago)
+**Bridge ultimo sync**: 727e931 bridge: sync iter 36 (20 seconds ago)
 
 **UlFor HEAD**: 4f4e21f4 ulfor checkpoint: 17:44Z — fase 4, proximo: Breno desbloqueia (10o forcado, SEM substantive, standby puro tunnels DOWN, sinal/ruido 22.2%)
 

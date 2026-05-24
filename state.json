@@ -2105,9 +2105,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 7,
-    "horas": 1.9278,
-    "usd": 32.6491
+    "iter": 8,
+    "horas": 2.0603,
+    "usd": 35.4936
   },
   "low_n_test_policy": {
     "version": "1.0",
