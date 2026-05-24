@@ -1,4 +1,4 @@
-# Loop status — 2026-05-24T13:44:24Z
+# Loop status — 2026-05-24T13:45:09Z
 
 **Saude**: green (loop saudavel)
 
@@ -16,7 +16,7 @@
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 97c4513 bridge: sync ulfor iter 29 (42 seconds ago)
+**Bridge ultimo sync**: a9e9bf4 bridge: sync ulfor iter 30 (5 seconds ago)
 
 **UlFor HEAD**: 83abab3e docs(forecast): MATRIX coerencia — promote_champions.py JA tem --ridge-alpha
 
