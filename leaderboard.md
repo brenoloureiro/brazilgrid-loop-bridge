@@ -1,6 +1,26 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0036 (2026-05-25T07:00Z, **RECON_DELTA UlFor
+Atualizado em iter_0037 (2026-05-25T08:00Z, **H26 conformal prediction
+post-hoc INDETERMINADO_NE + bonus CONFIRMADO_SE_S**: split conformal
+(Lei et al. 2018 + Romano CQR 2019 symmetric) sobre LGBM quantile fica
+borderline em NE — cov_cal mean 74.7% (falha [75%,85%] strict por 0.3pp),
+width_ratio_cal_vs_inner 2.03x (falha <2.0 por 0.03x), 3/3 NE cells in
+[70%,90%] loose. iv=60 nao salva (cov cai p/ 71.6%, train_inner
+empobrece). **Bonus deliverable SE+S: 3/3 cells strict, cov 76.6%/79.5%,
+width 1.95x/1.51x** — vira bandas P10/P90 entregavel AGORA para
+operador SE+S (decisao Breno, fora scope iter). N over-cobre (90.8%,
+width 1.68x) — outliers cauda alta dominam q_alpha global. Replicacao
+H11 bit-exato (cov_uncal_full == iter_0014 summary.csv: 45.5/43.5/41.8
+NE). Mecanismo conformal validado (cov_cal > cov_uncal em 100% dos 60
+fold-runs). Limite e' do TARGET (NE distribution shift documentado
+iter_0012 KS p<0.0001), nao do metodo. **H37 derivada criada**:
+CQR-asymmetric (separa q_low / q_high — corrige N) + Mondrian conformal
+por regime (adapta intra-test — corrige NE folds 2-3) rodadas na mesma
+iter. Sanity: holdout passed_embedded, baseline passed_embedded
+(tripla UNCAL_FULL/UNCAL_INNER/PERSIST + replicacao H11), dist_shift
+annotated_reuse, leak+perm skipped (mesmas features iter_0010 PI p=0.0),
+zero_count n/a (banda nao point).
+Atualizado anteriormente em iter_0036 (2026-05-25T07:00Z, **RECON_DELTA UlFor
 `80620230..4f4e21f4`, 5 commits — 0 substantivos + 5 checkpoints
 PARAR-E-PERGUNTAR**). Pior janela substantiva do recon-style (iter_0028
 25% / iter_0031 25% / iter_0033 40% / iter_0036 **0%**). UlFor entrou em

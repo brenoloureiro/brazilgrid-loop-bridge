@@ -1073,13 +1073,29 @@ hypotheses:
     layer: curtailment
     target: NE_d1_quantile_calibrated
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0037
+    verdict: INDETERMINADO_NE_BORDERLINE_CONFIRMADO_SE_S_BONUS
     estimated_effort_hours: 2.0
     depends_on: [H11]
     blocks: []
     sanity_checks_required: [holdout, baseline, dist_shift]
+    sanity_checks_done: [holdout_passed_embedded, baseline_passed_embedded, dist_shift_annotated_reuse]
     expected_value: torna H11 deliverable se calibracao funcionar
+    actual_value: |
+      NE iv=30 cov_cal mean 74.7% (falha [75%,85%] strict por 0.3pp),
+      width_ratio_cal_vs_inner 2.03x (falha <2.0 por 0.03x), 3/3 NE cells
+      in [70%,90%] loose. iv=60 nao salva (cov cai p/ 71.6%). Bonus
+      CONFIRMADO em SE (3/3 strict, cov_cal 76.6%, width 1.95x) e S
+      (3/3 strict, cov_cal 79.5%, width 1.51x) — conformal vira bandas
+      P10/P90 deliverable para SE+S AGORA (decisao Breno, fora scope
+      iter). N over-cobre (90.8%, width 1.68x). Replicacao H11 bit-exato
+      (cov_uncal_full == iter_0014 summary). Mecanismo conformal validado
+      (cov_cal > cov_uncal em 100% folds), limite e' do TARGET (NE dist
+      shift documentado iter_0012 KS p<0.0001), nao do metodo.
+    follow_ups_created: [H37]
     created_at: 2026-05-24T11:30:00Z
+    completed_at: 2026-05-25T08:00:00Z
 
   - id: H27
     summary: P50 quantile como point estimate substituto em N+S
@@ -1487,3 +1503,62 @@ notas_iter0031:
       H36 mede gap diretamente vs OLS sem regularizacao para isolar
       contribuicao nao-linear das arvores).
     created_at: 2026-05-25T05:30:00Z
+
+  - id: H37
+    summary: CQR-asymmetric + Mondrian conformal por regime — fechar NE+N gap H26
+    detail: |
+      Derivada de H26 iter_0037 (INDETERMINADO_NE + bonus CONFIRMADO_SE_S).
+      H26 mostrou que conformal symmetric (Romano CQR 2019) com q_alpha
+      global:
+        - resolve SE+S (cov_cal 76.6% / 79.5% strict)
+        - fica borderline em NE (cov 74.7%, 0.3pp do limite; ratio 2.03x)
+        - OVER-COBRE em N (cov 90.8%, banda larga demais)
+      Causa: 1 q_alpha global empurra ambos os lados simetricamente; em N
+      o score e' dominado por outliers da cauda alta (37% dos dias com
+      curt~0) inflando q10 desnecessariamente; em NE a inflacao e'
+      insuficiente em folds de regime shift (KS p<0.0001 iter_0012).
+
+      Fix candidate duplo (custo baixo, sem retreinar):
+        A) CQR-ASYMMETRIC (Romano variant):
+           s_low_i  = q10_iv_i - y_iv_i   (clipped >=0)
+           s_high_i = y_iv_i - q90_iv_i   (clipped >=0)
+           q_low  = quantile(s_low,  ceil((n+1)*(1-alpha/2))/n)
+           q_high = quantile(s_high, ceil((n+1)*(1-alpha/2))/n)
+           Banda: [q10 - q_low, q90 + q_high]
+           Esperado: N para de inflar banda inferior (poucos overshoots
+           por baixo); NE mantem inflacao na cauda alta (folds 2-3).
+
+        B) MONDRIAN CONFORMAL POR REGIME:
+           Particionar inner_val em buckets discretos por regime
+           (eg threshold em P50 do train_inner: low_curt vs high_curt).
+           Calcular q_alpha por bucket. No test, escolher q_alpha pelo
+           bucket onde o ponto cai (precisa estimar bucket em D-1 via
+           outra feature).
+           Risco: 30d / 2 buckets = 15d/bucket, instavel — mitigar via
+           shrinkage (combinar q_bucket com q_global por inverse-variance).
+
+      Aceitacao:
+        CQR-asymmetric: cov_band_80_cal NE in [75%,85%] em >=2/3 cells
+                        AND cov_band_80_cal N in [75%,90%] (corrige
+                        over-coverage atual 90.8%).
+        Mondrian:       cov_band_80_cal NE in [75%,85%] em >=2/3 cells
+                        AND fold heterogeneity reduzida (std <= 0.10).
+
+      Rodar AS DUAS na mesma iter (custo +30 LoC sobre h26_conformal);
+      se uma vence, registrar. Se ambas falham, NE+N D+1 quantile fica
+      em modo "P50 only" ate H28 (NGBoost parametrico ja queued).
+    type: model
+    layer: curtailment
+    target: ne_n_d1_quantile_calibrated_v2
+    priority: P3
+    status: queued
+    estimated_effort_hours: 2.0
+    depends_on: [H26]
+    blocks: []
+    sanity_checks_required: [holdout, baseline, dist_shift]
+    expected_value: |
+      Fecha H26 borderline NE (0.3pp do limite strict) e corrige N
+      over-coverage. Bonus: validacao de Mondrian conformal como
+      ferramenta para distribution shift em outros forecasts (carga,
+      eolica D+1 per-conjunto).
+    created_at: 2026-05-25T08:00:00Z

@@ -1,12 +1,12 @@
 {
-  "iter_atual": 36,
-  "mode": "recon_delta",
-  "alvo_ativo": "recon_delta_ulfor_post_80620230",
-  "layer_ativa": "meta",
+  "iter_atual": 37,
+  "mode": "hypothesis_test",
+  "alvo_ativo": "NE_d1_quantile_calibrated",
+  "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
-  "last_verdict": "REFUTADO_NO_GAIN",
-  "last_verdict_iter": 35,
-  "last_verdict_summary": "H25 Ridge stacker REFUTADO em 12/12 cells vs H10 inv_mae. Best ridge_no_intercept_a10 +2.1% a +90% pior. 30d inner_val \u00d7 4 bases overfit comprovado.",
+  "last_verdict": "INDETERMINADO_NE_BORDERLINE_CONFIRMADO_SE_S_BONUS",
+  "last_verdict_iter": 37,
+  "last_verdict_summary": "H26 conformal post-hoc (Lei et al. split conformal + Romano CQR-symmetric). NE iv=30 cov_cal mean 74.7% (falha [75%,85%] strict por 0.3pp), width_ratio_cal_vs_inner 2.03x (falha <2.0 por 0.03x); 3/3 NE cells in [70%,90%] loose; iv=60 nao salva (cov 71.6%). Bonus CONFIRMADO em SE (3/3 strict, cov 76.6%, width 1.95x) e S (3/3 strict, cov 79.5%, width 1.51x) - bandas P10/P90 deliverable AGORA p/ operador SE+S. N over-cobre (90.8%, width 1.68x). Replicacao H11 bit-exato. H37 derivada criada (CQR-asymmetric + Mondrian).",
   "metric_suite_primary": {
     "version": "1.0",
     "adopted_in_iter": 8,
@@ -2105,9 +2105,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 8,
-    "horas": 2.0603,
-    "usd": 35.4936
+    "iter": 9,
+    "horas": 2.367,
+    "usd": 40.0363
   },
   "low_n_test_policy": {
     "version": "1.0",
