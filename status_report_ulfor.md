@@ -1,25 +1,25 @@
-# UlFor headless runner — status — 2026-05-24T12:15:02Z
+# UlFor headless runner — status — 2026-05-24T12:16:19Z
 
 **Saude**: green (runner saudavel)
 
 **Runner**: alive=yes pid=273001 .STOP=no
 **Loop status**: running
-**Ultimo heartbeat**: 2026-05-24T12:15:02Z
+**Ultimo heartbeat**: 2026-05-24T12:16:19Z
 
 ## Iter / decisao
 
-- **Iter atual UlFor (runner)**: 9
-- **Ultimo plan_step modo**: MODO_3_CHECKPOINT
-- **Ultimo plan_step razao**: ultimo checkpoint tem 396 min > 240 min. Forcar checkpoint para nao perder estado.
+- **Iter atual UlFor (runner)**: 10
+- **Ultimo plan_step modo**: MODO_1_CONTINUACAO
+- **Ultimo plan_step razao**: sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE
 - **err_streak**: 0
-- **iters_sem_commit**: 1
+- **iters_sem_commit**: 2
 
 ## UlFor master (estado observado)
 
-- **HEAD**: 2b262f51 ulfor checkpoint: 12:11Z — fase 4, proximo: deploy EC2 (PARAR E PERGUNTAR) ou H22/H14-B/H14-D
+- **HEAD**: 1804c496 ulfor checkpoint: 12:15Z — fase 4, proximo: H22/H14-B/H14-D ou deploy EC2 (idle 3x)
 - **Branch**: master
-- **Ultimo commit observado (state)**: 2b262f51
-- **Ultimo checkpoint**: ulfor_2026-05-24T12-11.md
+- **Ultimo commit observado (state)**: 1804c496
+- **Ultimo checkpoint**: ulfor_2026-05-24T12-15.md
   - **Idade**: 0 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
@@ -27,9 +27,9 @@
 ## Budget (reset diario 00:00 UTC)
 
 - **Data UTC**: 2026-05-24
-- **Iters hoje**: 9 / 30
-- **Horas hoje**: 2.6625 / 12
-- **Custo hoje**: $57.0402 / $50
+- **Iters hoje**: 10 / 30
+- **Horas hoje**: 2.6969 / 12
+- **Custo hoje**: $57.8999 / $50
 
 ---
 
