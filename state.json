@@ -1,8 +1,8 @@
 {
-  "iter_atual": 30,
-  "mode": "self_planning",
-  "alvo_ativo": "h15_s_classifier_vs_regressor",
-  "layer_ativa": "curtailment",
+  "iter_atual": 31,
+  "mode": "recon_delta",
+  "alvo_ativo": "recon_delta_ulfor_post_27152e16",
+  "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
     "version": "1.0",
@@ -1721,6 +1721,97 @@
       "discrepancia_champion_atual_doc_status": "PERMANECE NAO INVESTIGADA. CHAMPION_DECISION_MATRIX iter_0023 listava NE+N como 'lr+full' (contradiz state.json/Registry com ridge_NE/ridge_N). Esta iter NAO toca matrix nem loader.py -- so docs FINDING + parquets val14d. Hipotese (B) bug documentacao matriz continua mais plausivel. Loop NAO flagga req formal (cosmetico).",
       "push_origin_status": "Master agora 26+ ahead origin (iter_0026 era 21+). Acao Breno pendente para deploy EC2. Sem impacto direto no loop (read-only via git show).",
       "nota_nomenclatura_aplicada": "Convencao Hxx_ulfor mantida. 11a iter consecutiva (incluindo recon nao-colidente) -- UlFor val14d sweep e' refinamento empirico do mesmo H22_ulfor / H22_MA / alpha_sweep ja absorvido. Nenhuma nova H_ulfor formal."
+    },
+    "iter0031_inicio_head": "27152e16",
+    "iter0031_fim_head": "2917289c",
+    "novos_commits_durante_iter0031": [
+      {
+        "hash": "0971c699",
+        "msg": "docs(forecast): promote v3 DECISAO Breno + bloqueio dataset local",
+        "absorbed": true,
+        "interpretacao": "DECISAO BRENO OFICIALIZADA sobre promote v3 (resposta ao PARAR E PERGUNTAR de 14:35Z absorvido em iter_0028). Breno escolheu **opt A em SE** (val14d > CV+coerencia): ridge+h22_model_aware+alpha=1. Matriz final 4 decisoes: NE PROMOVER ridge+h22_pf+alpha=1; SE PROMOVER (opt A) ridge+h22_MA+alpha=1; S MANTER lr+full; N PROMOVER ridge+h22_pf+alpha=100. FINDING_RIDGE_ALPHA_SWEEP.md +83 linhas (Sprint 1 bloco). CHAMPION_DECISION_MATRIX.md +51 linhas (matriz Breno + secao H14-G implementacao). Justificativa Breno opt A SE: val14d e' sinal recente do regime real (CMO subindo, intercambio SE-S invertendo, NE em expansao); as 10 features que h22_MA preserva e h22_pf dropa (CMO+intercambio+taxa_penetracao) carregam sinal nesse regime; val14d delta MA-pf = -1.64pp NMAE + R² +0.05. Aceita perda de coerencia multi-sub em troca de fit ao regime atual. Reavaliar Jun/2026. Decisao SE H14-G bias correction NE: implementar em **promote_champions.py** (NAO em loader.py) -- bias correction e' parte do artefato promovido, binding ao modelo; registry/MLflow tag carrega bias spec; loader.py deve ser dumb. Registrado por UlFor como H25 ulfor para sprint envelope-safe proxima."
+      },
+      {
+        "hash": "6111cda4",
+        "msg": "docs(forecast): FINDING_LOCAL_CH_STALE_FEAT_TABLES -- CH local Docker tem feat_termico 2024-12-31, bloqueia bakeoff val14d",
+        "absorbed": true,
+        "interpretacao": "Achado infra/operacional: CH local desktop (porta 8123) tem feat_* tables criticamente stale -- feat_termico max(dia)=2024-12-31 (zero 2025/2026), feat_carga_history max=2026-03-26 (2 meses stale), feat_pld/pdp/inter/sat/cmo 8-23 dias stale, obt_usina_enriched max=2026-05-15. Sprint envelope-safe (b)+(c) do checkpoint 16:02Z falhou: alpha sweeps N{200,500} e SE{0.1,0.5} produziram 'WARN: pos-dropna train=16 test=0 -- skip ML' em todos 4 subs -- nao bug, e data-stale local. Sweep alpha=1/100 commitado em f7c56c3d (iter_0028) rodou contra **EC2 CH via tunnel SSH** (porta 18123 = SSH forward), nao Docker local. 5 parquets lixo apagados. Bloqueia tambem (a) smoke loader (MLflow tunnel down) e (d) H23 LOI pares. Autopilot UlFor pausado em PARAR-E-PERGUNTAR. **Implicacao para loop**: convergente com [[ch_local_feat_termico_stale]] (memory.md) -- promote v3 NAO sera executado localmente; aguarda EC2 setup ou sync raw. Loop NAO bloqueado (read-only via git show, parquets val14d ja absorvidos)."
+      },
+      {
+        "hash": "655729cd",
+        "msg": "ulfor checkpoint: 16:27Z -- fase 4, proximo: Breno decide EC2 setup vs skip-local-revalidate",
+        "absorbed": true,
+        "interpretacao": "Checkpoint marker pos-decisao Breno. PARAR-E-PERGUNTAR migra de 'decidir promote v3' para 'decidir como executar promote v3' (EC2 setup vs skip-local-revalidate)."
+      },
+      {
+        "hash": "759d6cfe",
+        "msg": "ulfor checkpoint: 16:29Z -- fase 4, proximo: Breno desbloqueia execucao promote v3",
+        "absorbed": true,
+        "interpretacao": "Checkpoint marker (~2 min apos 16:27Z) -- substancialmente identico, refinamento de wording 'desbloqueia execucao'."
+      },
+      {
+        "hash": "d2be5a26",
+        "msg": "ulfor checkpoint: 16:39Z -- fase 4, forced #2 consecutivo",
+        "absorbed": true,
+        "interpretacao": "Checkpoint heartbeat forcado (runner iters-sem-commit threshold). Standby legitimo, nada mudou desde 16:29Z."
+      },
+      {
+        "hash": "cf3097cd",
+        "msg": "ulfor checkpoint: 16:38Z -- 3o standby consecutivo, tunnels CH+MLflow exit=28",
+        "absorbed": true,
+        "interpretacao": "Checkpoint heartbeat (commit time 13:41Z reflete batch). Acrescenta info tunnels: CH+MLflow forwards saem com exit=28 (sem rota / nao conecta)."
+      },
+      {
+        "hash": "91ecfc5b",
+        "msg": "ulfor checkpoint: 16:47Z -- 4o forcado consecutivo, tunnels CH+MLflow exit=28",
+        "absorbed": true,
+        "interpretacao": "Checkpoint heartbeat. Padrao auto-repete a cada ~9 min."
+      },
+      {
+        "hash": "2917289c",
+        "msg": "ulfor checkpoint: 16:48Z -- 4o standby consecutivo, nada mudou desde 16:29Z",
+        "absorbed": true,
+        "interpretacao": "Checkpoint marker (HEAD atual). Confirma autopilot em standby legitimo aguardando Breno desbloquear infra (EC2 setup ou skip-local-revalidate)."
+      }
+    ],
+    "delta_resumo_iter0031": {
+      "champions_status_change": "INALTERADO em producao (MLflow Registry / loader.py / API endpoint intocados). POREM Breno OFICIALIZOU veredito promote v3 final: NE PROMOVER ridge+h22_pf+alpha=1; SE PROMOVER opt A ridge+h22_MA+alpha=1; S MANTER lr+full; N PROMOVER ridge+h22_pf+alpha=100. Decisao SE = opt A (val14d > CV+coerencia) por aposta em regime recente persistir. Promote real NAO executado (CH local stale + MLflow down). Comandos prontos em FINDING_RIDGE_ALPHA_SWEEP.md, aguarda EC2 setup ou sync raw.",
+      "novos_requests": [],
+      "requests_fechados_extras": [],
+      "novas_hipoteses_loop_geradas": [],
+      "promote_v3_status": "DECIDIDO (Breno) MAS NAO EXECUTADO (infra). Migra de 'aguarda decisao Breno' para 'aguarda Breno desbloquear infra EC2'. Loop sem impacto direto (read-only). Decisao SE opt A reforca lesson H8 iter_0027 (intercambio em SE Ridge alpha=1 carrega sinal) via terceira evidencia independente.",
+      "h14g_implementacao_decisao": "Breno decidiu implementar H14-G (bias correction NE w=14, k=1) em promote_champions.py, NAO em loader.py. Justificativa: bias correction e' artefato promovido (binding ao modelo); MLflow tag carrega bias spec (window, threshold, strategy); loader.py deve ser dumb (carrega artefato + aplica bias parametrizado). UlFor registrou como H25_ulfor para sprint envelope-safe proxima. Implementacao futura: arg --bias em promote_champions.py + log spec como params + tag + artefato auxiliar (rolling residual buffer? ou recompute em load?) + loader le tag e instancia BiasCorrector. Por enquanto NE H14-C continua default em loader (status quo bias_correction nao alterado neste promote v3). **NAO confundir H25_ulfor com nosso H25 (Stacker meta-modelo Ridge, P3 queued).**",
+      "ch_local_stale_convergencia_memory": "FINDING_LOCAL_CH_STALE_FEAT_TABLES convergente 1:1 com memoria [[ch_local_feat_termico_stale]] e [[ch_local_vs_ec2_separados]] (MEMORY.md). UlFor reproduz independentemente o mesmo diagnostico de Mai/26 do Breno: CH local Docker congelado em 2024-12-31 em feat_termico. Confirmacao de 3rd party. Nao gera req formal -- ja' documentado no auto-memory.",
+      "h_loop_impactadas": [
+        {
+          "id": "H8 (CONFIRMADO_PARCIAL_3SUBS_REFUTADO_SE_em_Ridge iter_0027)",
+          "status_change": "done -> done (lesson 3a evidencia independente)",
+          "motivo": "Breno escolheu SE opt A justamente porque val14d converge com lesson H8: intercambio SE em Ridge alpha=1 carrega sinal. iter_0027 H8 (joint-drop refit) + iter_0028 val14d (h22_MA vs h22_pf) + iter_0031 (Breno escolhe explicitamente opt A) = 3 evidencias independentes mesma direcao."
+        },
+        {
+          "id": "H33 (joint-drop SE em LR, P3 queued)",
+          "status_change": "queued -> queued (atratividade DIMINUI mais)",
+          "motivo": "Breno decidiu opt A para SE = ridge+h22_MA. Caveat model-aware ja' resolvido empiricamente pelo promote v3 final. H33 (joint-drop em LR para fechar caveat) e' agora investigacao de curiosidade metodologica, nao decisional. Mantida queued por ~0.3h cost."
+        },
+        {
+          "id": "H30 (Ridge_alpha10 pdp_residual CV, P3 queued)",
+          "status_change": "queued -> queued (atratividade INALTERADA pos-iter_0028)",
+          "motivo": "Decisao Breno nao toca pdp_residual. Recomendacao iter_0026/iter_0028 (rodar com alpha=1 E alpha=10 simultaneamente) permanece."
+        },
+        {
+          "id": "H25 (Stacker Ridge meta-modelo, P3 queued)",
+          "status_change": "queued -> queued (INALTERADO)",
+          "motivo": "Decisao Breno e UlFor H25 (que registrou H14-G implementacao como sua propria H25_ulfor) nao tocam stacker meta-modelo. Convencao nomenclatura: H25 = nosso loop / H25_ulfor = bias correction promote_champions.py."
+        },
+        {
+          "id": "H18 (MLflow read-only via tunnel, P1 blocked)",
+          "status_change": "blocked-acao-Breno-trivializa -> blocked-MAIS-CRITICA",
+          "motivo": "FINDING_LOCAL_CH_STALE_FEAT_TABLES confirma MLflow tambem offline local (ja era). H18 nao desbloqueia. PORQUE Breno agora precisa decidir setup EC2 vs skip-local-revalidate antes de poder executar promote v3, MLflow CF Access (H18) e' parte da decisao. Atratividade DESBLOQUEAR sobe."
+        }
+      ],
+      "regime_ulfor_multi_agente": "ENCERRADO temporariamente. 8 commits em ~28 min reais (13:20-13:49 BRT) mas conteudo: 2 substantivos (0971c699 docs decisao Breno + 6111cda4 finding local stale) + 6 checkpoints PARAR-E-PERGUNTAR identicos. Padrao 'runner forca checkpoint a cada 9-10 min em standby legitimo' mantido. UlFor parado aguardando Breno desbloquear infra. Loop NAO emite req -- ja' identificado em [[ch_local_feat_termico_stale]] + [[ch_local_vs_ec2_separados]] como acao Breno (EC2 setup ou raw sync).",
+      "push_origin_status": "Master agora ~32 ahead origin (iter_0028 era 26+). Sem push desde decisao Breno. Promote v3 pendente push + execucao.",
+      "nota_nomenclatura_aplicada": "Convencao Hxx_ulfor mantida. UlFor introduziu H25_ulfor (bias correction em promote_champions.py) -- NAO confundir com nosso H25 (Stacker Ridge meta-modelo). 12a iter consecutiva (recon nao-colidente) -- UlFor PARAR-E-PERGUNTAR permanece envelope-respeitado."
     }
   },
   "open_requests": [],

@@ -1,9 +1,11 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0030 (2026-05-25T01:30Z, H15 S classifier vs regressor
-binarizado — CONFIRMADO_PARCIAL_NON_RARE; classifier vence em thr_zero/p75
-mas EMPATA em thr_p90 rare event; alerta binario operacional S viavel via
-LogReg AUC 0.78).
+Atualizado em iter_0031 (2026-05-25T02:30Z, RECON_DELTA UlFor
+`27152e16..2917289c`, 8 commits — 2 substantivos + 6 checkpoints. Breno
+**oficializou promote v3 final**: SE opt A `ridge+h22_MA+α=1` (val14d > CV);
+H14-G bias correction NE registrado como UlFor H25 para promote_champions.py,
+NAO loader.py. Promote NAO executado — CH local feat_termico stale 2024-12-31).
+Atualizado anteriormente em iter_0030 (H15 S classifier — CONFIRMADO_PARCIAL_NON_RARE).
 Suite canonica MAE/R²/F1/RMSE/skill + NMAE/bias secundarios. Fonte unica:
 parquets UlFor commit `6b21ffdf`
 (`experiments/bakeoff_curtailment_multisub/outputs/cv_summary_*.parquet`),
@@ -210,6 +212,48 @@ independentes.
 Decisao SE defensavel em ambos sentidos. Diff <2pp NMAE = margem amostral
 val14d (n≈58d). Loop NAO tem voto. `promote_champions.py` ja' patcheado
 (iter_0026 commit `75e2431e`). Branch 26+ ahead origin — Breno + push.
+
+### Decisao Breno oficial v3 final (commit `0971c699`, iter_0031)
+
+Breno respondeu ao PARAR-E-PERGUNTAR escolhendo **opt A em SE** (val14d > CV):
+
+| sub | acao | champion v3 final | fonte primaria |
+|---|---|---|---|
+| NE | PROMOVER | `ridge + h22_per_fold + α=1` | CV + val14d coincidem (30.88%) |
+| SE | **PROMOVER opt A** | **`ridge + h22_model_aware + α=1`** | **val14d** > CV+coerencia (regime drift) |
+| S | MANTER | `lr + full` (status quo) | val14d confirma rejeicao |
+| N | PROMOVER | `ridge + h22_per_fold + α=100` | CV + val14d coincidem |
+
+Justificativa SE opt A: val14d e' sinal recente do regime real (CMO subindo,
+intercambio SE-S invertendo, NE em expansao). As 10 features que `h22_MA`
+preserva e `h22_pf` dropa (CMO + intercambio + taxa_penetracao) carregam
+sinal nesse regime. Aceita perda de coerencia multi-sub. Reavaliar Jun/2026.
+
+**Convergencia 3-fold**: H8 iter_0027 (joint-drop refit em SE Ridge harmful)
++ iter_0028 val14d (h22_MA vence h22_pf por −1.64pp) + iter_0031 (Breno
+escolhe explicitamente opt A) = 3 evidencias independentes confirmando que
+preservar intercambio + CMO em SE Ridge α=1 carrega sinal real.
+
+**H14-G implementacao** (decisao Breno): em `promote_champions.py`, NAO em
+`loader.py`. Bias correction e' parte do artefato promovido (binding ao
+modelo). MLflow tag carrega bias spec (`bias_window`, `bias_threshold_k`,
+`bias_strategy`). Loader.py deve ser dumb (carrega artefato + aplica bias
+parametrizado). Registrado por UlFor como **H25_ulfor** para sprint
+envelope-safe proxima. NAO confundir com nosso H25 (Stacker Ridge meta-modelo,
+P3 queued).
+
+### Promote v3 NAO EXECUTADO (commit `6111cda4`, iter_0031) — bloqueio infra
+
+CH local Docker (porta 8123) tem `feat_termico` congelada em **2024-12-31**
+(upstream raw `ons_raw___geracao_termica_despacho_ho` sem ingestao Dagster
+recente). `feat_carga_history` 2 meses stale; `feat_pld/pdp/inter/sat/cmo`
+8-23 dias stale. Dataset colapsa a 16 dias finais Dez/24 vs ~535 esperados.
+MLflow tambem offline local. Sweep alpha=1/100 (iter_0028 `f7c56c3d`) rodou
+contra **EC2 CH via tunnel SSH** (porta 18123 = SSH forward), nao Docker
+local. Convergente com auto-memory [[ch_local_feat_termico_stale]] +
+[[ch_local_vs_ec2_separados]] (Mai/26 Breno). Aguarda EC2 setup ou sync raw.
+Comandos prontos: ver `FINDING_RIDGE_ALPHA_SWEEP.md` secao "Comandos prontos
+para retomar (ambiente correto)".
 
 ### Ablation negativa H22 stricter (commit `42dc0d7a`, iter_0026) — REFUTADO
 

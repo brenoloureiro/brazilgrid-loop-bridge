@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-25T01:30:00Z
+last_updated: 2026-05-25T02:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -1170,6 +1170,16 @@ hypotheses:
       / H8 iter_0027 sem precisar de H33 isolado. H33 ainda vale ~0.3h se
       Breno quiser teste especifico do bundle intercambio (nao confounded
       com outras 8 features), mas o pico de atratividade foi pre-empted.
+    notes_iter0031: |
+      Atratividade DIMINUI mais pos-decisao Breno (commit 0971c699). Breno
+      escolheu opt A em SE: ridge+h22_MA+α=1. Caveat model-aware ja foi
+      RESOLVIDO empiricamente pelo promote v3 final via 3-fold convergence
+      (H8 iter_0027 joint-drop refit + iter_0028 val14d + iter_0031 escolha
+      Breno). H33 (joint-drop SE em LR puro, custo ~0.5h) e' agora puramente
+      investigacao de curiosidade metodologica -- nao ha mais decisao que
+      dependa dela. Mantida queued porque o custo e' baixo e o resultado
+      ainda interessa academicamente (model-family-aware drop magnitude),
+      mas nao escala atratividade pos-iter_0031.
 
 notas_iter0026:
   inspected_range: 5d41d063..83abab3e (8 commits UlFor, ~25 min reais)
@@ -1253,6 +1263,45 @@ notas_iter0028:
     N:  PROMOVER ridge + h22_per_fold + α=100 (CV+val14d coincidem; val14d 71.51% MELHOR)
     Operacional: promote_champions.py ja patcheado iter_0026 (75e2431e).
     Branch 26+ ahead origin. Requer decisao Breno + push.
+
+notas_iter0031:
+  inspected_range: 27152e16..2917289c (8 commits UlFor, ~28 min reais)
+  resolved: []
+  newly_blocked: []
+  newly_queued: []
+  pre_empted: []
+  attractiveness_changes:
+    H8 (done): lesson 3a evidencia independente (Breno escolhe opt A SE)
+    H33: DIMINUI MAIS (caveat model-aware resolvido empiricamente por 3-fold convergence; mantida queued por baixo custo, sem decisao dependente)
+    H30: INALTERADO (decisao Breno nao toca pdp_residual)
+    H25 (nosso): INALTERADO (NAO confundir com H25_ulfor = bias correction promote_champions.py)
+    H18: blocked-MAIS-CRITICA (MLflow CF Access parte da decisao Breno EC2 setup vs skip)
+  promote_v3_decidido_mas_nao_executado: |
+    Breno escolheu opt A em SE (commit 0971c699): ridge + h22_model_aware + α=1.
+    Justificativa: val14d > CV+coerencia em regime drift recente (CMO subindo,
+    intercambio SE-S invertendo, NE em expansao). As 10 features que h22_MA
+    preserva e h22_pf dropa (CMO+intercambio+taxa_penetracao) carregam sinal
+    nesse regime. Promote NAO executado: CH local Docker (porta 8123) tem
+    feat_termico congelada em 2024-12-31 (commit 6111cda4 FINDING_LOCAL_CH_STALE).
+    Dataset colapsa a 16 dias finais Dez/24. MLflow tambem offline local.
+    Aguarda Breno: EC2 setup ou sync raw. Comandos prontos em
+    FINDING_RIDGE_ALPHA_SWEEP.md "Comandos prontos para retomar".
+  h14g_implementacao_decidida: |
+    Decisao Breno (commit 0971c699): implementar H14-G (bias correction NE
+    w=14, k=1) em promote_champions.py, NAO em loader.py. Bias correction e'
+    artefato promovido (binding ao modelo). UlFor registrou como H25_ulfor
+    para sprint envelope-safe proxima. NAO confundir com nosso H25 (Stacker
+    Ridge meta-modelo, P3 queued). NE H14-C continua default em loader (status
+    quo bias_correction nao alterado neste promote v3).
+  3_fold_convergence_h8_se: |
+    Breno escolher opt A SE = 3a evidencia independente confirmando lesson
+    H8 iter_0027 (preservar intercambio em SE Ridge α=1):
+      1) iter_0027 H8 (joint-drop refit Ridge α=1 SE): +1.21pp NMAE HARMFUL
+      2) iter_0028 val14d (h22_MA vs h22_pf comparison): -1.64pp NMAE opt_A wins
+      3) iter_0031 (Breno escolhe opt A explicitamente): val14d trumps CV+coerencia
+    Mesma direcao, magnitudes consistentes, contextos independentes.
+    H8 done remains done; lesson permanece o lemma metodologico mais robusto
+    do loop ate' agora.
 
   - id: H35
     summary: S alerta operacional binario via LogReg dedicado (vs binarizar champion)
