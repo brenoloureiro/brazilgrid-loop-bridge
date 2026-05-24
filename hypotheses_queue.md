@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T07:30:00Z
+last_updated: 2026-05-24T09:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -173,17 +173,39 @@ hypotheses:
       alguns subs (NE/v3 R²=+0.52 vs LGB R²=-0.00) mas com test n=11.
       Validar com cross-validation se XGB e sistematicamente melhor que
       LGBM com features iter_0002.
+
+      VEREDITO iter_0012: REFUTADO_LGBM_SYSTEMATICALLY_BETTER. CV walk-forward
+      5 folds (60d cada, gap 7d) sobre features iter_0002 nas 12 celulas
+      (4 subs x 3 vers): LGBM venceu MAE em 10/12 celulas (83%), XGB em
+      1/12 (SE/v1 4/5 folds, mas magnitude -210 MWh em MAE ~7.5k = 2.8%
+      clinicamente irrelevante), empate em 1/12. NE foi onde XGB perdeu
+      pior: NE/v2 deltaMAE = +11.299 MWh, NE/v3 = +7.291 MWh em favor LGBM.
+      iter_0002 NE/v3 XGB R²=+0.52 era ruido n=11 — CV mostra R² medio
+      XGB=-0.18 (std 0.46) vs LGBM=+0.26 (std 0.30), inversao total. Vetor
+      de degradacao: distribution shift (KS p<0.0001 em NE+SE entre fold1
+      e foldN); XGB sofre mais shift que LGBM possivelmente por permitir
+      splits mais profundos. Lesson reforca iter_0006/req-0003: test n=11
+      e' falso positivo.
+
+      Champions UlFor oficiais sao Ridge/LR (iter_0007/commit 4e0fc7b4),
+      nao XGB nem LGBM. H7 e' diagnostica do replay loop, nao de producao.
     type: model
     layer: curtailment
     target: model_comparison_lgbm_xgb
     priority: P2
-    status: queued
+    status: done
+    iter_handled: 0012
+    verdict: REFUTADO_LGBM_SYSTEMATICALLY_BETTER
     estimated_effort_hours: 1.5
+    actual_effort_hours: 0.9
     depends_on: []
     blocks: []
     sanity_checks_required: [holdout, baseline, dist_shift]
+    sanity_checks_done: [holdout, baseline, dist_shift]
+    follow_ups_created: []
     expected_value: escolher modelo certo para v4
     created_at: 2026-05-24T03:30:00Z
+    completed_at: 2026-05-24T09:30:00Z
 
   - id: H8
     summary: Validar feat_intercambio importance via permutation

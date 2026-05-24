@@ -27,6 +27,16 @@ universal CLEAN ajuda so NE/N — feature_set=full continua default. VIF greedy 
 (jul-set/2025 = blowup 208%) → ridge_curt_n_d1@staging continua a defesa. Sem novos
 requests; sem novas hipoteses do loop geradas. Detalhe em `iterations/iter_0011_recon_delta.md`.
 
+**Iter 0012 (H7):** XGB vs LGBM CV walk-forward (5 folds 60d, gap 7d) sobre features
+iter_0002 — **REFUTADO_LGBM_SYSTEMATICALLY_BETTER**. LGBM venceu MAE em **10/12 celulas
+(83%)**. iter_0002 NE/v3 XGB R²=+0.52 (n=11) era ruido: em CV NE/v3 XGB R² medio=-0.18
+vs LGBM +0.26 — inversao total. Maior gap: NE/v2 ΔMAE=+11.299 MWh em favor LGBM. Vetor
+de degradacao: distribution shift (KS p<0.0001 NE+SE entre fold1 e foldN; y_mean cai 3x
+em NE), XGB sofre mais por splits mais profundos. LGBM continua modelo padrao do loop.
+Champions UlFor sao Ridge/LR (iter_0007) — H7 e' diagnostica do replay loop, nao de
+producao. Lesson reforca iter_0006/req-0003 (n=11 falsos positivos). Detalhe em
+`iterations/iter_0012_h7_xgb_vs_lgbm_cv.md`.
+
 | layer | alvo | sub | baseline (MAE_mwh, CV) | best_metric (MAE/R²/F1, modelo) | NMAE secundario | last_iter | sanity_ok | data_utc |
 |---|---|---|---|---|---|---|---|---|
 | curtailment | d1_ENE_CNF | NE | persist_d1 (UlFor CV 5 folds — MAE pendente extracao) | **ridge_curt_ne_d1 @champion (R² +0.469±0.098 CV; in-sample R²=0.830)** | NMAE 33.7±8.1% | 0011 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T08:30Z |
@@ -46,6 +56,7 @@ requests; sem novas hipoteses do loop geradas. Detalhe em `iterations/iter_0011_
 | meta | h3_pdp_residual_signal | NE | r2_gen_only=0.346 | **r2_gen+pdp_prev=0.654 (r2_extra +0.308; partial_corr +0.69)** | perm p=0.0; test/train delta=+0.001 (estavel); leak ok | 0010 | H3 CONFIRMADO | 2026-05-24T07:30Z |
 | meta | h3_pdp_residual_signal | SE | r2_gen_only=0.187 | r2_gen+pdp_prev=0.438 (r2_extra +0.251; partial_corr +0.56) | perm p=0.0; test/train delta=+0.002; leak ok | 0010 | H3 CONFIRMADO | 2026-05-24T07:30Z |
 | meta | h3_pdp_residual_signal | S | r2_gen_only=0.053 | r2_gen+pdp_prev=0.210 (r2_extra +0.157 train; +0.001 test!) | perm p=0.0; **dist_shift FAIL** (test colapsa, cobertura 12 usinas) | 0010 | H3 fragil em S | 2026-05-24T07:30Z |
+| meta | h7_xgb_vs_lgbm_cv | — | persist_d1 por fold | **LGBM > XGB em 10/12 cells (83%) CV 5x60d gap7d**; NE/v3 R² LGBM +0.257 vs XGB -0.178 (inverteu iter_0002 n=11) | NE/v2 ΔMAE+11.299 MWh, SE/v1 wins XGB so 4/5 mag -210 MWh = 2.8% (irrelevante) | 0012 | H7 REFUTADO; [3/3 sanity B3+B4+B5] | 2026-05-24T09:30Z |
 
 ---
 

@@ -1,8 +1,8 @@
 {
-  "iter_atual": 11,
+  "iter_atual": 12,
   "mode": "self_planning",
-  "alvo_ativo": "recon_delta_ulfor_post_4e0fc7b4",
-  "layer_ativa": "meta",
+  "alvo_ativo": "model_comparison_lgbm_xgb",
+  "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
     "version": "1.0",
@@ -108,6 +108,15 @@
       "decision": "CONFIRMADO. pdp_prev_* devem permanecer no modelo (NE+SE definitivo, S condicional). Mecanismo: residual(pdp_prev - gen) e' proxy direta de curt. pdp_prog_* candidato a drop por colinearidade 0.95 com ger_*. Sem req externo (crosswalk inline funciona; UlFor ja tem cobertura 82% via seed_crosswalk_pdp_usina).",
       "lesson_learned": "Separar PDP_prev (previsao independente) de PDP_prog (programado, copia do real) e' critico. Apenas PDP_prev tem informacao alem de gen — porque previsao - gen = restricao (=curtailment). Hipotese 'PDP e' so proxy de gen' era falsa para PDP_prev mas verdadeira para PDP_prog. Bug encontrado e corrigido no script: `(best.get('perm_p') or 1.0)` interpretava p=0.0 como missing — usar `p is None or p < 0.05` explicito.",
       "follow_ups_created": ["H21", "H22"]
+    },
+    "H7_xgb_vs_lgbm_cv": {
+      "iter": 12,
+      "verdict": "REFUTADO_LGBM_SYSTEMATICALLY_BETTER",
+      "iter_closed": 12,
+      "evidence_final": "CV walk-forward 5 folds (60d cada, gap 7d) sobre features iter_0002 em 12 celulas (4 subs x 3 vers). LGBM venceu MAE em 10/12 celulas (83%); XGB em 1/12 (SE/v1, magnitude -210 MWh em MAE ~7.5k = 2.8% irrelevante); empate 1/12. Maior diferenca: NE/v2 deltaMAE=+11.299 MWh em favor LGBM; NE/v3 +7.291 MWh. R² medio NE/v3: LGBM +0.257 vs XGB -0.178 — inversao do iter_0002 (XGB +0.52 vs LGBM -0.00, n=11). Sanity B5: NE+SE tem distribution shift dramatico (KS p<0.0001 fold1 vs foldN; y_mean cai 3x em NE), correlaciona com regiao onde XGB sofre mais — splits mais profundos do XGB overfitam regime instavel. B4: LGBM skill_vs_persist_d1 > XGB em 7/12 celulas com magnitudes maiores em NE.",
+      "decision": "REFUTADO. LGBM continua MODELO PADRAO para bake-offs do loop (defaults: n_est=300, lr=0.05, num_leaves=31, min_child=10, subsample=0.8, colsample=0.9). XGB default nao competitivo no replay loop com features iter_0002. Champions UlFor sao Ridge/LR (iter_0007) — H7 e' diagnostica do replay, nao de producao.",
+      "lesson_learned": "Confirma iter_0006 lesson (req-0003): test n=11 da' falsos positivos sistematicos para vitorias de modelo. Diferenca XGB vs LGBM no iter_0002 desapareceu (ou inverteu) em CV. Modelo default escolhido em janela curta nao generaliza. Tambem: GBDT default nao e' familia certa para curt-d1 — UlFor confirmou via Ridge/LR superando ambos.",
+      "follow_ups_created": []
     }
   },
   "sanity_checks_disponiveis": [
@@ -119,10 +128,10 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0011_recon_delta.md",
+  "ultimo_handoff": "iter_0012_h7_xgb_vs_lgbm_cv.md",
   "budget_consumido": {
-    "iter": 11,
-    "horas": 0.4,
+    "iter": 12,
+    "horas": 0.9,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -199,9 +208,9 @@
   ],
   "planner_config": {
     "mode": "self_planning",
-    "next_iter_should_be": "H21 (P2 feature engineering pdp_residual = pdp_prev - gen). Continua valida pos-iter_0011: derivada direta de H3 iter_0010, codavel localmente, sem dep externa. Bake-off replay iter_0002 + adicionar coluna pdp_residual_mwh + comparar PI/perm + check coliner com pdp_prev_* originais. Sanity B1 leak (pdp_prev D-1 safe, gen D-only) + B2 perm + B4 baseline.",
-    "alt_next": "H10 (P2 ensemble v2_LGBM + persist_d1, unblocked desde H9), H22 (P3 GBDT vs OLS gap para curt~gen+pdp), H19 (P2 extrair MAE/R²/F1 dos champions UlFor Ridge/LR — agora pode parsear FINDING_MULTICOLINEARITY.md + commit 3ac5916a CV outputs), H7 (P2 XGB vs LGBM CV), H20 (P3 auto-flag n_test<30).",
-    "notas_iter0011": "Pos-recon: champions promovidos no MLflow + endpoint /api/forecast/d1 LIVE. H18 (sanity B1-B6 sobre champions Ridge/LR) ainda blocked por req-0005 — sanity local requer ou (a) UlFor publicar predicoes em parquet acessivel ou (b) loop ganhar acesso ao MLflow tracking URI. Candidato a novo req-0004: pedir dump MLflow do CV_SUMMARY (140 runs + 28 CV) em parquet — destrava H18+H19 simultaneamente. Decisao: NAO emitir agora (auto-pesado, evitar duplicar trabalho ja resumido em FINDING). H21 e codavel + da skill incremental sem dep externa."
+    "next_iter_should_be": "H21 (P2 feature engineering pdp_residual = pdp_prev - gen). Continua valida pos-iter_0012: derivada direta de H3 iter_0010, codavel localmente, sem dep externa. Bake-off replay iter_0002 + adicionar coluna pdp_residual_mwh + comparar PI/perm + check coliner com pdp_prev_* originais. Sanity B1 leak (pdp_prev D-1 safe, gen D-only) + B2 perm + B4 baseline. Usar LGBM (confirmado iter_0012 como GBDT padrao do loop).",
+    "alt_next": "H10 (P2 ensemble v2_LGBM + persist_d1, unblocked desde H9), H22 (P3 GBDT vs OLS gap para curt~gen+pdp), H19 (P2 extrair MAE/R²/F1 dos champions UlFor Ridge/LR — agora pode parsear FINDING_MULTICOLINEARITY.md + commit 3ac5916a CV outputs), H20 (P3 auto-flag n_test<30), H8 (P3 perm validation feat_intercambio).",
+    "notas_iter0012": "H7 fechada como REFUTADO. Sem novos requests. Lesson reforca iter_0006 (n=11 falsos positivos sistematicos). Modelo padrao do loop continua LGBM. Champions UlFor sao Ridge/LR — H7 e' diagnostica do replay, nao de producao. Considerar H23 (P3 opcional) 'XGB tunado via Optuna reduz gap?' se proxima recon tiver budget."
   },
   "kill_requested": false
 }
