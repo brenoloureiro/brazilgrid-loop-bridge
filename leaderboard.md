@@ -1,6 +1,12 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0031 (2026-05-25T02:30Z, RECON_DELTA UlFor
+Atualizado em iter_0032 (2026-05-25T03:30Z, H20 — auto-flag bake-off
+n_test<30 CONFIRMADO_DISPLAY: politica `low_confidence_n_test` explicita
+e auditada em 32 artefatos do loop + 18 parquets UlFor; 12 LGBM-replay
+runs iter_0002 + 8 sanity JSONs marcados LOW, 0 falsos negativos no topo
+do leaderboard. Runner `run_bakeoff_replay.py` patcheado para escrever
+flag em meta.json + summary_replay.csv).
+Atualizado anteriormente em iter_0031 (RECON_DELTA UlFor
 `27152e16..2917289c`, 8 commits — 2 substantivos + 6 checkpoints. Breno
 **oficializou promote v3 final**: SE opt A `ridge+h22_MA+α=1` (val14d > CV);
 H14-G bias correction NE registrado como UlFor H25 para promote_champions.py,
@@ -28,6 +34,14 @@ n=11 do replay loop iter_0002).
 
 **Skill_vs_persist_d1** = `1 - MAE_champion / MAE_persist_d1` no mesmo CV.
 Positivo = champion ganha persist em MAE.
+
+**Politica `low_confidence_n_test`** (H20, iter_0032): qualquer bake-off com
+`n_test < 30` recebe flag explicito `low_confidence_n_test=true` no meta.json
+do run e no `summary_replay.csv`, e e' explicitamente isolado na secao
+"Historico iter loop (deprecado)" do leaderboard. Todos os 4 champions
+oficiais + 12 baselines abaixo usam **n_test ∈ {59, 60}** (UlFor CV 5x60d /
+val14d single-fold) — `low_confidence_n_test = FALSE`. Auditoria full em
+`outputs/iter_0032/h20_leaderboard_low_n_test_warning/n_test_audit.{json,md}`.
 
 ---
 
@@ -426,30 +440,33 @@ Artefatos: `outputs/iter_0030/h15_s_classifier_vs_regressor/`.
 
 Antes do iter_0007 (champions UlFor Ridge/LR CV 5×60d), o loop usou
 replays LGBM com n_test=11 e features iter_0002. Numeros foram
-superseded mas mantidos para audit. Tabela resumida abaixo; detalhes em
+superseded mas mantidos para audit. Coluna `n_test` + flag
+`low_confidence_n_test` (H20, iter_0032) tornam o aviso explicito por linha
+em vez de embutido no titulo da secao. Tabela resumida abaixo; detalhes em
 iterations/iter_0002 a iter_0006.
 
-| iter | acao | resultado | superseded_por |
-|---|---|---|---|
-| 0002 | LGBM v1/v2/v3 replay | NMAE NE 28.2% v2 / SE 36.2% v2 | iter_0007 UlFor CV |
-| 0003 | H2 off-by-one PDP | REFUTADO (corr=0.91 t / 0.82 t+1) | — (definitivo) |
-| 0004 | B6 sanity check impl | impl + falso positivo SE/v3 lag | iter_0009 v1.1 |
-| 0006 | RECON UlFor v3.3 XGB | NE 35.7% / SE 46.0% / S 109% / N 72.2% | iter_0007 Ridge/LR |
-| 0008 | H9 metric_suite MAE/R²/F1 | CONFIRMADO — NMAE viesa 3/4 subs | — (definitivo) |
-| 0009 | H16 B6 n_test gating | CONFIRMADO — 5/20 FP eliminados n=11 | — (definitivo) |
-| 0010 | H3 PDP residual signal | CONFIRMADO NE+SE (perm p=0.0) | — (definitivo) |
-| 0012 | H7 XGB vs LGBM CV | REFUTADO_LGBM (10/12 wins CV) | — (replay-only) |
-| 0013 | H10 ensemble LGBM+persist | CONFIRMADO_NE_SE+N (bonus) | iter_0022 H24 Ridge/LR |
-| 0014 | H11 quantile LGBM | REFUTADO_NE (cov 43.6% vs 80%) | — (definitivo) |
-| 0016 | H19 extracao champion metrics | CONFIRMADO_PARCIAL (MAE_derived ~10% slack) | iter_0017 (MAE exato) |
-| 0020 | H21 pdp_residual engineered | REFUTADO (OLS + LGBM CV convergem) | — (definitivo) |
-| 0022 | H24 ensemble champion+persist | CONFIRMADO_3SUBS (NE/SE/N) | — (vivo, candidato runtime) |
-| 0024 | RECON_DELTA UlFor 4427a718..5d41d063 | validation_gap dos 7 promovieis FECHADA (4 PROMOVER, 1 REFUTADO, 1 decisao Breno, 1 marginal) + 2 achados novos (lgbm em SE+N regime atual) | — (handoff) |
-| 0026 | RECON_DELTA UlFor 5d41d063..83abab3e | alpha sweep v3 (NE+SE+N ridge+h22_pf, α-aware) + H22 stricter REFUTADO + promote_champions.py patched + ADDENDUM val14d (LGBM refuted-CV) | — (handoff) |
-| 0027 | H8 feat_intercambio CV-PI independente | CONFIRMADO_PARCIAL_3SUBS_REFUTADO_SE_em_Ridge — joint-drop primario + 30-perm single-feat reproduz UlFor H22 drop direction em 3/4 subs (NE -3.95pp joint a1; S -8.3pp gigante; N inconclusivo unsafe) e diverge em SE (+1.21pp joint a1, lesson model-aware H22_MA empirico). H33 derivada. | — (definitivo) |
-| 0028 | RECON_DELTA UlFor 83abab3e..27152e16 | val14d alpha sweep (3 candidatos ridge × 4 subs, n≈58d) FECHA validation gap parcial iter_0026; promote v3 consolidado (NE/N coincidem CV+val14d, S rejeita ambos, SE INVERTE — opt_A h22_MA val14d vs opt_B h22_pf CV); diff features SE elucida mecanismo (10 features carregam regime recente CMO+intercambio); convergencia empirica com H8 iter_0027 | — (handoff) |
-| 0029 | H13 persist_d7 baseline aux | CONFIRMADO_DISPLAY_REFUTADO_REGIME_CLAIM — persist_d7 ja' presente no leaderboard desde iter_0007 (display OK); sub-claim "vence persist_d1 em S" REFUTADO em CV canonico (persist_d1 vence 4/4 subs no agregado, 19/20 per-fold cells). Unica inversao: N fold 0 (regime sazonal antigo, nao S). Origem da premissa: replay iter_0002 n=11 onde d7 venceu d1 EM N (nao S, erro de transcricao do detail). Mantido como diagnostico auto-correlacao | — (definitivo) |
-| 0030 | H15 S classifier vs regressor binarizado | CONFIRMADO_PARCIAL_NON_RARE — em thr_zero (any curt, pos_rate 40%) e thr_p75 (big curt, pos_rate 25%) LogReg(class_weight=balanced) bate LR_reg+Ridge_reg binarizados em **+4.5pp/+6.8pp AUC** e **+5.1pp/+8.1pp PR-AUC**; em thr_p90 (rare event, pos_rate 10%) regressor binarizado EMPATA classifier (ΔAUC −1.6pp, ΔPR-AUC −0.6pp, dentro do ruido). Mecanismo: rare events com test_pos absoluto baixo (1-5 positivos em fold 5) inviabilizam calibracao do LogReg. Perm test FORTE: real AUC=0.872 vs perm 0.512±0.13 (p=0.000). Hipotese original ("classifier > regressor em rare-event") REFUTADA, mas H15 derivada: classifier e' o caminho para alerta binario "vai ter curt em S?" (LogReg AUC 0.78 vs persist 0.62, +16.8pp) | H35 (alerta operacional moderado S) |
+| iter | acao | resultado | n_test | low_confidence_n_test | superseded_por |
+|---|---|---|---:|:---:|---|
+| 0002 | LGBM v1/v2/v3 replay | NMAE NE 28.2% v2 / SE 36.2% v2 | 11 | **⚠ TRUE** | iter_0007 UlFor CV |
+| 0003 | H2 off-by-one PDP | REFUTADO (corr=0.91 t / 0.82 t+1) | — | n/a | — (definitivo) |
+| 0004 | B6 sanity check impl | impl + falso positivo SE/v3 lag | 11 | **⚠ TRUE** | iter_0009 v1.1 |
+| 0006 | RECON UlFor v3.3 XGB | NE 35.7% / SE 46.0% / S 109% / N 72.2% | 11 | **⚠ TRUE** | iter_0007 Ridge/LR |
+| 0008 | H9 metric_suite MAE/R²/F1 | CONFIRMADO — NMAE viesa 3/4 subs | 11 | **⚠ TRUE** (n=11 do replay) | — (definitivo) |
+| 0009 | H16 B6 n_test gating | CONFIRMADO — 5/20 FP eliminados n=11 | 10 e 60 (sintetico) | n/a | — (definitivo) |
+| 0010 | H3 PDP residual signal | CONFIRMADO NE+SE (perm p=0.0) | 98 (holdout OLS) | FALSE | — (definitivo) |
+| 0012 | H7 XGB vs LGBM CV | REFUTADO_LGBM (10/12 wins CV) | 58-60 (CV 5 folds) | FALSE | — (replay-only) |
+| 0013 | H10 ensemble LGBM+persist | CONFIRMADO_NE_SE+N (bonus) | 58-60 (CV 5 folds) | FALSE | iter_0022 H24 Ridge/LR |
+| 0014 | H11 quantile LGBM | REFUTADO_NE (cov 43.6% vs 80%) | 58-60 (CV 5 folds) | FALSE | — (definitivo) |
+| 0016 | H19 extracao champion metrics | CONFIRMADO_PARCIAL (MAE_derived ~10% slack) | n/a (derivacao) | n/a | iter_0017 (MAE exato) |
+| 0020 | H21 pdp_residual engineered | REFUTADO (OLS + LGBM CV convergem) | 98 OLS / 58-60 CV | FALSE | — (definitivo) |
+| 0022 | H24 ensemble champion+persist | CONFIRMADO_3SUBS (NE/SE/N) | 58-60 (CV 5 folds) | FALSE | — (vivo, candidato runtime) |
+| 0024 | RECON_DELTA UlFor 4427a718..5d41d063 | validation_gap dos 7 promovieis FECHADA (4 PROMOVER, 1 REFUTADO, 1 decisao Breno, 1 marginal) + 2 achados novos (lgbm em SE+N regime atual) | 59 (val14d single-fold) + 59-60 CV | FALSE | — (handoff) |
+| 0026 | RECON_DELTA UlFor 5d41d063..83abab3e | alpha sweep v3 (NE+SE+N ridge+h22_pf, α-aware) + H22 stricter REFUTADO + promote_champions.py patched + ADDENDUM val14d (LGBM refuted-CV) | 59-60 (CV) | FALSE | — (handoff) |
+| 0027 | H8 feat_intercambio CV-PI independente | CONFIRMADO_PARCIAL_3SUBS_REFUTADO_SE_em_Ridge — joint-drop primario + 30-perm single-feat reproduz UlFor H22 drop direction em 3/4 subs (NE -3.95pp joint a1; S -8.3pp gigante; N inconclusivo unsafe) e diverge em SE (+1.21pp joint a1, lesson model-aware H22_MA empirico). H33 derivada. | 59-60 (CV) | FALSE | — (definitivo) |
+| 0028 | RECON_DELTA UlFor 83abab3e..27152e16 | val14d alpha sweep (3 candidatos ridge × 4 subs, n≈58d) FECHA validation gap parcial iter_0026; promote v3 consolidado (NE/N coincidem CV+val14d, S rejeita ambos, SE INVERTE — opt_A h22_MA val14d vs opt_B h22_pf CV); diff features SE elucida mecanismo (10 features carregam regime recente CMO+intercambio); convergencia empirica com H8 iter_0027 | 59 (val14d) | FALSE | — (handoff) |
+| 0029 | H13 persist_d7 baseline aux | CONFIRMADO_DISPLAY_REFUTADO_REGIME_CLAIM — persist_d7 ja' presente no leaderboard desde iter_0007 (display OK); sub-claim "vence persist_d1 em S" REFUTADO em CV canonico (persist_d1 vence 4/4 subs no agregado, 19/20 per-fold cells). Unica inversao: N fold 0 (regime sazonal antigo, nao S). Origem da premissa: replay iter_0002 n=11 onde d7 venceu d1 EM N (nao S, erro de transcricao do detail). Mantido como diagnostico auto-correlacao | 59-60 (CV) | FALSE | — (definitivo) |
+| 0030 | H15 S classifier vs regressor binarizado | CONFIRMADO_PARCIAL_NON_RARE — em thr_zero (any curt, pos_rate 40%) e thr_p75 (big curt, pos_rate 25%) LogReg(class_weight=balanced) bate LR_reg+Ridge_reg binarizados em **+4.5pp/+6.8pp AUC** e **+5.1pp/+8.1pp PR-AUC**; em thr_p90 (rare event, pos_rate 10%) regressor binarizado EMPATA classifier (ΔAUC −1.6pp, ΔPR-AUC −0.6pp, dentro do ruido). Mecanismo: rare events com test_pos absoluto baixo (1-5 positivos em fold 5) inviabilizam calibracao do LogReg. Perm test FORTE: real AUC=0.872 vs perm 0.512±0.13 (p=0.000). Hipotese original ("classifier > regressor em rare-event") REFUTADA, mas H15 derivada: classifier e' o caminho para alerta binario "vai ter curt em S?" (LogReg AUC 0.78 vs persist 0.62, +16.8pp) | 59-60 (CV) | FALSE | H35 (alerta operacional moderado S) |
+| 0032 | H20 auto-flag low_confidence_n_test | CONFIRMADO_DISPLAY — politica `low_confidence_n_test=(n_test<30)` propagada para meta.json/summary_replay.csv/leaderboard; audit cobre 12 meta runs + 21 outros JSON + 18 parquets UlFor; 12 LGBM-replay runs + 8 sanity-JSONs marcados LOW, 0 marcados LOW na secao Champions/Baselines do topo. Runner `run_bakeoff_replay.py` patcheado. | n/a (display) | n/a | — (definitivo) |
 
 ## Lessons learned (transferiveis)
 
@@ -480,6 +497,13 @@ iterations/iter_0002 a iter_0006.
   +1.65pp (parece KEEP) mas joint-drop = -3.95pp (bundle ATIVAMENTE
   HARMFUL). Reforça empiricamente o lesson teorico H22_model_aware
   UlFor commit `2daa5d40` (PI deve ser medida com o modelo final).
+- **Display de confianca amostral deve ser per-row, nao por secao**
+  (iter_0032 H20): antes desta iter, aviso de janela curta vivia no
+  titulo da secao "deprecado" — leitor podia citar uma linha individual
+  sem o contexto. H20 promove o flag `low_confidence_n_test` para coluna
+  visivel em meta.json + summary_replay.csv + leaderboard, mais auditoria
+  unificada em `outputs/iter_0032/h20_leaderboard_low_n_test_warning/`.
+  Threshold `n_test < 30` herdado de B6 H16 v1.1 (iter_0009).
 
 ## Como atualizar
 

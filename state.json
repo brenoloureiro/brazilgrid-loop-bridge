@@ -1,7 +1,7 @@
 {
-  "iter_atual": 31,
-  "mode": "recon_delta",
-  "alvo_ativo": "recon_delta_ulfor_post_27152e16",
+  "iter_atual": 32,
+  "mode": "hypothesis_test",
+  "alvo_ativo": "h20_low_n_test_warning",
   "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
@@ -593,6 +593,23 @@
           "confirm": false
         }
       }
+    },
+    "H20_low_confidence_n_test_flag": {
+      "iter": 32,
+      "verdict": "CONFIRMADO_DISPLAY",
+      "evidence": "Audit 32 artefatos loop + 18 parquets UlFor; 12 LOW (meta runner) + 8 LOW (sanity JSON iter_0002..0009) + 0 LOW (parquets oficiais). Runner patched (low_confidence_n_test + low_n_test_threshold em meta.json+CSV). Leaderboard recebe coluna n_test+flag na secao deprecada + bloco de politica no topo. Zero linhas LOW nas tabelas ativas (Champions, Baselines, Overlay, Sucessores, Alpha sweep v3, Val14d).",
+      "artefatos": "outputs/iter_0032/h20_leaderboard_low_n_test_warning/ (n_test_audit.json + n_test_audit.md + sanity_checks.json), scripts/h20_n_test_audit.py, scripts/run_bakeoff_replay.py (patched), outputs/iter_0002/summary_replay.csv (backfilled)",
+      "threshold": 30,
+      "totais": {
+        "meta_low": 12,
+        "meta_ok": 0,
+        "other_low": 8,
+        "other_ok": 12,
+        "other_excluded_false_positive": 1,
+        "ulfor_parquets_low": 0,
+        "ulfor_parquets_ok": 18,
+        "leaderboard_top_rows_low": 0
+      }
     }
   },
   "sanity_checks_disponiveis": [
@@ -856,10 +873,10 @@
       "warn": ""
     }
   },
-  "ultimo_handoff": "iterations/iter_0030_h15_s_classifier_vs_regressor.md",
+  "ultimo_handoff": "iterations/iter_0032_h20_low_n_test_warning.md",
   "budget_consumido": {
-    "iter": 30,
-    "horas": 1.2,
+    "iter": 32,
+    "horas": 1.8,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -1908,8 +1925,26 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 2,
-    "horas": 0.4475,
-    "usd": 9.0649
+    "iter": 4,
+    "horas": 1.3328,
+    "usd": 16.9809
+  },
+  "low_n_test_policy": {
+    "version": "1.0",
+    "adopted_in_iter": 32,
+    "hypothesis_source": "H20 (derivada de H16/iter_0009 B6 v1.1)",
+    "threshold": 30,
+    "rule": "Qualquer bake-off com n_test<30 recebe flag explicito low_confidence_n_test=true no meta.json + summary_replay.csv + leaderboard. Threshold herdado de B6 v1.1.",
+    "exposed_fields_runner": [
+      "meta.json:low_confidence_n_test",
+      "meta.json:low_n_test_threshold",
+      "summary_replay.csv:low_confidence_n_test"
+    ],
+    "patched_components": [
+      "scripts/run_bakeoff_replay.py",
+      "leaderboard.md (politica + coluna na secao deprecada + lesson)",
+      "outputs/iter_0002/summary_replay.csv (backfill)"
+    ],
+    "audit_command": "uv run python scripts/h20_n_test_audit.py"
   }
 }

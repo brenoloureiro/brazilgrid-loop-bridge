@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-25T02:30:00Z
+last_updated: 2026-05-25T03:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -696,17 +696,57 @@ hypotheses:
       visivel e flag `low_confidence_n_test`. Hoje a coluna "sanity_ok"
       embute isso opacamente. Mudanca pequena de display + adicao no
       bake-off runner para escrever n_test no meta.json. Sem dep externa.
+
+      VEREDITO iter_0032: CONFIRMADO_DISPLAY. Mudancas entregues:
+        (1) scripts/h20_n_test_audit.py varre 12 meta.json + 21 outros JSON
+            (1 falso positivo de regex excluido) + 18 parquets UlFor
+            per_fold. Output: outputs/iter_0032/h20_leaderboard_low_n_test_warning/
+            n_test_audit.{json,md}.
+        (2) scripts/run_bakeoff_replay.py patcheado: meta.json e summary
+            CSV carregam `low_confidence_n_test=(n_test<30)` +
+            `low_n_test_threshold=30` constante exposta.
+        (3) outputs/iter_0002/summary_replay.csv backfilled com a nova
+            coluna sem re-rodar bake-off (todas 12 linhas n_test=11 -> true).
+        (4) leaderboard.md: bloco "Politica low_confidence_n_test" no
+            topo + coluna n_test e low_confidence_n_test na tabela
+            deprecada Historico iter loop. Champion + baselines + overlay
+            + sucessores no topo todos usam n_test ∈ {59,60} = FALSE.
+        (5) Lessons learned acresce entrada explicando display-per-row
+            vs aviso por secao.
+
+      Totais audit: 12 LOW (meta runner) + 8 LOW (outros sanity JSON) +
+      0 LOW (UlFor parquets oficiais). Zero falsos negativos na tabela
+      topo do leaderboard.
     type: meta
     layer: meta
     target: leaderboard_low_n_test_warning
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0032
+    verdict: CONFIRMADO_DISPLAY
     estimated_effort_hours: 0.5
+    actual_effort_hours: 0.6
     depends_on: []
     blocks: []
     sanity_checks_required: []
+    sanity_checks_done: [leak_NA, perm_NA, holdout_NA, baseline_PASS_BY_AUDIT, dist_shift_NA, zero_count_NA, audit_idempotent_PASS, audit_coverage_PASS, leaderboard_top_no_LOW_PASS, runner_patch_backward_compat_PASS, csv_backfill_correctness_PASS]
+    follow_ups_created: []
     expected_value: leaderboard auto-documentado para baixa confianca amostral
     created_at: 2026-05-24T06:45:00Z
+    completed_at: 2026-05-25T03:30:00Z
+    closure_summary: |
+      Display-layer + runner-meta patcheados sem retrain. Audit cobre
+      32 artefatos do loop + 18 parquets UlFor; 20 marcados LOW (todos
+      em iters 0002/0004/0008/0009 do replay LGBM n=11, ja' isolados na
+      secao deprecada). Zero linhas LOW nas tabelas ativas (Champions
+      oficiais, Baselines, Overlay producao, Sucessores, Alpha sweep v3,
+      Val14d). Threshold n_test<30 herdado de B6 H16 v1.1 (iter_0009).
+      Sem H derivada — feedback loop fecha porque o problema raiz
+      (replay n=11 vs UlFor n=60) ja' foi reconhecido em iter_0007.
+    artefatos: outputs/iter_0032/h20_leaderboard_low_n_test_warning/
+      (n_test_audit.json + n_test_audit.md + sanity_checks.json) +
+      scripts/h20_n_test_audit.py + scripts/run_bakeoff_replay.py (patched)
+      + outputs/iter_0002/summary_replay.csv (backfilled)
 
   - id: H21
     summary: Feature derivada pdp_residual = pdp_prev_total - gen_renov (engineering)
