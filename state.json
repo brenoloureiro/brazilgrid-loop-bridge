@@ -1,8 +1,8 @@
 {
-  "iter_atual": 18,
+  "iter_atual": 20,
   "mode": "self_planning",
-  "alvo_ativo": "recon_delta_ulfor_post_5c7963d4",
-  "layer_ativa": "meta",
+  "alvo_ativo": "feat_pdp_residual_engineered",
+  "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
     "version": "1.0",
@@ -452,6 +452,31 @@
         "H27",
         "H28"
       ]
+    },
+    "H21_pdp_residual_engineered": {
+      "iter": 20,
+      "verdict": "REFUTADO",
+      "iter_closed": 20,
+      "evidence_final": "OLS full-sample n=486 dias (2024-12-01..2026-05-01, parquet cacheado de H3 iter_0010). Variante principal V_residual_plus_gen (2 feats: gen + pdp_residual_total) PERDE para V_brutos (3 feats: gen + pdp_prev_eolica + pdp_prev_solar): NE delta_R2=-0.0515 (0.654 vs 0.705, -5.1pp); SE delta_R2=-0.0427 (0.438 vs 0.481, -4.3pp). REFUTADO threshold = -0.01, ambos subs excedem por 4-5x. V_residual_split (3 feats per-fonte: gen + residual_eolica + residual_solar) tambem perde NE -0.030 / SE -0.040; decomposicao per-fonte do residual ainda nao iguala os brutos. Holdout 80/20 amplifica fortemente: NE V_residual_plus_gen R2_test=0.282 vs V_brutos R2_test=0.550 (-26.8pp). Sanity B1 leak PASS (corr residual[t]/curt[t] > corr residual[t]/curt[t-1] em NE+SE), B2 perm PASS (p=0.0 em 500 shuffles NE+SE), B4 baseline PASS (V_residual_plus_gen bate V0_gen_only por +0.31 NE / +0.25 SE). Protocol identity check H3<->H21: R2_gen_only bate exato (|delta|<0.001) nos 3 subs. Bonus pdp_prog drop test NAO_CONFIRMADO: pdp_prog adiciona +0.059 NE / +0.092 SE conditional em brutos (vif_max=42/235; contradiz interpretacao H3 univariate 'redundante com gen').",
+      "decision": "REFUTADO. NAO substituir pdp_prev_eolica + pdp_prev_solar por pdp_residual_total no bake-off. NAO dropar pdp_prog baseado neste teste isolado (proximo H30 testa em Ridge CV). Mecanismo: OLS sobre (gen, pdp_prev) ja' tem qualquer combinacao linear de (gen, residual) no seu span -- engineering linear nao expande basis. Para GBDT pode ser diferente (interacoes nao-lineares): H22 GBDT vs OLS gap sobe importancia.",
+      "lesson_learned": "Engineering linear em modelo linear = no-op no melhor caso, perda no pratico por condicionamento numerico (np.linalg.lstsq redistribui sub-otimamente). Agregar eolica + solar em 1 canal destroi sinal per-fonte (3-5pp R2). 'Quase redundante' univariate != 'redundante conditional' multivariate (pdp_prog corr=0.95 com gen mas adiciona +6-9pp R2 conditional em pdp_prev). Holdout 80/20 reproduz distribution shift de iter_0012 -- engineering nao adiciona robustez sob shift.",
+      "follow_ups_created": [
+        "H30"
+      ],
+      "concurrent_note": "iter_0019 paralela rodou recon_delta UlFor 515041e1->daf80a6a (6 commits) e deixou pronto (mas NAO rodou) scripts/h21_pdp_residual_cv.py -- versao LGBM CV walk-forward 5x60d do H21. H30 derivada inclui rodar esse script com Ridge_alpha10 substituindo LGBM.",
+      "lgbm_cv_supplement": {
+        "added_at_iter": 20,
+        "added_at_utc": "2026-05-24T16:50:00Z",
+        "methodology": "LGBM CV 5x60d gap7d em NE/SE/S v3 com 5 feature_sets (A baseline / B additive / C replacement / D drop pdp_prog / E full simplification). 3 cells x 5 fs x 5 folds = 75 LGBM fits + 180 perm predicts.",
+        "verdict": "REFUTADO (CORROBORA OLS mainline)",
+        "verdict_raw_strict": "INDETERMINADO (loose +5% threshold passa em 3/3 mas wins-majority so 1/3)",
+        "headline": "C (replacement) MAE +1.3 a +3.1% pior que A em 3/3 cells; B (additive) +0.7 a +2.1% pior em 3/3; D (drop pdp_prog) +3.6 a +8.2% pior em 3/3. B2 perm confirma residual carrega sinal real (+6.6% NE, +10.8% SE em fold final) mas e' DUPLICATA do sinal LGBM ja captura via pdp_prev_eolica + pdp_prev_solar raw.",
+        "convergencia_com_ols": "OLS mainline argumenta linear-algebra (span de (gen, pdp_prev) contem (gen, residual)); LGBM CV prova EMPIRICAMENTE no replay loop. Os 2 chegam ao mesmo verdict por mecanismos diferentes. H22 (GBDT vs OLS gap) parcialmente pre-respondida: drop pdp_prog ainda prejudicial em GBDT, nao so OLS.",
+        "output_dir": "outputs/iter_0020/h21_pdp_residual_engineered/lgbm_cv_supplement/",
+        "script": "scripts/h21_pdp_residual_cv.py",
+        "actual_effort_hours": 0.5,
+        "h22_implication": "PARCIAL: drop pdp_prog confirmado prejudicial em GBDT (LGBM CV +3.6/6.9/8.2pp MAE NE/SE/S quando removido). H22 segue valido especificamente para medir GAP em R\u00b2 entre GBDT e OLS no protocolo CV uniforme (engineering linear capta interacao do que GBDT extrai? Provavelmente nao integralmente, mas magnitude pendente)."
+      }
     }
   },
   "sanity_checks_disponiveis": [
@@ -463,11 +488,12 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0018_recon_delta.md",
+  "ultimo_handoff": "iter_0020_h21_pdp_residual_engineered.md",
   "budget_consumido": {
-    "iter": 18,
-    "horas": 0.4,
-    "custo_usd": null
+    "iter": 20,
+    "horas": 1.2,
+    "custo_usd": null,
+    "lgbm_cv_supplement_added": "+0.5h paralelo (LGBM CV 5x60d corroborou OLS REFUTADO, 3 cells NE/SE/S v3, 5 feature sets, sanity B1+B2+B4)"
   },
   "b6_robustness_v2": {
     "version": "1.1",
@@ -824,6 +850,83 @@
       "search_space_bias_correction_status": "ESGOTANDO. H14 (janela fixa 28d), H14-B (sweep 28/60/90d), H14-C (CV producao 28d), H14-D (threshold sigma). Variacoes simples esgotadas. Proximos uteis: (a) regime detection (apply OFF em transicao chuvoso->seco), (b) sub-stratificacao (per-conjunto), (c) target alternativo (log1p, classifier). Confirma data ceiling iter_0017 (SE/S nao destravam sem dado novo).",
       "per_sub_hyperparam_emerging": "PADRAO ADOTADO: BIAS_CORRECTION_WINDOW_BY_SUB explicito {NE:28, SE:28, S:28, N:60}. Lesson: toda hipotese com hiperparam global deve testar variacao per-sub no loop. Aplicar a futuras hipoteses (H21 pdp_residual: testar coef por sub; H24 ensemble: testar peso por sub).",
       "nota_idle_sessao_ulfor": "3 checkpoints idle em sequencia (12:11/12:13/12:15Z) sinalizam UlFor em pausa aguardando decisao Breno (deploy EC2 ou nova frente). 25 commits ahead origin/master. Nao afeta plano loop."
+    },
+    "iter0019_inicio_head": "515041e1",
+    "iter0019_fim_head": "daf80a6a",
+    "novos_commits_durante_iter0019": [
+      {
+        "hash": "be529e93",
+        "msg": "docs(h14e): adicionar comparacao H14-B vs H14-E + nota sobre SE/S intrinsicos",
+        "absorbed": true,
+        "interpretacao": "FINDING_H14E_BIAS_THRESHOLD_SIGMA_BIAS.md atualizado: tabela direta H14-B (always-on, -19.63pp, apply 100%) vs H14-E (threshold sigma_bias, -27.74pp, apply 57%) em N -- mesmos wins (3/5), mas H14-E e' mais conservador. Decisao autopilot deferida ao Breno (H14-B ja produtizado). **Fechamento explicito da frente bias_correction para SE/S**: bias bidirecional, threshold mais apertado nao destrava. Nao toca producao."
+      },
+      {
+        "hash": "3b0719e2",
+        "msg": "ulfor checkpoint: 12:45Z -- 2 sprints (H14-D REFUTADA + H14-E PROMOVIVEL c/ conflito H14-B)",
+        "absorbed": true,
+        "interpretacao": "Marker; conteudo absorvido via iter_0018 (H14-D) + commit 1 acima (H14-E)."
+      },
+      {
+        "hash": "83922714",
+        "msg": "ulfor checkpoint: 12:28Z -- sprint real (H14-D refutada, H14-B produtizou N@60d, H14-E doc)",
+        "absorbed": true,
+        "interpretacao": "Marker; conteudo absorvido via iter_0018 + commit 1."
+      },
+      {
+        "hash": "1e1d4bcb",
+        "msg": "exp(forecast): parametrizar bias_window em h14e fold_one (prep H14-F)",
+        "absorbed": true,
+        "interpretacao": "Refactor preparatorio: expoe BIAS_WINDOW em h14e_bias_threshold_sigma_bias.py (default 28d preservado). Habilita H14-F (combo window=60d + threshold sigma_bias). Sandbox em experiments/, nao toca producao."
+      },
+      {
+        "hash": "cd12cf2a",
+        "msg": "infra: expor mlflow.brazilgrid.com via Cloudflare Access",
+        "absorbed": true,
+        "interpretacao": "**INFRA -- destrava H18 quando ativo**. Nginx vhost /etc/nginx/conf.d/brazilgrid-mlflow.conf criado no EC2 (template clickhouse, proxy_pass 127.0.0.1:5000, client_max_body_size 500M, buffering off pra SSE). MLflow systemd ja rodava localhost-only; smoke local HTTP 200 + /api/2.0/mlflow/experiments/search OK. Acao Breno pendente: 2 passos no dash Cloudflare (DNS A record + Zero Trust Access Application replicando policy clickhouse). Quando vivo, loop pode auditar champions diretamente via MLflow REST sem dependencia em req-0005 (parquet dump). docs/infraestrutura/SUBDOMINIOS.md + MLFLOW_CLOUDFLARE_SETUP.md publicados."
+      },
+      {
+        "hash": "daf80a6a",
+        "msg": "exp(forecast): H14-F window=60d + threshold sigma_bias (Pareto vs H14-B, NAO produtizar)",
+        "absorbed": true,
+        "interpretacao": "Combina window=60d (H14-B) + threshold k*sigma_bias_rolling (H14-E) em CV 5x60d N. k=1: -19.63pp media, 3/5 wins, **0/5 loses** (vs H14-B 1/5 loses +0.84pp), apply 70%. **Domina H14-B no papel** mas lose evitado abaixo do ruido CV. Custo produzir alto (compute sigma_bias_rolling_train em runtime, ~30-50 LoC + cache). **NAO produtizar** (respeita deferimento Breno). Documentado como Pareto-superior marginal em FINDING_H14F_WINDOW60_THRESHOLD.md. Achado teorico: sigma_bias ~7-12x menor que sigma_resid em todos subs; sigma_bias_rolling correto p/ threshold em bias-dominated regimes. NE bias-dominated, SE/S noise-dominated, N intermediario. NE/SE/S nao qualificam em nenhum k."
+      }
+    ],
+    "delta_resumo_iter0019": {
+      "champions_status_change": "INALTERADO. NE/SE/S/N champions e bias_correction defaults exatamente como iter_0018 (NE@bias_28d ON, N@bias_60d ON, SE/S OFF). loader.py nao tocado. MLflow Registry nao tocado.",
+      "novos_requests": [],
+      "requests_fechados_extras": [],
+      "novas_hipoteses_loop_geradas": [],
+      "bias_correction_frente_status": "FORMALMENTE FECHADA pelo UlFor. 6 variacoes testadas (H14 janela 28d, H14-B sweep, H14-C CV prod, H14-D threshold sigma_resid, H14-E threshold sigma_bias, H14-F combo). 2 wins produtizados (NE@28d, N@60d), 2 closures (SE/S declarados intrinsicamente nao-corrigiveis -- bias bidirecional). Proximas frentes UlFor: regime detection, per-conjunto, target alternativo (log1p). Confirma e fortalece data ceiling iter_0017/iter_0018.",
+      "achado_teorico_transferivel": "Razao sigma_bias_rolling / sigma_resid (~1/7 a 1/12 em todos subs) classifica regimes: NE bias-dominated (correcao destrava), SE/S noise-dominated (correcao adiciona ruido), N intermediario. Aplicavel ao planejamento do H29 emergente (bias_correction sobre H10 ensemble) -- diagnostico previo per-sub antes do experimento.",
+      "infra_mlflow_cloudflare": {
+        "status": "vhost_nginx_pronto_acao_breno_pendente",
+        "acoes_breno": [
+          "DNS A record mlflow.brazilgrid.com no Cloudflare",
+          "Zero Trust Access Application replicando policy clickhouse"
+        ],
+        "quando_vivo_destrava": [
+          "H18 (sanity B1-B6 via MLflow REST direto sem dep req-0005)"
+        ],
+        "fonte_loop": "potencial mlflow.client.MlflowClient setando tracking_uri publico (via CF Access token)"
+      },
+      "h_loop_impactadas": [
+        {
+          "id": "H18",
+          "status_change": "blocked -> blocked-acao-Breno-trivializa",
+          "motivo": "MLflow exposto via Cloudflare Access (commit cd12cf2a). Quando Breno completar DNS A + ZT Access Application no dash CF, loop ganha acesso HTTP autenticado ao MLflow tracking URI. Elimina dependencia em req-0005 (parquet dump explicito) -- loop pode usar mlflow.client.MlflowClient diretamente."
+        },
+        {
+          "id": "H29_emergente",
+          "status_change": "nao criada formalmente -- atratividade marginal aumenta",
+          "motivo": "Achado teorico sigma_bias/sigma_resid fornece diagnostico previo per-sub antes do experimento. Plano natural: classificar regime antes de aplicar bias_correction sobre H10 ensemble."
+        },
+        {
+          "id": "H21_nosso",
+          "status_change": "queued->queued (sequencia inalterada)",
+          "motivo": "pdp_residual feature engineering ortogonal a bias_correction. Sem impacto cruzado."
+        }
+      ],
+      "regime_recon_observado": "UlFor produziu 6 commits em ~8 min reais (09:27-09:34 BRT) ao final do dia. Distancia em tempo de relogio irrelevante desde iter_0018, mas conteudo denso: 1 fechamento de frente + 1 infra + 1 experimento Pareto + 1 prep + 2 markers. Lesson reforca freq de recon curta quando UlFor ativo."
     }
   },
   "open_requests": [],
@@ -900,19 +1003,21 @@
   ],
   "planner_config": {
     "mode": "self_planning",
-    "next_iter_should_be": "WARMUP+MAIN: (W) H19-followup (P2, ~0.3h) - parsear cv_summary_per_fold_full.parquet publicado por UlFor (req-0007 DONE iter_0017) e preencher F1_p50 nas 4 linhas champion do leaderboard, substituindo MAE-em-MWh derivado por per-fold real e fechando o gap CONFIRMADO_PARCIAL -> CONFIRMADO. (M) H21 (P2 feature engineering pdp_residual = pdp_prev - gen, ~1.5h) - derivada de H3 iter_0010, codavel localmente, sem dep externa. Bake-off replay iter_0002 + adicionar coluna pdp_residual_mwh + comparar PI/perm + check coliner com pdp_prev_* originais. Sanity B1 leak (pdp_prev D-1 safe, gen D-only) + B2 perm + B4 baseline. Usar LGBM + considerar ensemble post-processing (H10 confirmado iter_0013). Se budget exceder, fechar so' warmup e diferir H21 para iter_0019.",
+    "next_iter_should_be": "iter_0021 candidatos (planner aberto): (A-recomendado) H27 (P3 ~1h) - P50 quantile como point estimate substituto via LGBM objective swap; iter_0014 bonus mostrou P50 BATE LGB-mean em N -18% / S -14% / SE -1.6% MAE. Custo zero, ganho transversal garantido em N+S. (B) H30 (P3 ~1h, derivada de H21 iter_0020) - replicar H21 em Ridge_alpha10 CV 5x60d UlFor protocolo; script base ja existe em scripts/h21_pdp_residual_cv.py (deixado pronto pelo iter_0019 paralelo). (C) H29 emergente (P2 ~1h, nao formalmente criada) - aplicar bias_correction per-sub UlFor (NE@28d, N@60d) sobre H10 ensemble LGBM+persist no replay; iter_0019 forneceu diagnostico sigma_bias/sigma_resid para pre-classificar quais subs devem ganhar. (D) H22 (P3 ~1h) - GBDT vs OLS gap em curt~gen+pdp; sobe importancia pos-H21 REFUTADO (testar se interacao nao-linear explica o que OLS perde). (E) H18 ativavel se Breno fizer setup CF (DNS + ZT Access para mlflow.brazilgrid.com).",
     "alt_next": "H29-candidato (P3 ~1h, NAO criada ainda: aplicar bias_correction rolante-28d UlFor H14 sobre LGBM-ensemble do nosso H10 e medir delta NMAE no CV 5x60d em todas 4 subs; ortogonal a H10 mecanism, pode compor ganhos), H24 (P2 ensemble sobre champions Ridge/LR - derivada H10 iter_0013), H27 (P3 P50 quantile como point estimate substituto - derivada H11 iter_0014, ganho transversal -1% a -18% MAE em N/S/SE custo zero), H26 (P3 conformal prediction post-hoc), H22 (P3 GBDT vs OLS gap para curt~gen+pdp), H25 (P3 stacker Ridge meta-modelo), H28 (P3 NGBoost vs LGBM quantile), H20 (P3 auto-flag n_test<30), H8 (P3 perm validation feat_intercambio).",
     "notas_iter0014": "H11 fechada como REFUTADO_NE. Bandas LGBM quantile com defaults sistemicamente undercovered (cov_band 41-53% vs 80% nominal) \u2014 distribution shift (iter_0012 KS p<0.0001) + LGBM sem heteroscedasticidade explicita = causa raiz. Bonus inesperado: P50 BATE LGB-mean em magnitude em N/S/SE (-1% a -18%) \u2014 mediana robusta vs cauda longa. 3 follow-ups derivados (H26 conformal, H27 P50 substituto, H28 NGBoost). H27 e' o mais barato (objective swap custo zero, ganho universal). H21 mantida como plan natural \u2014 H3 confirmado da' feature mais informativa antes de tentar arquitetura alt. Considerar inserir H27 entre H21 e H24 (custo 1h, ganho garantido em N+S baseado em evidencia hoje).",
     "notas_iter0015": "Recon limpo. 7 commits UlFor absorvidos (c8df4077..5dacb5a2): champion N atualizado v1->v2 clean_plus (NMAE 84.8\u00b126.2%, std -5.6pp); Fase 4 observabilidade (validate_d1+drift PSI+Telegram alert) FECHADA pelo UlFor em paralelo aos iters 0012-0014. Nenhuma H do loop resolvida, nenhuma nova gerada. H18 segue blocked mas urgencia diminui (validate_d1 da cobertura empirica continua); H19 atratividade cresce (summary JSON daily acessivel quando schedule ativar). Acao Breno pendente: gerar BRAZILGRID_TELEGRAM_BOT_TOKEN/CHAT_ID + ativar schedule forecast_validate_d1_daily. Planner mantem H21 como next: H3 confirmou pdp_residual como mecanismo, codavel local sem dep externa.",
     "notas_iter0016": "H19 fechada como CONFIRMADO_PARCIAL. Extracao funcionou sem MLflow tunnel: parser regex em FINDING_RIDGE_BEATS_GBDT.md + leitura literal de promote_champions.py:CV_METRICS_BY_FS. Consistency check NMAE_persist FINDING vs state.json OK 4/4 (validacao de protocol identity entre iter_0013 baseline e UlFor CV). MAE-em-MWh derivado (NE 25.5k / SE 5.6k / S 916 / N 429) com caveat 1a ordem ~10-15%. R\u00b2 direto. F1_p50 gap real (nenhuma fonte UlFor computa) -> req-0007 emitido. Leaderboard reescrito com 4 linhas curtailment/d1_ENE_CNF agora consistentes (MAE_derived / R\u00b2 / F1=N/A / NMAE / in-sample_R\u00b2). Bonus: ymean_test_per_sub agora disponivel para reusar em bake-offs futuros. Planner mantem H21 como next iter (zero deps externa).",
     "notas_iter0017": "RECON_DELTA grande. 15 commits UlFor absorvidos (5dacb5a2..5c7963d4): (1) req-0007 RESOLVIDO em 1 sprint UlFor (commit 6b21ffdf) -- F1_p50 + per-fold parquet ja disponivel, MAE_exato substitui MAE_derived. Slack caveat iter_0016 confirmado dentro envelope: NE +7%, SE +9%, S -12%, N ~0%. F1_p50 mean: NE 0.808, SE 0.785, N 0.790, S NaN (P50=0 esperado). (2) NE champion ganha bias_correction rolante 28d PRODUTIZADO em /api/forecast/d1 (commits 41d8d952 + 586eeae6) -- UlFor H14+H14-C: 14d real -9.94pp NMAE (raw 59.2%->corrected 49.2%), PRIMEIRA VEZ bate persist (54.1%) em 4.9pp; CV 5x60d -6.90pp mean (4 wins / 0 loses / 5 folds). SE/S/N NAO produtizam. (3) Fase 4 100% FECHADA (Steps 2+3 commits 13f4a4de + 8a30a29e): dashboard vitrine forecast.html + rastreabilidade git_sha end-to-end. (4) 3 hipoteses UlFor REFUTADAS (H13 ridge_S+clean_plus, H18-A drop poisoners ridge_S, H21 lr_SE clean_plus_v2 14d real). 1 hipotese UlFor CONFIRMADA em CV mas NAO em holdout (H20 clean_plus_v2 SE -11.27pp CV regride +15.31pp 14d real). Lesson: drops por correlacao alta destroem informacao em regimes sazonais especificos. (5) Data ceiling D+1 SE confirmado em 14d real -- implicacao para nosso H24-H28 sobre SE: teto baixo, considerar deprioritizar ate dado novo (Sintegre/DESSEM/WeatherNext). NENHUMA H do loop resolvida, NENHUMA nova gerada. H19 nosso verdict_post_req_0007=COMPLETED. Planner mantem H21 como next; H27 sobe atratividade (ortogonal a bias correction).",
-    "notas_iter0018": "RECON_DELTA compacto. 6 commits UlFor absorvidos (5c7963d4..515041e1) em ~3h reais de UlFor: (1) MUDANCA EM PRODUCAO N -- bias_correction default ON com window=60d produtizado per UlFor H14-B (commit 515041e1). N segundo sub a ganhar bias correction; modelo treinado ridge_curt_n_d1@staging v2 INALTERADO. CV 5x60d: -19.63pp NMAE media, wins 3/1/5. Smoke: N pred 246 -> default 267 (bias -21). Padrao per-sub adotado: BIAS_CORRECTION_WINDOW_BY_SUB = {NE:28, SE:28, S:28, N:60}. (2) UlFor H14-D (threshold k*sigma_resid_train) REFUTADA -- NE@k=1 perde 2/5 wins; SE/S/N zero wins; threshold filtra demais. (3) UlFor H14-B sweep 28/60/90d -- destrava N@60d, mantem NE@28d, SE/S nao qualificam em nenhuma janela. Confirma data ceiling iter_0017 para SE/S (search-space bias correction esgotando -- precisa dado novo). (4) 3 checkpoints idle em sequencia sinalizam UlFor em pausa aguardando deploy EC2 ou nova frente Breno. 25 commits ahead origin/master. NENHUMA H do loop resolvida, NENHUMA nova gerada formalmente (H29 emergente pode ser proxima: bias_correction per-sub sobre H10 ensemble). Planner mantem H21 como next; H29 e H24 candidatos ALT."
+    "notas_iter0018": "RECON_DELTA compacto. 6 commits UlFor absorvidos (5c7963d4..515041e1) em ~3h reais de UlFor: (1) MUDANCA EM PRODUCAO N -- bias_correction default ON com window=60d produtizado per UlFor H14-B (commit 515041e1). N segundo sub a ganhar bias correction; modelo treinado ridge_curt_n_d1@staging v2 INALTERADO. CV 5x60d: -19.63pp NMAE media, wins 3/1/5. Smoke: N pred 246 -> default 267 (bias -21). Padrao per-sub adotado: BIAS_CORRECTION_WINDOW_BY_SUB = {NE:28, SE:28, S:28, N:60}. (2) UlFor H14-D (threshold k*sigma_resid_train) REFUTADA -- NE@k=1 perde 2/5 wins; SE/S/N zero wins; threshold filtra demais. (3) UlFor H14-B sweep 28/60/90d -- destrava N@60d, mantem NE@28d, SE/S nao qualificam em nenhuma janela. Confirma data ceiling iter_0017 para SE/S (search-space bias correction esgotando -- precisa dado novo). (4) 3 checkpoints idle em sequencia sinalizam UlFor em pausa aguardando deploy EC2 ou nova frente Breno. 25 commits ahead origin/master. NENHUMA H do loop resolvida, NENHUMA nova gerada formalmente (H29 emergente pode ser proxima: bias_correction per-sub sobre H10 ensemble). Planner mantem H21 como next; H29 e H24 candidatos ALT.",
+    "notas_iter0019": "RECON_DELTA pequeno mas estruturalmente importante. 6 commits UlFor absorvidos (515041e1..daf80a6a) em ~8 min reais (09:27-09:34 BRT): (1) Frente bias_correction FORMALMENTE FECHADA pelo UlFor. H14-F (combo window=60d + threshold sigma_bias) domina H14-B no papel em N (mesma media -19.63pp, zero loses vs 1 lose +0.84pp) MAS custo de produtizar alto (compute sigma_bias_rolling em runtime, 30-50 LoC + cache) nao justifica ganho marginal (lose evitado abaixo do ruido CV). Status quo mantido: NE@28d, N@60d, SE/S OFF. SE/S declarados intrinsicamente nao-corrigiveis (bias bidirecional). (2) ACHADO TEORICO TRANSFERIVEL: razao sigma_bias_rolling/sigma_resid (~1/7 a 1/12 em todos subs) classifica regimes -- NE bias-dominated, SE/S noise-dominated, N intermediario. Aplicavel ao planejamento H29 (diagnostico previo per-sub). (3) INFRA MAJOR: mlflow.brazilgrid.com exposto via Cloudflare Access (commit cd12cf2a). Nginx vhost pronto no EC2, MLflow systemd ja localhost-only. Acao Breno pendente: 2 passos no dash CF (DNS A + ZT Access Application). Quando ativo, DESTRAVA H18 (sanity B1-B6 via MLflow REST direto, eliminando dep req-0005 parquet). (4) producao 100% inalterada nesta iter (loader.py + MLflow Registry intocados). NENHUMA H do loop resolvida, NENHUMA nova gerada. H18 status_change: blocked -> blocked-acao-Breno-trivializa. Planner mantem H21 como next; opcao D nova considerar: H18 ativavel quando Breno fizer setup CF.",
+    "notas_iter0020": "H21 fechada como REFUTADO. OLS full-sample n=486 dias (parquet cacheado de H3 iter_0010): V_residual_plus_gen (2 feats: gen + pdp_residual_total) PERDE para V_brutos (3 feats) em NE -5.1pp R\u00b2 (0.654 vs 0.705), SE -4.3pp (0.438 vs 0.481). Holdout 80/20 amplifica NE -27pp adicional. V_residual_split (3 feats per-fonte) tambem perde -3/-4pp -- decomposicao per-fonte importa, agregar eolica+solar destroi sinal. Sanity B1+B2+B4 PASS NE+SE (leak forward-looking, perm p=0.0, residual bate gen-only por +0.31/+0.25). Protocol identity H3<->H21: R\u00b2_gen_only bate exato (|delta|<0.001) nos 3 subs (validacao reproducibilidade). Bonus pdp_prog drop test NAO_CONFIRMADO: pdp_prog adiciona +5.9pp NE / +9.2pp SE conditional em brutos (contradiz H3 univariate; mecanismo: pdp_prog tem info residual conditional em pdp_prev). Mecanismo do REFUTADO: OLS sobre (gen, pdp_prev) ja' tem qualquer combinacao linear de (gen, residual) no seu span -- engineering linear NAO expande basis. Para GBDT pode ser diferente (H22 P3 GBDT vs OLS gap sobe importancia). H30 derivada criada (P3 ~1h, Ridge_alpha10 CV protocolo UlFor; script base h21_pdp_residual_cv.py ja existe). Lessons: (a) engineering linear em modelo linear e' no-op-ou-perda por condicionamento numerico; (b) 'quase redundante' univariate != 'redundante conditional' multivariate; (c) decomposicao per-fonte importa em curt (eolica/solar tem timing diferente). NOTA DE COLISAO: iter_0019 paralela fez recon_delta (UlFor 515041e1..daf80a6a) e deixou pronto scripts/h21_pdp_residual_cv.py mas NAO rodou; este iter_0020 fez o teste OLS rapido per task spec ('procedimento mais simples que produza verdict'); CV LGBM completo fica como proximo iter via H30. Planner proximo: H27 (custo zero, ganho garantido) ou H30 (fecha H3-family Ridge)."
   },
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 21,
-    "horas": 1.4914,
-    "usd": 27.125
+    "iter": 22,
+    "horas": 1.8047,
+    "usd": 38.1929
   }
 }

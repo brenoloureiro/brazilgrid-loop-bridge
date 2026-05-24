@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T14:30:00Z
+last_updated: 2026-05-24T16:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -490,6 +490,19 @@ hypotheses:
       valor marginal do B1-B6 audit local. Bloqueio req-0005 continua
       mas pressao caiu. Schedule STOPPED ate Breno gerar token Telegram
       + ativar Dagster UI.
+
+      ATUALIZADO iter_0019: status_change blocked -> blocked-acao-Breno-trivializa.
+      UlFor exposicao de mlflow.brazilgrid.com via Cloudflare Access (commit
+      cd12cf2a): nginx vhost pronto no EC2 (proxy_pass 127.0.0.1:5000),
+      MLflow systemd ja localhost-only, smoke local OK. Acao Breno pendente:
+      2 passos manuais no dash Cloudflare (DNS A record + Zero Trust Access
+      Application replicando policy clickhouse). Quando ativo, loop ganha
+      caminho alternativo a req-0005: pode usar
+      mlflow.client.MlflowClient(tracking_uri="https://mlflow.brazilgrid.com")
+      via CF Access token e baixar predicoes/artefatos direto do MLflow REST.
+      Elimina dependencia em UlFor publicar predicoes em parquet -- o req-0005
+      vira opcional. Docs em docs/infraestrutura/SUBDOMINIOS.md +
+      MLFLOW_CLOUDFLARE_SETUP.md.
     type: methodology
     layer: curtailment
     target: ridge_lr_champion_audit_pre_fase4
@@ -625,17 +638,40 @@ hypotheses:
 
       Bonus: testar se pdp_prog_* pode ser DROPADO sem perda (corr 0.93-0.95
       com gen -> quase redundante). Reducao de feature space sem dano.
+
+      VEREDITO iter_0020: REFUTADO (OLS). V_residual_plus_gen (2 feats) perde para
+      V_brutos (3 feats) em R² OLS full sample: NE -5.1pp (0.654 vs 0.705),
+      SE -4.3pp (0.438 vs 0.481). Holdout 80/20 amplifica: NE 0.282 vs 0.550
+      test (perda adicional -27pp). V_residual_split (3 feats: gen +
+      residual_eolica + residual_solar) tambem perde -3pp NE / -4pp SE,
+      confirmando que decomposicao per-fonte importa: agregar
+      eolica + solar em 1 canal destroi sinal. Sanity B1+B2+B4 PASS em NE+SE
+      (leak forward-looking, perm p=0.0, residual bate gen-only). Protocol
+      identity check H3<->H21: R²_gen_only bate exato (|delta|<0.001) os 3 subs.
+      Bonus: pdp_prog NAO_CONFIRMADO drop -- adiciona +5.9pp NE / +9.2pp SE
+      em cima dos brutos (contradiz interpretacao H3 pairwise "redundante com
+      gen"; multivariate prog conditional em pdp_prev ainda informa). Mecanismo:
+      OLS sobre (gen, pdp_prev) ja' tem qualquer combinacao linear de (gen,
+      residual) no seu span -- engineering nao expande, so' restringe. Para
+      GBDT pode ser diferente (interacoes nao-lineares); H30 derivada testa
+      em Ridge CV protocolo UlFor; H22 segue como teste para GBDT.
     type: feature
     layer: curtailment
     target: feat_pdp_residual_engineered
     priority: P2
-    status: queued
+    status: done
+    iter_handled: 0020
+    verdict: REFUTADO
     estimated_effort_hours: 1.0
+    actual_effort_hours: 0.7
     depends_on: [H3]
     blocks: []
     sanity_checks_required: [leak, perm, baseline]
+    sanity_checks_done: [leak, perm, baseline, holdout_temporal_strict]
+    follow_ups_created: [H30]
     expected_value: feature mais densa + reducao de dim sem perda de skill
     created_at: 2026-05-24T07:30:00Z
+    completed_at: 2026-05-24T16:45:00Z
 
   - id: H22
     summary: GBDT-only curt~gen+pdp para medir gap nao-linear vs OLS
@@ -846,3 +882,59 @@ hypotheses:
     sanity_checks_required: [holdout, baseline, dist_shift]
     expected_value: alt-arquitetura para incerteza se conformal nao bastar
     created_at: 2026-05-24T11:30:00Z
+
+  - id: H30
+    summary: pdp_residual em Ridge_alpha10 CV 5x60d -- ortogonal ao OLS de H21?
+    detail: |
+      Derivada de H21 iter_0020 (REFUTADO em OLS puro). H21 mostrou que
+      substituir (pdp_prev_eolica + pdp_prev_solar) por pdp_residual_total
+      em OLS perde -5pp R² NE / -4pp SE em-sample (e amplia para -27pp em
+      holdout 80/20). OLS sobre (gen, pdp_prev) ja' tem qualquer combinacao
+      linear de (gen, residual) no seu span -- engineering linear nao
+      expande basis.
+
+      NOTA: outra sessao paralela do loop (iter_0019 recon_delta) ja deixou
+      pronto (mas NAO rodou) o script `scripts/h21_pdp_residual_cv.py` com
+      setup CV 5x60d LGBM walk-forward + 5 feature sets (A baseline,
+      B additive, C replacement, D drop prog, E full simplification). H30
+      pode trocar LGBM por Ridge_alpha10 ou rodar AMBOS (LGBM + Ridge) no
+      mesmo run -- isso responde simultaneamente H30 (Ridge basis) e parte
+      de H22 (GBDT vs OLS gap, ja queued P3).
+
+      H30 testa se Ridge_alpha10 (champion UlFor NE/N, regularizacao
+      L2 forte) comporta-se diferente. Mecanismo conjecturado: Ridge
+      shrinkage redistribui pesos entre features colineares; com basis
+      transformado (residual centrado em zero), shrinkage pode preservar
+      mais sinal. Se Ridge tambem perde -3pp+, encerra H3-family residual
+      no replay loop.
+
+      Protocolo: CV walk-forward 5 folds (60d, gap 7d), mesma metodologia
+      H7/H10/H11/UlFor official. Comparar 3 cells em NE+SE (sem S, que H3
+      ja flaggou fragil; sem N, que tem cobertura zero PDP):
+        - cell A: Ridge_alpha10 com V_brutos (feature_set base 3-feat)
+        - cell B: Ridge_alpha10 com V_residual_plus_gen (2 feat)
+        - cell C: Ridge_alpha10 com V_residual_split (3 feat)
+      Metric: NMAE_mean + R²_mean por (sub, cell). Acceptance:
+        - CONFIRMADO_RIDGE se V_residual_plus_gen >= V_brutos - 0.005 R² em
+          NE+SE (ie Ridge redistribui sinal apesar de OLS perder)
+        - REFUTADO_RIDGE se delta < -0.01 em qualquer de NE/SE (mesma
+          conclusao de H21 OLS estende a Ridge)
+      Custo: baixo (codavel local replay loop, mesmo CV de H10/H11; reuso
+      parquet cache de H3/H21).
+
+      Implicacao se CONFIRMADO_RIDGE: vale revisar feature_set=full do
+      UlFor adicionando residual; permite reduzir 55->54 feat sem perda
+      em Ridge. Se REFUTADO_RIDGE: encerra residual como avenida de
+      engineering (H22 GBDT segue como ultima tentativa para mecanismo
+      nao-linear). Sem req externo (zero dep UlFor).
+    type: model
+    layer: curtailment
+    target: pdp_residual_in_ridge_cv
+    priority: P3
+    status: queued
+    estimated_effort_hours: 1.0
+    depends_on: [H21]
+    blocks: []
+    sanity_checks_required: [holdout, baseline]
+    expected_value: encerrar H3-family residual no replay loop (Ridge confirma OLS ou nao)
+    created_at: 2026-05-24T16:30:00Z

@@ -6,6 +6,50 @@ Atualizado pelo watchdog ao final de cada iteração com ganho promovido.
 **Iter 0008 (H9):** metricas primarias agora **MAE/R²/F1** (PLANO_FINAL Principio 6).
 NMAE mantida como secundaria — flaggada `unsafe` quando ymean<1 MWh.
 
+**Iter 0020 (H21):** Feature engineering `pdp_residual = pdp_prev_total - gen_renov`
+testada como substituto dos 2 canais brutos (pdp_prev_eolica + pdp_prev_solar) — **REFUTADO**.
+(iter_0019 paralela fez recon_delta UlFor `515041e1..daf80a6a`; este iter_0020 e' o teste H21.)
+OLS full-sample n=486 dias (parquet cacheado de H3 iter_0010, mesmo periodo
+2024-12-01..2026-05-01): V_residual_plus_gen (2 feats) PERDE para V_brutos (3 feats) em R²
+em **NE -5.1pp** (0.654 vs 0.705), **SE -4.3pp** (0.438 vs 0.481). V_residual_split (gen +
+residual_eolica + residual_solar, 3 feats) tambem perde -3pp NE / -4pp SE -- decomposicao
+per-fonte importa (curt eolica/solar tem timing diferente). Holdout 80/20 amplifica:
+NE V_residual_plus_gen R²_test=0.282 vs V_brutos 0.550 (-27pp adicional). Sanity B1+B2+B4
+PASS NE+SE (leak forward-looking, perm p=0.0, residual bate gen-only por +0.31/+0.25).
+Protocol identity H3<->H21: R²_gen_only bate exato (|delta|<0.001) nos 3 subs.
+**Bonus pdp_prog drop test: NAO_CONFIRMADO** -- pdp_prog adiciona **+5.9pp NE / +9.2pp SE**
+em cima dos brutos (vif_max=42/235; contradiz interpretacao H3 univariate "redundante
+com gen"; conditional em pdp_prev ainda informa). Mecanismo do REFUTADO H21: OLS sobre
+(gen, pdp_prev) ja' tem qualquer combinacao linear de (gen, residual) no seu span --
+engineering nao expande basis. **H30 derivada** (P3): replicar H21 em Ridge_alpha10
+CV 5x60d UlFor protocolo. **H22** (GBDT vs OLS gap) sobe importancia: se GBDT extrair
+interacao nao-linear `gen × pdp_prev`, residual pode ainda valer no champion-class certa.
+Detalhe em `iterations/iter_0019_h21_pdp_residual_engineered.md`.
+
+**Iter 0019 (RECON_DELTA):** 6 commits UlFor `515041e1..daf80a6a` absorvidos em
+~8 min reais (09:27-09:34 BRT). **Producao 100% inalterada** (loader.py +
+MLflow Registry intocados). **(1) FRENTE BIAS_CORRECTION FORMALMENTE FECHADA**:
+H14-F (combo `window=60d + threshold k*sigma_bias`, commit `daf80a6a`) **domina
+H14-B no papel** em N (mesma media -19.63pp, **zero loses vs 1 lose +0.84pp**),
+mas custo de produtizar alto (`sigma_bias_rolling_train` em runtime, ~30-50 LoC
++ cache) acima do ganho marginal (lose evitado abaixo do ruido CV). **NAO
+produtizar**. SE/S declarados **intrinsicamente nao-corrigiveis** pela frente
+bias (bias bidirecional, oscila em torno de 0 — `FINDING_H14E` commit
+`be529e93`). **(2) ACHADO TEORICO TRANSFERIVEL**: razao
+`sigma_bias_rolling / sigma_resid` (~1/7 a 1/12 em todos subs) classifica
+regimes — **NE bias-dominated** (correcao destrava), **SE/S noise-dominated**
+(correcao adiciona ruido), **N intermediario**. Aplicavel ao planejamento H29
+emergente (bias_correction sobre H10 ensemble — diagnostico previo per-sub
+antes do experimento). **(3) INFRA MAJOR — `mlflow.brazilgrid.com` exposto
+via Cloudflare Access** (commit `cd12cf2a`): nginx vhost pronto no EC2
+(`proxy_pass 127.0.0.1:5000`), MLflow systemd ja localhost-only, smoke local
+OK. **Acao Breno pendente**: 2 passos manuais no dash Cloudflare (DNS A record
++ Zero Trust Access Application). Quando ativo, **DESTRAVA H18** (sanity B1-B6
+via MLflow REST direto, elimina dep req-0005 parquet). Docs
+`docs/infraestrutura/SUBDOMINIOS.md` + `MLFLOW_CLOUDFLARE_SETUP.md`. Nenhuma
+H do loop resolvida; nenhuma nova gerada. Detalhe em
+`iterations/iter_0019_recon_delta.md`.
+
 **Iter 0018 (RECON_DELTA):** 6 commits UlFor `5c7963d4..515041e1` absorvidos.
 **(1) MUDANCA DE COMPORTAMENTO DE PRODUCAO N** (segundo sub a ganhar bias correction
 default ON): commit `515041e1` produtizou bias_correction com **window=60d** em N
@@ -144,6 +188,7 @@ queue. Detalhe em `iterations/iter_0013_h10_ensemble_v2_persist.md`.
 | curtailment | d1_ENE_CNF | S | persist_d1 MAE≈1.27k MWh (CV 5x60d, NMAE 124.2%) | **lr_curt_s_d1 @champion — MAE 805±441 MWh (parquet) / R² +0.371±0.164 / F1_p50 NaN** (P50_train=0 — sub com muitos zeros, esperado per spec req-0007); in-sample R²=0.725 FRAGIL (validate_d1 7-14d skill -37 a -41%); **UlFor H13 REFUTADA** (ridge_S+clean_plus regride CV+14d); **UlFor H18 ABERTA** (S underperforma persist estruturalmente em 2026-05); **UlFor H14-C NAO produtizou bias_correction** (+10.81pp 14d real, ymean ~32 MWh amplifica ruido) | NMAE 89.6±31.2% (CV ymean≈1k MWh > EPS=1 → safe; iter_0008 unsafe era replay n=11) | 0017 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T14:30Z |
 | curtailment | d1_ENE_CNF | N | persist_d1 MAE≈0.51k MWh (CV 5x60d, NMAE 100.7%) | **ridge_curt_n_d1 v2 @staging + bias_corr_60d (PROD default ON desde iter_0018)** — MAE 425±149 MWh (parquet) / R² +0.170±0.185 / F1_p50 0.790±0.048 (req-0007 closed iter_0017; vs persist 0.72) (clean_plus, 31 feat; in-sample R²=0.472); FRAGIL atenuado vs v1 (era MAE≈440 MWh / R² +0.196±0.289); **UlFor H14-B PROMOVEU bias_correction com window=60d** (CV 5x60d: -19.63pp NMAE media, wins 3/1/5; fold-4 seca-2025Q3 dominante, -78pp em 60d raw 226%); smoke e2e: pred 246 → default 267 (bias -21, applied=True) | NMAE 84.8±26.2% | 0018 | nao promovivel ainda (champion @staging) — **endpoint /api/forecast/d1 LIVE c/ bias_correction_mw exposto + applied_in_default=True** | 2026-05-24T15:30Z |
 | meta | metric_suite | — | NMAE (Principio 6 violado) | **MAE/R²/F1 primario + NMAE secundario com flag** | 3/4 subs (NE,SE,N) conflict NMAE↔R²/F1 em iter_0002 replay; S NMAE unsafe | 0008 | H9 CONFIRMADO | 2026-05-24T06:00Z |
+| curtailment | feat_pdp_residual | NE+SE | V_brutos OLS (gen + pdp_prev_e + pdp_prev_s) | **V_residual_plus_gen REFUTADO** -- R² OLS in-sample NE -5.1pp (0.654 vs 0.705) / SE -4.3pp (0.438 vs 0.481); holdout 80/20 amplifica NE -27pp adicional; V_residual_split (per-fonte) tambem perde -3/-4pp. **Bonus pdp_prog drop: NAO_CONFIRMADO** (prog adds +5.9pp NE / +9.2pp SE conditional em brutos). H30 derivada para Ridge CV protocolo UlFor. | n/a (R² metric, sem MAE-pp comparavel a champions) | 0020 | leak/perm/baseline PASS; holdout 80/20 PASS (mostra REFUTADO ainda mais forte test) | 2026-05-24T16:45Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | NE | persist_d1 | NMAE 35.7% xgb UlFor v3.3 (superseded por ridge_alpha10) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | SE | persist_d1 | NMAE 46.0% xgb UlFor v3.3 (superseded por lr) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | S | persist_d1 | NMAE 109% xgb UlFor v3.3 (superseded por lr -19.4pp) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
