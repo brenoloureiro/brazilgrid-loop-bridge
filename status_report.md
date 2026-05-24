@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T12:54:43Z
+# Loop status — 2026-05-24T13:02:06Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=272863, .STOP=no)
 
-**Iter atual**: 20
-**Alvo ativo**: feat_pdp_residual_engineered
+**Iter atual**: 21
+**Alvo ativo**: recon_delta_ulfor_post_daf80a6a
 
-**Budget**: 20 iters / 1.2 horas consumidas
+**Budget**: 21 iters / 0.4 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0020_h21_pdp_residual_engineered.md
-  decision: |
+**Ultimo handoff**: iter_0021_recon_delta.md
+  decision: 
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 48fd1dc bridge: sync iter 20 (2 minutes ago)
+**Bridge ultimo sync**: cb3718a bridge: sync ulfor iter 19 (2 minutes ago)
 
-**UlFor HEAD**: ec0fd937 ulfor checkpoint: 13:25Z — sprint H23 (multi-agente, preventivo)
+**UlFor HEAD**: 593a1093 ulfor checkpoint: 13:45Z — H22 model-aware fechado (PROMOVIVEL SE/lr)
 
 ---
 

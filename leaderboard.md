@@ -6,6 +6,43 @@ Atualizado pelo watchdog ao final de cada iteração com ganho promovido.
 **Iter 0008 (H9):** metricas primarias agora **MAE/R²/F1** (PLANO_FINAL Principio 6).
 NMAE mantida como secundaria — flaggada `unsafe` quando ymean<1 MWh.
 
+**Iter 0021 (RECON_DELTA):** 6 commits UlFor `daf80a6a..ec0fd937` absorvidos em
+~15 min reais (13:10-13:35 BRT). **Producao 100% inalterada** (loader.py +
+MLflow Registry intocados). **(1) NOVA FRENTE H22_ulfor ABERTA — champion
+candidate NE+SE via `feature_set=h22_per_fold`** (commit `10fa56d3`): VIF
+(TRAIN only) x Permutation Importance per-fold corrige refutacao H8_ulfor
+(greedy puro). CV 5x60d: **NE ridge 33.7->31.4% NMAE (-2.3pp), R² +0.469->
++0.543**; **NE lr 40.3->30.8% (-9.5pp), R² +0.302->+0.565 (ENORME)**; **SE
+ridge 50.8->48.3% (-2.5pp), R² +0.196->+0.390**; **S/N neutral**. UlFor
+**NAO promove automaticamente** (deferimento Breno, mesmo pattern H14-F
+iter_0019). Artefatos: `h22_vif_perm_per_fold.py`,
+`FINDING_H22_VIF_PERM_PER_FOLD.md`, novo `feature_set=h22_per_fold` em
+`bakeoff_d1.py`, `outputs/cv_summary_*_h22_per_fold.parquet`. **Lesson
+estrutural**: multicolinearidade estatistica != redundancia preditiva; PI
+per-fold (nao agregada) e' o wrapper que faltava. **(2) FRAGILIDADE NUMERICA
+CHAMPION SE EXPOSTA** (commit `34478f93`): matriz X SE/full tem cond_num
+~2.5e17. NMAE 46.6% atual e' "acidental" (sorte amostral). PI absurdos
+(>800.000pp NMAE em carga_mwmed/carga_liquida/val_import) sao oscilacao
+numerica. **Recomendacao implicita UlFor: SE -> ridge+h22** (~+2pp NMAE
+pior que lr_full mas R² empate +0.39 vs +0.38, sem risco numerico).
+**(3) ACHADO TEORICO TRANSFERIVEL (H23_ulfor)** (commit `ccf53722`):
+leave-one-in mostrou `ter_verif_rmean7` SOZINHA recupera SE LR de R²
+-0.448 (H22_drop) para +0.301 (delta +0.381). Mecanismo: **PI medida
+com Ridge subestima importance de features colineares** porque L2
+redistribui sinal entre `ter_verif_lag1`/`ter_verif`/`ter_prog`; LR sem
+shrinkage colapsa quando removidas. **Lesson**: PI deve ser medida com o
+modelo final, nao com proxy mais robusto. Aplicavel ao nosso H22 queued
+(GBDT vs OLS gap): se PI medida em OLS, gap GBDT pode ficar oculto.
+**(4) REGIME ULFOR MUDOU PARA MULTI-AGENTE PARALELO** (checkpoint
+`ec0fd937`): "2-3 agentes paralelos ativos, risco duplicar maior que
+beneficio acumular sprints" — checkpoints preventivos apos 1 sprint (vs
+minimo 3 antes). Padrao: freq recon loop sobe (max 30-60 min vs 2-4h
+antes). 6 commits em 15 min reais. **Nenhuma H do loop fechada; nenhuma
+nova gerada formalmente** (H31_emergente candidata P3 ~0.5h: replicar
+h22_per_fold em holdout 14d real NE+SE antes de Breno decidir promover).
+H22_nosso (queued) atratividade SUBIU por convergencia de lesson com
+H23_ulfor. Detalhe em `iterations/iter_0021_recon_delta.md`.
+
 **Iter 0020 (H21):** Feature engineering `pdp_residual = pdp_prev_total - gen_renov`
 testada como substituto dos 2 canais brutos (pdp_prev_eolica + pdp_prev_solar) — **REFUTADO**.
 (iter_0019 paralela fez recon_delta UlFor `515041e1..daf80a6a`; este iter_0020 e' o teste H21.)
@@ -191,8 +228,8 @@ queue. Detalhe em `iterations/iter_0013_h10_ensemble_v2_persist.md`.
 
 | layer | alvo | sub | baseline (MAE_mwh, CV) | best_metric (MAE/R²/F1, modelo) | NMAE secundario | last_iter | sanity_ok | data_utc |
 |---|---|---|---|---|---|---|---|---|
-| curtailment | d1_ENE_CNF | NE | persist_d1 MAE≈33.7k MWh (CV 5x60d, NMAE 44.5%) | **ridge_curt_ne_d1 @champion + bias_corr_28d (PROD default ON desde iter_0017) — MAE 27.3k±11.9k MWh (parquet) / R² +0.469±0.098 / F1_p50 0.808±0.170** (req-0007 closed iter_0017); in-sample R²=0.830; **14d real corrected NMAE 49.2% bate persist 54.1% por -4.9pp — PRIMEIRA VEZ no projeto** | NMAE 33.7±8.1% CV; raw 14d 59.2% / corrected 49.2% | 0017 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE c/ bias_correction_mw exposto** | 2026-05-24T14:30Z |
-| curtailment | d1_ENE_CNF | SE | persist_d1 MAE≈8.3k MWh (CV 5x60d, NMAE 68.8%) | **lr_curt_se_d1 @champion — MAE 6.1k±0.9k MWh (parquet) / R² +0.383±0.094 / F1_p50 0.785±0.108** (req-0007 closed iter_0017); in-sample R²=0.619; **UlFor H14-C decidiu NAO produtizar bias_correction** (regime change Mai/26 chuvoso->seco joga bias no rumo errado, +1.61pp 14d real); **UlFor H21 REFUTADA** (clean_plus_v2 regride +15.31pp em 14d real); **teto-de-dados D+1 estendido NE->SE: NENHUM ML bate persist em 14d real** | NMAE 46.6±13.4% | 0017 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T14:30Z |
+| curtailment | d1_ENE_CNF | NE | persist_d1 MAE≈33.7k MWh (CV 5x60d, NMAE 44.5%) | **ridge_curt_ne_d1 @champion + bias_corr_28d (PROD default ON desde iter_0017) — MAE 27.3k±11.9k MWh (parquet) / R² +0.469±0.098 / F1_p50 0.808±0.170** (req-0007 closed iter_0017); in-sample R²=0.830; **14d real corrected NMAE 49.2% bate persist 54.1% por -4.9pp — PRIMEIRA VEZ no projeto**; **iter_0021: candidato sucessor `ridge+h22_per_fold` (UlFor commit `10fa56d3`) CV 31.4% NMAE (-2.3pp) / R² +0.543 (+0.074) — aguarda decisao Breno + holdout 14d real (H31 emergente)** | NMAE 33.7±8.1% CV; raw 14d 59.2% / corrected 49.2%; sucessor h22 NMAE CV 31.4±?% | 0021 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE c/ bias_correction_mw exposto** | 2026-05-24T17:30Z |
+| curtailment | d1_ENE_CNF | SE | persist_d1 MAE≈8.3k MWh (CV 5x60d, NMAE 68.8%) | **lr_curt_se_d1 @champion — MAE 6.1k±0.9k MWh (parquet) / R² +0.383±0.094 / F1_p50 0.785±0.108** (req-0007 closed iter_0017); in-sample R²=0.619; **UlFor H14-C decidiu NAO produtizar bias_correction** (regime change Mai/26 chuvoso->seco joga bias no rumo errado, +1.61pp 14d real); **UlFor H21 REFUTADA** (clean_plus_v2 regride +15.31pp em 14d real); **teto-de-dados D+1 estendido NE->SE: NENHUM ML bate persist em 14d real**; **iter_0021: FRAGILIDADE NUMERICA EXPOSTA** (commit `34478f93` — matriz X SE/full cond_num ~2.5e17, NMAE 46.6% e "acidental"); **candidato sucessor `ridge+h22_per_fold` (commit `10fa56d3`) CV 48.3% NMAE / R² +0.390 — recomendacao implicita UlFor: trocar familia lr→ridge** (essencialmente empate R² sem risco numerico). Aguarda decisao Breno + holdout 14d real (H31 emergente) | NMAE 46.6±13.4% CV (lr fragil); sucessor ridge+h22 NMAE CV 48.3±14.2% | 0021 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE; champion atual numericamente fragil** | 2026-05-24T17:30Z |
 | curtailment | d1_ENE_CNF | S | persist_d1 MAE≈1.27k MWh (CV 5x60d, NMAE 124.2%) | **lr_curt_s_d1 @champion — MAE 805±441 MWh (parquet) / R² +0.371±0.164 / F1_p50 NaN** (P50_train=0 — sub com muitos zeros, esperado per spec req-0007); in-sample R²=0.725 FRAGIL (validate_d1 7-14d skill -37 a -41%); **UlFor H13 REFUTADA** (ridge_S+clean_plus regride CV+14d); **UlFor H18 ABERTA** (S underperforma persist estruturalmente em 2026-05); **UlFor H14-C NAO produtizou bias_correction** (+10.81pp 14d real, ymean ~32 MWh amplifica ruido) | NMAE 89.6±31.2% (CV ymean≈1k MWh > EPS=1 → safe; iter_0008 unsafe era replay n=11) | 0017 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T14:30Z |
 | curtailment | d1_ENE_CNF | N | persist_d1 MAE≈0.51k MWh (CV 5x60d, NMAE 100.7%) | **ridge_curt_n_d1 v2 @staging + bias_corr_60d (PROD default ON desde iter_0018)** — MAE 425±149 MWh (parquet) / R² +0.170±0.185 / F1_p50 0.790±0.048 (req-0007 closed iter_0017; vs persist 0.72) (clean_plus, 31 feat; in-sample R²=0.472); FRAGIL atenuado vs v1 (era MAE≈440 MWh / R² +0.196±0.289); **UlFor H14-B PROMOVEU bias_correction com window=60d** (CV 5x60d: -19.63pp NMAE media, wins 3/1/5; fold-4 seca-2025Q3 dominante, -78pp em 60d raw 226%); smoke e2e: pred 246 → default 267 (bias -21, applied=True) | NMAE 84.8±26.2% | 0018 | nao promovivel ainda (champion @staging) — **endpoint /api/forecast/d1 LIVE c/ bias_correction_mw exposto + applied_in_default=True** | 2026-05-24T15:30Z |
 | meta | metric_suite | — | NMAE (Principio 6 violado) | **MAE/R²/F1 primario + NMAE secundario com flag** | 3/4 subs (NE,SE,N) conflict NMAE↔R²/F1 em iter_0002 replay; S NMAE unsafe | 0008 | H9 CONFIRMADO | 2026-05-24T06:00Z |

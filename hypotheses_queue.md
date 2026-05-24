@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T16:30:00Z
+last_updated: 2026-05-24T17:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -686,6 +686,20 @@ hypotheses:
       relevantes -> bake-off completo deve continuar com GBDT (ja faz),
       mas justifica MANTER pdp como features brutas (nao agregadas via
       engineering linear como em H21).
+
+      ATUALIZADO iter_0021: atratividade SUBIU. UlFor H23 (commit
+      `ccf53722`, leave-one-in SE LR pos-H22 ulfor) produziu lesson
+      teorico transferivel: **PI deve ser medida com o modelo final, nao
+      com proxy mais robusto**. Ridge usa L2 para redistribuir importance
+      entre colineares -> PI subestima. LR sem shrinkage colapsa quando
+      essas features sao removidas. Aplicavel direto ao nosso H22: se
+      usarmos PI sobre OLS para escolher features e treinarmos GBDT
+      depois, podemos subestimar features que GBDT precisa para
+      interacoes nao-lineares. **Sugestao de protocolo atualizado**:
+      medir PI tanto em OLS quanto em GBDT, e comparar deltas — gap
+      grande indicaria features carregando interacoes nao-lineares
+      mascaradas pelo OLS. Custo zero (mesmo dataset, mesmo split,
+      adiciona ~30 LoC de PI-com-GBDT).
     type: model
     layer: curtailment
     target: pdp_gen_gbdt_vs_ols_gap
