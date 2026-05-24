@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T01:54:35Z
+# Loop status — 2026-05-24T01:59:40Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: no (pid=none, .STOP=no)
 
-**Iter atual**: 4
-**Alvo ativo**: sanity_check_b6_implementation
+**Iter atual**: 5
+**Alvo ativo**: loop_self_planning_infrastructure
 
-**Budget**: 4 iters / 1.2 horas consumidas
+**Budget**: 5 iters / 1.5 horas consumidas
 
-**Open requests ao UlFor**: 3
+**Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0004_b6_zero_count_and_req0003.md
-  decision: |
+**Ultimo handoff**: iter_0005_self_planning_upgrade.md
+  decision: NAO INICIA loop continuo. Aguarda revisao do Breno.
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 298beea bridge: sync iter 7 (40 seconds ago)
+**Bridge ultimo sync**: e13360d bridge: sync iter 4 (5 minutes ago)
 
-**UlFor HEAD**: be2c9186 coord: AUTOPILOT_PROMPT — passo 4.5 leitura de loop_requests.md
+**UlFor HEAD**: 76732289 feat(forecast): Ridge baseline-controle BATE XGB em NE (-4.4pp) e S (-8.6pp)
 
 ---
 

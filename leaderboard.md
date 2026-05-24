@@ -56,3 +56,12 @@ Estabelecido em commit UlFor `1fb2bb50`. Primeiros requests:
   - NE/v3: curt_lag1 +0.664->-0.229, curt_lag7 +0.415->-0.341 (sign flip)
 - B6 e diagnostico da CAUSA RAIZ do "SE colapso strict +19.2pp" do iter_0002
 - req-0003 enviado ao UlFor (P1 investigation, evidencia B6): commit `9c1484e2`
+
+## Iter 0005 — Self-planning upgrade
+
+- Loop opera em modo self-planning a partir desta iter
+- 4 componentes novos: hypotheses_queue.md (15 H), planner.py, quality_gate.py, status.sh
+- run.sh reescrito como continuous loop com budget caps + --dry-run
+- Smoke test (3 iters dry-run): planner seleciona H9 (P1), bridge sync funcionou
+- UlFor processou TODAS 3 requests durante esta iter (be2c9186 patch + b7acfdcd PDP fix)
+- Loop continuo NAO INICIADO — aguarda autorizacao manual do Breno apos revisao

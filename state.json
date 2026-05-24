@@ -1,6 +1,7 @@
 {
-  "iter_atual": 4,
-  "alvo_ativo": "sanity_check_b6_implementation",
+  "iter_atual": 5,
+  "mode": "self_planning",
+  "alvo_ativo": "loop_self_planning_infrastructure",
   "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "baselines": {
@@ -10,8 +11,10 @@
     "curtailment_d1_N":  {"tipo": "persist_d1", "nmae_test_n11": 0.342, "r2": -0.072}
   },
   "best_ml": {
-    "NE": {"version": "v2", "model": "lgbm", "nmae_original": 0.282, "nmae_strict": 0.317, "r2_original": 0.660, "r2_strict": 0.456, "iter": 2},
-    "SE": {"version": "v2", "model": "lgbm", "nmae_original": 0.362, "nmae_strict": 0.426, "r2_original": 0.394, "r2_strict": 0.280, "iter": 2, "warn": "v3_aparente_melhor_some_em_holdout_strict_+19.2pp; B6_iter0004_confirma_causa_e_sign_flip_lag_features"},
+    "NE": {"version": "v2", "model": "lgbm", "nmae_original": 0.282, "nmae_strict": 0.317, "r2_original": 0.660, "r2_strict": 0.456, "iter": 2,
+           "note_pos_iter0005": "UlFor commit b7acfdcd anunciou v3.3 PDP gap fix com 'sub-level ganhos' — iter_0006 recon_delta deve absorver"},
+    "SE": {"version": "v2", "model": "lgbm", "nmae_original": 0.362, "nmae_strict": 0.426, "r2_original": 0.394, "r2_strict": 0.280, "iter": 2,
+           "warn": "v3_aparente_melhor_some_em_holdout_strict_+19.2pp; B6_iter0004_confirma_causa_e_sign_flip_lag_features"},
     "S":  null,
     "N":  null
   },
@@ -24,9 +27,9 @@
     },
     "H6_SE_colapso_strict": {
       "iter": 4,
-      "verdict": "EVIDENCIA_FORTE (B6 caught sign-flip lag features); aguarda confirmacao com n>=60d no UlFor",
-      "evidence": "B6 zero_count_shift detectou signal_collapse em curt_lag1/lag7/lag14 e ger_eolica_mwh em SE/v3: corr_train ~+0.20 a +0.28, corr_test ~-0.15 a -0.29 (sign flip)",
-      "fix_required": "aguarda req-0003 do UlFor: re-rodar com test n>=60d, comparar v3 vs v3-sem-lag1/7/14"
+      "verdict": "EVIDENCIA_FORTE (B6 caught sign-flip); UlFor processou req-0003 DONE — extrair resposta em iter_0006",
+      "evidence": "sign-flip em curt_lag1/lag7/lag14, ger_eolica_mwh em SE/v3",
+      "fix_required": "depende ulfor_response — iter_0006 recon_delta"
     }
   },
   "sanity_checks_disponiveis": [
@@ -46,25 +49,39 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0004_b6_zero_count_and_req0003.md",
+  "ultimo_handoff": "iter_0005_self_planning_upgrade.md",
   "budget_consumido": {
-    "iter": 4,
-    "horas": 1.2,
+    "iter": 5,
+    "horas": 1.5,
     "custo_usd": null
   },
   "ulfor_session_sync": {
-    "iter0003_fim_head": "1fb2bb50",
-    "iter0004_inicio_head": "1fb2bb50",
     "iter0004_fim_head": "9c1484e2",
-    "novos_commits_durante_iter0004": [
-      "c418e4ab feat(forecast): UlFor FASE 3 NE per-conjunto v2 — H1 FALSIFICADA (sessao paralela, antes do loop)",
-      "9c1484e2 coord: req-0003 (loop iter 0004, exception unica)"
-    ]
+    "iter0005_inicio_head": "9c1484e2",
+    "iter0005_fim_head": "be2c9186",
+    "novos_commits_durante_iter0005": [
+      "b7acfdcd feat(forecast): UlFor PDP gap Abr/26 fix — v3.3 sub-level ganhos (resposta a req-0002)",
+      "be2c9186 coord: AUTOPILOT_PROMPT — passo 4.5 leitura de loop_requests.md (Breno aplicou patch sugerido iter_0003)"
+    ],
+    "note": "UlFor processou todos 3 requests durante esta iter. iter_0006 deve ser recon_delta para absorver."
   },
-  "open_requests": [
-    {"id": "req-0001", "from_iter": 3, "priority": "P1", "type": "investigation", "summary": "Validar com test n>=60d que shift -1d em pdp_prev_eolica e ruido", "status": "OPEN"},
-    {"id": "req-0002", "from_iter": 3, "priority": "P0", "type": "feature_fix", "summary": "forward-fill em vez de coalesce(0) para gaps PDP Abr/26", "status": "OPEN"},
-    {"id": "req-0003", "from_iter": 4, "priority": "P1", "type": "investigation", "summary": "Validar H6 SE colapso strict (B6 caught lag sign-flip)", "status": "OPEN"}
+  "open_requests": [],
+  "closed_requests": [
+    {"id": "req-0001", "from_iter": 3, "priority": "P1", "type": "investigation",
+     "summary": "Validar com test n>=60d que shift -1d em pdp_prev_eolica e ruido",
+     "status": "DONE", "closed_at_loop_iter": 5, "extract_response_in": 6},
+    {"id": "req-0002", "from_iter": 3, "priority": "P0", "type": "feature_fix",
+     "summary": "forward-fill em vez de coalesce(0) para gaps PDP Abr/26",
+     "status": "DONE", "closed_at_loop_iter": 5, "extract_response_in": 6,
+     "ulfor_commit": "b7acfdcd"},
+    {"id": "req-0003", "from_iter": 4, "priority": "P1", "type": "investigation",
+     "summary": "Validar H6 SE colapso strict (B6 caught lag sign-flip)",
+     "status": "DONE", "closed_at_loop_iter": 5, "extract_response_in": 6}
   ],
+  "planner_config": {
+    "mode": "self_planning",
+    "next_iter_should_be": "recon_delta_manual (UlFor processou 3 requests + commitou v3.3 fix)",
+    "next_iter_override_suggested": "use _force_next_iter.txt p/ iter_0006 absorver UlFor changes"
+  },
   "kill_requested": false
 }
