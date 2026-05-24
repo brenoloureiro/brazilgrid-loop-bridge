@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-26T02:30:00Z
+last_updated: 2026-05-26T08:00:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -1766,16 +1766,48 @@ notas_iter0031:
     layer: curtailment
     target: gbdt_vs_ridge_alpha10_ne_full
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0046
+    verdict: CONFIRMADO_PARCIAL
     estimated_effort_hours: 0.5
+    actual_effort_hours: 0.3
     depends_on: [H36]
     blocks: []
     sanity_checks_required: [holdout, baseline, dist_shift]
+    sanity_checks_done: [leak, perm_proxied, holdout, baseline, dist_shift, zero_count]
     expected_value: |
       Distingue se ganho GBDT +40pp NE em H36 e' (a) nao-linearidade real
       OR (b) artefato de OLS-puro overfit. Ortogonal a champion (Ridge
       ja confirmado por CV UlFor); H41 alinha protocolos para closure.
     created_at: 2026-05-26T04:00:00Z
+    completed_at: 2026-05-26T08:00:00Z
+    verdict_summary: |
+      CONFIRMADO_PARCIAL (gap GBDT-Ridge_alpha10 NE = +0.0320 in [+0.02, +0.05)).
+      Replay OLS BIT-EXATO H36 (R²_test=0.1138 ambos, replay_match=true).
+      Resultados: OLS_full R²=+0.114; Ridge_alpha10 R²=+0.479 (+36.5pp vs OLS);
+      GBDT R²=+0.511 (+3.2pp vs Ridge, +39.7pp vs OLS). Ridge fecha **91.9%**
+      do gap H36 vs OLS-puro (de +0.397 para +0.032). Train/test delta: OLS
+      -0.751 (overfit catastrofico) → Ridge -0.375 (L2 corta overfit pela
+      metade) → GBDT -0.489 (R²_train=0.9999 = arvores memorizam treino,
+      subsample/colsample salvam test). MAE_test: OLS 31.5k > Ridge 24.2k >
+      GBDT 23.8k (-422 MWh GBDT < Ridge, ~1.7% relativo). PI duo top-10
+      divergem: GBDT_top={semana_sin_d1, curt_lag1, ger_solar_mwh,
+      cmo_desvio_30d, pdp_prog_solar} vs Ridge_top={ano_sin_d1, is_weekend_d1,
+      semana_sin_d1, taxa_penetracao_rmean7, ano_cos_d1}; so semana_sin_d1
+      em comum. Ridge depende de ano_sin_d1 com sinal compensador (drop=+14.8pp
+      R², sinal de basis-linear saturado/colinearidade que Ridge usa como
+      pseudo-anchor). Caveat H36 RESOLVIDO 91.9%: gap +40pp = dominantemente
+      artefato OLS-puro overfit, NAO nao-linearidade real. Os 3.2pp residuais
+      sao GBDT nao-linearidade marginal — insuficiente para questionar champion
+      UlFor Ridge_alpha10 (gap <+5pp threshold + CV 5x60d oficial ja teve
+      Ridge vencendo). Arco H22 (3-feat REFUTADO) + H36 (47-feat parcial-com-
+      caveat) + H41 (47-feat alinhado PARCIAL 91.9% closure) ENCERRA frente
+      GBDT-vs-linear em curt D+1. 6 sanity checks PASS/REPORTED. Champions
+      INTACTOS, zero rollback. 0 follow-ups (frente esgotada; "GBDT real gain"
+      exigiria features novas, nao trade-off em modelo).
+    artefatos: outputs/iter_0046/h41_gbdt_vs_ridge_ne_full/
+      (results.json + summary.csv + sanity_checks.json)
+    follow_ups_created: []
 
   - id: H37
     summary: CQR-asymmetric + Mondrian conformal por regime — fechar NE+N gap H26

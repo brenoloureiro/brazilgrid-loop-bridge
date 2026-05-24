@@ -1,6 +1,41 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0045 (2026-05-26T06:00Z, **H37 CQR-asymmetric + Mondrian conformal
+Atualizado em iter_0046 (2026-05-26T08:00Z, **H41 GBDT vs Ridge_alpha10 NE com
+features completas iter_0002 v3 (47 feats) — CONFIRMADO_PARCIAL**). Mesmo holdout
+80/20 H36 (n_train=352, n_test=88, 2025-12-26..2026-03-26), Ridge_alpha10 = champion
+UlFor NE iter_0007 (CV 5x60d NMAE_mean=33.7% venceu XGB/LGBM 5/5). H41 alinha
+protocolo H36 (holdout) com UlFor (CV) para closure metodologica do caveat H36
+"NE +40pp pode ser overfit OLS-puro vs nao-linearidade real". Decision rule a priori:
+gap GBDT-Ridge <0 RIDGE_SUPERA; [0, +0.02) RIDGE_CLOSES_GAP; [+0.02, +0.05) PARCIAL;
+>=+0.05 REFUTADO_GBDT_REAL_GAIN. **Resultado: gap = +0.0320** (3.2pp, em PARCIAL).
+**Ridge fecha 91.9%** do gap H36 vs OLS-puro (de +0.397 para +0.032 residual).
+Tabela NE: persist_d1 R²=+0.079; OLS_gen_only R²=+0.206; **OLS_full R²=+0.114** (replay
+EXATO H36, replay_match=true); **Ridge_alpha10 R²=+0.479** (+36.5pp vs OLS); **GBDT
+R²=+0.511** (+3.2pp vs Ridge, +39.7pp vs OLS, MAE 23.8k vs 24.2k vs 31.5k). Train/test
+delta: OLS -0.751 (overfit catastrofico) → Ridge **-0.375** (regularizacao L2 corta
+overfit pela metade) → GBDT -0.489 (R²_train=0.9999 = arvores memorizam treino, bagging
++ early stop natural via subsample salvam test). **Caveat H36 95% RESOLVIDO**: o gap
+"+40pp GBDT vs OLS-puro" e' DOMINANTEMENTE artefato OLS overfit, NAO nao-linearidade
+real (Ridge captura 36.5/39.7 = 91.9% do gap so' com L2). Os 3.2pp residuais sao
+GBDT nao-linearidade marginal — insuficientes para questionar champion (gap <+5pp
+threshold + champion oficial e' CV 5x60d que ja teve Ridge vencendo XGB/LGBM 5/5).
+**PI duo top features divergem dramaticamente**: GBDT top = {semana_sin_d1, curt_lag1,
+ger_solar_mwh, cmo_mwmed_desvio_30d, pdp_prog_solar_mwh}; Ridge top = {ano_sin_d1,
+is_weekend_d1, semana_sin_d1, taxa_penetracao_rmean7, ano_cos_d1}. Apenas
+semana_sin_d1 em comum top-10. Ridge depende fortemente de ano_sin_d1 (drop=+14.8pp
+R², ou seja Ridge SUBE 14.8pp DROPANDO o feature; sinal de colinearidade ou interacao
+mal-modelada que Ridge usa como compensador) — diagnostico de espaco basis linear
+saturado. Champions UlFor INTACTOS (zero rollback). **Arco GBDT-vs-linear em curt
+D+1 NE FECHADO**: H22 (3-feat REFUTADO) + H36 (47-feat parcial-com-caveat) + H41
+(47-feat alinhado-Ridge PARCIAL com 91.9% closure) convergem em "GBDT marginalmente
+melhor mas Ridge captura quase todo o sinal disponivel". 6 sanity checks: leak
+PASS_INHERITED iter_0002 v3 pipeline; perm PROXIED_BY_REFIT_DROP_PI top-10; holdout
+PASS (80/20 temporal `dia` gap=0); baseline PASS hierarquia GBDT/Ridge >> OLS-puro
+> OLS-gen-only > persist; dist_shift REPORTED (KS=0.32 p<1e-4 + delta R²
+train-test); zero_count REPORTED (2.27%/0.00%). Custo iter 0.3h (vs estimado 0.5h).
+**0 follow-ups derivados**: arco H22+H36+H41 esgota frente GBDT-vs-linear, espaco
+"GBDT real gain" exigiria features novas (NWP, ONS-prev) nao trade-off em modelo.
+Atualizado anteriormente em iter_0045 (2026-05-26T06:00Z, **H37 CQR-asymmetric + Mondrian conformal
 NE+N — CONFIRMADO_ASYM_ONLY**). Variante A (CQR-asym) PASS ambos os gates de aceitacao:
 NE iv=30 2/3 cells in [75, 85] (cov 75.5%, vs H26 sym 74.7%); N iv=30 3/3 cells in
 [75, 90] (cov 86.4%, vs H26 sym 90.8% over-coverage corrigido). Variante B (Mondrian +

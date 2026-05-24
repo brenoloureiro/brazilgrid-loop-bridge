@@ -1,22 +1,22 @@
-# Loop status — 2026-05-24T20:10:53Z
+# Loop status — 2026-05-24T20:27:53Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=554874, .STOP=no)
 
-**Iter atual**: 45
-**Alvo ativo**: ne_n_d1_quantile_calibrated_v2
+**Iter atual**: 46
+**Alvo ativo**: gbdt_vs_ridge_alpha10_ne_full
 
 **Budget**: 41 iters / 0.25 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0045_h37_conformal_asymmetric_mondrian.md
-  decision: CONFIRMADO_ASYM_ONLY (RETEM_ASYM_COMO_DELIVERABLE_REPLAY) -- mondrian NAO viavel sem mais dados por bucket
+**Ultimo handoff**: iter_0046_h41_gbdt_vs_ridge_ne_full.md
+  decision: |
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 1a428d3 bridge: sync iter 44 (20 minutes ago)
+**Bridge ultimo sync**: 3c829e4 bridge: sync iter 45 (17 minutes ago)
 
 **UlFor HEAD**: 4f4e21f4 ulfor checkpoint: 17:44Z — fase 4, proximo: Breno desbloqueia (10o forcado, SEM substantive, standby puro tunnels DOWN, sinal/ruido 22.2%)
 
