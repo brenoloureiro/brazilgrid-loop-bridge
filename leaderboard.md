@@ -1,6 +1,32 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0038 (2026-05-25T15:30Z, **H27 P50 quantile como
+Atualizado em iter_0039 (2026-05-25T18:30Z, **H28 NGBoost (Normal/LogNormal)
+vs LGBM quantile em NE — INDETERMINADO_PINBALL_DEGRADA**: NGBoost parametrico
+LIFTA cov_band_80 NE dramaticamente (+30pp Normal, +45pp LogNormal-equiv vs
+43.5% LGBM baseline H11 iter_0014) mas DEGRADA pinball P50 em ambas dists
+(Normal +14.4% sub-mean, LogNormal +55.5% sub-mean). D1 cov calibration **PASS**
+em ambas dists (Normal 2/3 NE cells em [70,90]: NE/v2 76.9%, NE/v3 76.3%,
+NE/v1 67.3% off-lo; LogNormal 3/3 cells em [70,90] borderline alto 87.1-89.9%).
+D2 pinball preservation **FAIL** em ambas (threshold a priori: NGB <= LGBM;
+ambas above 0). Mecanismo: NGBoost minimiza NLL Normal(mu, sigma); ponto natural
+mu(x)=mean nao mediana. LGBM quantile alpha=0.5 minimiza pinball P50 diretamente
+— vantagem natural. LogNormal piora por re-exp log1p amplifica scale (widths
++278-348%, ratio width/mean 2.7x = banda inutil). NGBoost Normal: widths
++86-119% — calibracao real mas pinball +14%. Hard-refute floor (cov fora
+[60,95] em >50% cells OR pinball >+20% em ambas) **NAO disparou** (Normal
++14.4% salva o lado Normal). Decision **NAO_PROMOVE_E_FECHA_CAMINHO_PARAMETRICO_DEFAULT**:
+LogNormal-equiv encerrada (+55% pinball insustentavel); Normal merece nota
+mas trade-off cov_quality vs point_loss nao justifica swap (P50 e' usado
+como point em N+S+SE pos-H27, NE mantem LGB-mean). H37 (CQR-asymmetric+Mondrian)
+e' o proximo swing em cov sem tocar P50 (conformal post-hoc, mantem modelo base).
+Hyperparameter sweep NGBoost (n_est=300/lr=0.05) **NAO** queued como follow-up
+automatico — queue brief H28 pediu defaults. Sanity B3 holdout passed_embedded
+(gap=7d, 30 folds), B4 baseline passed_embedded (LGBM quantile H11 per-fold +
+persist_d1), B5 dist_shift annotated_reuse (KS p<0.0001 NE explica heteroscedast.
+mecanismo do gain de cov), B1/B2 skipped_inherited (PI iter_0010 p=0), B6 n_test
+passed (n_test 58-60 > 30). **0 follow-ups criados** (H37 ja cobre proximo passo).
+Caminho NGBoost defaults encerrado no replay loop para NE D+1 curt.
+Atualizado anteriormente em iter_0038 (2026-05-25T15:30Z, **H27 P50 quantile como
 point estimate substituto em N+S — CONFIRMADO**: re-analise direta de
 H11 iter_0014 (bit-exato; random_state=0 + same X + same split). D1
 target N+S **PASS 6/6 cells** (100%, threshold >=4/6=67%): N mean delta

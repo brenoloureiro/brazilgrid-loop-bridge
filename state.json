@@ -1,12 +1,12 @@
 {
-  "iter_atual": 38,
+  "iter_atual": 39,
   "mode": "hypothesis_test",
-  "alvo_ativo": "curtailment_d1_point_p50",
+  "alvo_ativo": "NE_d1_ngboost_quantile",
   "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
-  "last_verdict": "CONFIRMADO_NS_FLAG_NE",
-  "last_verdict_iter": 38,
-  "last_verdict_summary": "H27 P50 quantile como point estimate substituto em N+S CONFIRMADO. Re-analise direta de H11 iter_0014 (bit-exato; random_state=0 + same X + same split). D1 target N+S PASS 6/6 cells (100%, threshold >=4/6=67%): N mean delta -17.9% MAE (15/15 folds wins), S mean delta -13.8% MAE (11/15 folds). D2 constraint NE+SE PASS na sub-mean: NE +4.5% (just under +5% threshold), SE -1.6% (empate). Bonus: delta_R2 mean N+S = +0.287 (LGB-mean R\u00b2 negativo em folds N; P50 puxa positivo). Decision PROMOVE_NS_FLAG_NE: P50 canonical em N+S+SE (drop-in superior, custo zero); NE mantem LGB-mean por cauda densa (NE/v2 +5.6%, NE/v3 +8.4% individuais ultrapassam \u2014 mecanismo: cauda densa premia mean, KS p<0.0001 iter_0012 confirma shift NE). 0 follow-ups (H28 NGBoost + H37 CQR-asymmetric ja cobrem gap NE). Sanity B3 passed_embedded, B4 passed_embedded (12/12 P50>=persist), B5 annotated_reuse, B1/B2 skipped_inherited iter_0010, B6 passed (n_test 58-60).",
+  "last_verdict": "INDETERMINADO_PINBALL_DEGRADA",
+  "last_verdict_iter": 39,
+  "last_verdict_summary": "H28 NGBoost (Normal/LogNormal) vs LGBM quantile em NE INDETERMINADO_PINBALL_DEGRADA. NGBoost parametrico LIFTA cov_band_80 NE dramaticamente (+30pp Normal sub-mean 73.5% / +45pp LogNormal-equiv sub-mean 88.3% vs 43.5% LGBM baseline H11 iter_0014) mas DEGRADA pinball P50 em ambas dists (Normal +14.4% sub-mean: NE/v1 +6.5, NE/v2 +19.6, NE/v3 +17.1; LogNormal +55.5% sub-mean: NE/v1 +31.7, NE/v2 +70.3, NE/v3 +64.6). D1 cov calibration PASS em ambas dists (Normal 2/3 NE cells em [70,90], LogNormal 3/3 borderline alto). D2 pinball preservation FAIL em ambas (threshold a priori NGB <= LGBM; ambas above 0). Mecanismo: NGBoost minimiza NLL Normal(mu, sigma); ponto natural mu(x)=mean nao mediana. LGBM quantile alpha=0.5 minimiza pinball P50 diretamente. LogNormal piora por re-exp log1p amplifica scale (widths +278-348%, banda inutil). Hard-refute floor (cov fora [60,95] em >50% cells OR pinball >+20% em ambas dists) NAO disparou. Decision NAO_PROMOVE_E_FECHA_CAMINHO_PARAMETRICO_DEFAULT. H37 (CQR-asymmetric+Mondrian) e' o proximo swing em cov sem tocar P50. 0 follow-ups criados (H37 cobre proximo passo). Sanity B3 passed_embedded (gap=7d, 30 folds), B4 passed_embedded (LGBM quantile H11 per-fold + persist_d1), B5 annotated_reuse (KS NE explica mecanismo), B1/B2 skipped_inherited iter_0010, B6 passed (n_test 58-60). Caminho NGBoost defaults encerrado no replay loop para NE D+1 curt.",
   "metric_suite_primary": {
     "version": "1.0",
     "adopted_in_iter": 8,
@@ -2132,9 +2132,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 10,
-    "horas": 2.5487,
-    "usd": 43.9988
+    "iter": 11,
+    "horas": 2.7248,
+    "usd": 48.188
   },
   "low_n_test_policy": {
     "version": "1.0",

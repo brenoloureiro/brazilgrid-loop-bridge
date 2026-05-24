@@ -1177,13 +1177,40 @@ hypotheses:
     layer: curtailment
     target: NE_d1_ngboost_quantile
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0039
     estimated_effort_hours: 3.0
+    actual_effort_hours: 0.5
     depends_on: [H11]
     blocks: []
     sanity_checks_required: [holdout, baseline, dist_shift]
+    sanity_checks_done:
+      B1_leak: skipped_inherited (iter_0010 H3 features identicas)
+      B2_perm: skipped_inherited (iter_0010 H3)
+      B3_holdout_strict: passed_embedded (gap=7d em 30 folds)
+      B4_baseline: passed_embedded (LGBM quantile H11 per-fold + persist_d1)
+      B5_dist_shift: annotated_reuse (KS p<0.0001 NE+SE — explica mecanismo)
+      B6_n_test: passed (n_test 58-60, threshold >=30)
+    verdict: INDETERMINADO_PINBALL_DEGRADA
+    verdict_summary: |
+      D1 cov calibration PASS em ambas dists: Normal 2/3 NE cells em
+      [70%, 90%] (sub-mean 73.5%, +30pp absoluto vs LGBM); LogNormal-equiv
+      3/3 cells em [70%, 90%] (sub-mean 88.3%, borderline alto). NGBoost
+      LIFTA cov +21-46pp por fold. D2 pinball preservation FAIL: pinball
+      P50 degrada vs LGBM em ambas dists — Normal +14.4% sub-mean
+      (NE/v1 +6.5, NE/v2 +19.6, NE/v3 +17.1), LogNormal +55.5% sub-mean.
+      Mecanismo: NGBoost minimiza NLL Normal(mu, sigma); P50 vira
+      mu(x)=mean, nao mediana. LGBM quantile alpha=0.5 minimiza pinball
+      P50 diretamente — vantagem natural. LogNormal piora por
+      re-exponenciacao amplifica scale. Width inflation Normal +86-119%,
+      LogNormal +278-348%. Decision NAO_PROMOVE_E_FECHA_CAMINHO_PARAMETRICO_DEFAULT.
+      Caminho NGBoost defaults encerrado para NE D+1 curt no replay loop.
+      H37 (CQR-asymmetric + Mondrian) e' o proximo swing em cov sem tocar
+      P50. Zero follow-ups criados.
+    follow_ups_created: []  # H37 conformal-asymmetric ja queued cobre proximo passo
     expected_value: alt-arquitetura para incerteza se conformal nao bastar
     created_at: 2026-05-24T11:30:00Z
+    completed_at: 2026-05-25T18:30:00Z
 
   - id: H30
     summary: pdp_residual em Ridge_alpha10 CV 5x60d -- ortogonal ao OLS de H21?
