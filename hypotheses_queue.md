@@ -1260,13 +1260,19 @@ hypotheses:
     layer: curtailment
     target: pdp_residual_in_ridge_cv
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0040
+    verdict: REFUTADO_RIDGE
     estimated_effort_hours: 1.0
+    actual_effort_hours: 0.4
     depends_on: [H21]
     blocks: []
     sanity_checks_required: [holdout, baseline]
+    sanity_checks_passed: [leak, perm, holdout, baseline, dist_shift, zero_count, n_test]
     expected_value: encerrar H3-family residual no replay loop (Ridge confirma OLS ou nao)
     created_at: 2026-05-24T16:30:00Z
+    completed_at: 2026-05-25T20:00:00Z
+    follow_ups_created: [H38, H39]
     notes_iter0026: |
       Atratividade SOBE MARGINAL pos-alpha-sweep UlFor (commits 42dc0d7a +
       a3c742a9). Alpha sweep mostrou alpha=1 vence alpha=10 (default H30) em
@@ -1276,6 +1282,98 @@ hypotheses:
       com o alpha. Mecanismo conjecturado: menos shrinkage permite que basis
       residual centrado em zero retenha mais sinal -- alpha=1 e o teste
       mais sensivel desse mecanismo.
+    result_summary_iter0040: |
+      REFUTADO_RIDGE. Paired delta_R²(B-A) per cell+alpha vs threshold
+      (CONFIRMADO >= -0.005 em NE AND SE; REFUTADO < -0.01 em qualquer):
+        alpha=1:  NE B +0.013 (PASSA), SE B -0.032 (FAIL)
+        alpha=10: NE B -0.064 (FAIL), SE B -0.043 (FAIL)
+      Apenas NE/v3 alpha=1 marginalmente confirmou; SE quebra em ambos
+      alphas; criterio AND nao OR. C (residual_split) catastrofico em SE
+      (delta_R² -0.469 a -0.818). B2 perm confirma residual_total CARREGA
+      sinal real (NE +105% / SE +27% MAE drop com shuffle), mas duplicata
+      do span ja em A — Lesson: perm_importance != feature_engineering_gain.
+      Convergencia H21 (OLS analitico + LGBM empirico) + H30 (Ridge alpha=1,
+      alpha=10) == ENCERRA H3-family residual no replay loop. Apenas H22
+      (GBDT vs OLS mecanismo nao-linear) segue como ultima frente.
+      Artefatos: outputs/iter_0040/h30_pdp_residual_ridge_cv/
+
+  - id: H38
+    summary: Ridge alpha-sensitivity em set minimal residual — alpha<1 salva NE?
+    detail: |
+      Derivada de H30 iter_0040 (REFUTADO_RIDGE). NE/v3 alpha=1 marginalmente
+      bateu A com B (+0.013 R²); alpha=10 destruiu (-0.064 R²). Em set
+      minimal (2-3 feat), shrinkage L2 excessivo (alpha=10) destroi o pouco
+      sinal residual disponivel; alpha=1 ainda shrinka demais para deixar
+      passar (apenas marginal pass em 1 sub). Hipotese: alpha optimo para
+      basis-residual em set minimal e' alpha < 1 (ou Ridge-CV/LassoCV/Bayesian
+      Ridge com prior fraco). Custo: trivial (mesmo loop CV, expandir
+      ALPHAS=[0.01, 0.1, 1.0, 10.0]).
+
+      Mecanismo conjecturado: features residuais ja sao "diferencas" com
+      menor variance que features brutas (pdp_residual_e std ~10k MWh vs
+      pdp_prev_e std ~40k MWh em NE). Ridge shrinkage e' aplicado em escala
+      absoluta (apos StandardScaler) — mesma alpha => mesmo shrinkage relativo.
+      Mas pequenas variances tem menos sinal a "puxar" do prior zero, e
+      ridge alpha=10 pode tornar coeficiente residual proximo de zero,
+      colapsando informacao.
+
+      Aceitacao H38:
+        - CONFIRMADO se delta_R²_B >= -0.005 em NE AND SE para algum alpha < 1
+          (ie Ridge minimal funciona desde que alpha tunado)
+        - INDETERMINADO se 1 sub salva mas outra falha
+        - REFUTADO se nenhum alpha salva ambos subs
+
+      Impacto pratico: baixo. Mesmo se CONFIRMADO em alpha=0.01, ganho marginal
+      (delta_R² +0.013 em 1 fold mean) nao justifica swap operacional. Esta
+      hipotese existe principalmente para FECHAR o caminho "alpha-sensitivity
+      foi a culpa" e nao deixar caveat tecnico em aberto. **P4** explicitamente.
+    type: model
+    layer: curtailment
+    target: ridge_alpha_minimal_residual
+    priority: P4
+    status: queued
+    estimated_effort_hours: 0.3
+    depends_on: [H30]
+    blocks: []
+    sanity_checks_required: [baseline]
+    expected_value: fechar caveat alpha-sensitivity de H30; baixo impacto pratico
+    created_at: 2026-05-25T20:00:00Z
+
+  - id: H39
+    summary: Doc — "perm_importance confirms signal != feature_engineering gain" playbook
+    detail: |
+      Derivada de H30 iter_0040 (REFUTADO_RIDGE com perm_importance massivo).
+      Caso pedagogico canonico: NE/v3 Ridge_alpha10 set B na fold final mostrou
+      pdp_residual_total perm_importance +105% (base_mae 17400 -> perm_mae
+      35600, std 2500) — sinal real, NAO ruido. Ainda assim mean R² do
+      mesmo set perdeu -0.064 vs baseline A com 3 features brutas. Mesmo
+      padrao em SE alpha=10 (+27% perm importance, -0.043 R²).
+
+      Lesson explicita: B2 perm test confirma que feature CARREGA sinal, mas
+      NAO confirma que adicionar feature MELHORA o modelo. Se basis ja contem
+      span da feature (algebra linear) ou se interaction terms ja extraem o
+      sinal (GBDT), feature importance no modelo nao se traduz em ganho
+      marginal. Decoupling sinal_intrinseco vs ganho_incremental.
+
+      Aceitacao:
+        - PROMOVE doc para sanity_checks/B2_interpretation.md
+        - Inclui exemplo H21 LGBM (residual perm +6.6% NE, +10.8% SE; mean
+          R² nao melhora) E H30 Ridge (perm +105% NE alpha=10, R² piora -0.064)
+        - Adiciona 1 paragrafo "what perm_importance means" + "what it does NOT mean"
+
+      Custo: 0.2h, doc-only, zero codigo. Sem prazo — quando proximo
+      recon_delta ou iter de governance.
+    type: governance
+    layer: meta
+    target: sanity_checks_doc_b2_interpretation
+    priority: P5
+    status: queued
+    estimated_effort_hours: 0.2
+    depends_on: [H30]
+    blocks: []
+    sanity_checks_required: []
+    expected_value: evitar futura confusao "perm passou logo o feature serve" em iter futuras
+    created_at: 2026-05-25T20:00:00Z
 
   - id: H33
     summary: Joint-drop SE em LR vs Ridge — fechar caveat model-aware H22_MA empirico

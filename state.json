@@ -1,12 +1,12 @@
 {
-  "iter_atual": 39,
+  "iter_atual": 40,
   "mode": "hypothesis_test",
-  "alvo_ativo": "NE_d1_ngboost_quantile",
+  "alvo_ativo": "pdp_residual_in_ridge_cv",
   "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
-  "last_verdict": "INDETERMINADO_PINBALL_DEGRADA",
-  "last_verdict_iter": 39,
-  "last_verdict_summary": "H28 NGBoost (Normal/LogNormal) vs LGBM quantile em NE INDETERMINADO_PINBALL_DEGRADA. NGBoost parametrico LIFTA cov_band_80 NE dramaticamente (+30pp Normal sub-mean 73.5% / +45pp LogNormal-equiv sub-mean 88.3% vs 43.5% LGBM baseline H11 iter_0014) mas DEGRADA pinball P50 em ambas dists (Normal +14.4% sub-mean: NE/v1 +6.5, NE/v2 +19.6, NE/v3 +17.1; LogNormal +55.5% sub-mean: NE/v1 +31.7, NE/v2 +70.3, NE/v3 +64.6). D1 cov calibration PASS em ambas dists (Normal 2/3 NE cells em [70,90], LogNormal 3/3 borderline alto). D2 pinball preservation FAIL em ambas (threshold a priori NGB <= LGBM; ambas above 0). Mecanismo: NGBoost minimiza NLL Normal(mu, sigma); ponto natural mu(x)=mean nao mediana. LGBM quantile alpha=0.5 minimiza pinball P50 diretamente. LogNormal piora por re-exp log1p amplifica scale (widths +278-348%, banda inutil). Hard-refute floor (cov fora [60,95] em >50% cells OR pinball >+20% em ambas dists) NAO disparou. Decision NAO_PROMOVE_E_FECHA_CAMINHO_PARAMETRICO_DEFAULT. H37 (CQR-asymmetric+Mondrian) e' o proximo swing em cov sem tocar P50. 0 follow-ups criados (H37 cobre proximo passo). Sanity B3 passed_embedded (gap=7d, 30 folds), B4 passed_embedded (LGBM quantile H11 per-fold + persist_d1), B5 annotated_reuse (KS NE explica mecanismo), B1/B2 skipped_inherited iter_0010, B6 passed (n_test 58-60). Caminho NGBoost defaults encerrado no replay loop para NE D+1 curt.",
+  "last_verdict": "REFUTADO_RIDGE",
+  "last_verdict_iter": 40,
+  "last_verdict_summary": "H30 pdp_residual em Ridge_alpha1+alpha10 CV 5x60d NE+SE/v3 REFUTADO_RIDGE: paired delta_R\u00b2(B-A) com threshold CONFIRMADO >=-0.005 em NE AND SE; REFUTADO < -0.01 em qualquer. alpha=1 NE +0.013 (PASSA), SE -0.032 (FAIL); alpha=10 NE -0.064 (FAIL), SE -0.043 (FAIL). C (residual_split) catastrofico em SE (delta_R\u00b2 -0.47 a -0.82) ambos alphas. Sanity B2 perm confirma sinal real residual_total (NE alpha=10 +105% MAE drop com shuffle, SE +27%) mas mean R\u00b2 perde -- duplicata do span ja em A. Convergencia H21 OLS + H21 LGBM + H30 Ridge ENCERRA H3-family residual no replay loop. Apenas H22 (GBDT) segue. 2 follow-ups: H38 (P4 Ridge alpha<1) + H39 (P5 doc-only B2_interpretation).",
   "metric_suite_primary": {
     "version": "1.0",
     "adopted_in_iter": 8,
@@ -686,6 +686,35 @@
       "source_iter": 14,
       "source_hypothesis": "H11",
       "reuse_method": "re-analise (mesmo experimento, criterios H27 ao inves de H11)"
+    },
+    "H30_pdp_residual_ridge_cv": {
+      "iter": 40,
+      "verdict": "REFUTADO_RIDGE",
+      "iter_closed": 40,
+      "evidence_final": "Ridge(alpha=1) + Ridge(alpha=10) CV walk-forward 5x60d gap 7d, StandardScaler embedded. Cells NE/v3 (n=440) + SE/v3 (n=442). 3 feature sets minimais: A=[ger_renov, pdp_prev_e, pdp_prev_s] (3 feat), B=[ger_renov, pdp_residual_total] (2 feat), C=[ger_renov, pdp_residual_e, pdp_residual_s] (3 feat). Paired delta_R\u00b2: alpha=1 NE B +0.013 / SE B -0.032 / NE C +0.004 / SE C -0.818; alpha=10 NE B -0.064 / SE B -0.043 / NE C -0.062 / SE C -0.469. 3/4 (sub x alpha) violam threshold REFUTADO_RIDGE (delta_R\u00b2_B < -0.01); apenas NE alpha=1 marginalmente confirma mas criterio AND pede ambas subs. C catastrofico em SE (multicolinearidade severa). Sanity B2 perm na fold final: residual_total carrega sinal real (NE alpha=10 base_mae 17400 -> perm_mae 35600, +105% MAE drop; SE +27%). Lesson canonica: perm_importance confirma sinal_intrinseco; NAO confirma feature_engineering_gain. Span linear (gen, pdp_prev_*) ja contem (gen, residual_*) \u2014 transformacao reduz dim sem expandir basis. Convergencia H21 OLS analitico + H21 LGBM empirico + H30 Ridge alpha=1,10 == ENCERRA H3-family residual no replay loop. Apenas H22 (GBDT mecanismo nao-linear) segue como ultima frente teorica.",
+      "sanity_checks": {
+        "leak": "passed",
+        "perm": "passed_with_contradiction_aparente",
+        "holdout_strict": "passed_embedded",
+        "baseline": "passed",
+        "dist_shift": "annotated_reuse_iter0012",
+        "zero_count": "passed",
+        "n_test": "passed"
+      },
+      "follow_ups_created": [
+        "H38",
+        "H39"
+      ],
+      "encerra_caminhos": [
+        "H3-family residual (OLS+LGBM+Ridge convergem REFUTADO)"
+      ],
+      "artefatos": [
+        "outputs/iter_0040/h30_pdp_residual_ridge_cv/verdict.json",
+        "outputs/iter_0040/h30_pdp_residual_ridge_cv/results.json",
+        "outputs/iter_0040/h30_pdp_residual_ridge_cv/sanity_summary.json",
+        "outputs/iter_0040/h30_pdp_residual_ridge_cv/summary.csv",
+        "scripts/h30_pdp_residual_ridge_cv.py"
+      ]
     }
   },
   "sanity_checks_disponiveis": [
@@ -949,7 +978,7 @@
       "warn": ""
     }
   },
-  "ultimo_handoff": "iterations/iter_0038_h27_p50_vs_mean.md",
+  "ultimo_handoff": "iterations/iter_0040_h30_pdp_residual_ridge_cv.md",
   "budget_consumido": {
     "iter": 36,
     "horas": 0.2,
@@ -958,6 +987,11 @@
       "horas": 0.6,
       "usd": 0.0,
       "compute_minutes": 0.02
+    },
+    "iter_0040_h30_pdp_residual_ridge_cv": {
+      "horas": 0.4,
+      "usd": 0.0,
+      "compute_minutes": 0.2
     }
   },
   "b6_robustness_v2": {
@@ -2132,9 +2166,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 11,
-    "horas": 2.7248,
-    "usd": 48.188
+    "iter": 12,
+    "horas": 2.9167,
+    "usd": 51.8172
   },
   "low_n_test_policy": {
     "version": "1.0",

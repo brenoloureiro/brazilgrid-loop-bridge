@@ -1,6 +1,27 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0039 (2026-05-25T18:30Z, **H28 NGBoost (Normal/LogNormal)
+Atualizado em iter_0040 (2026-05-25T20:00Z, **H30 pdp_residual em Ridge_alpha1+alpha10
+CV 5x60d NE+SE/v3 — REFUTADO_RIDGE**: paired delta_R²(B-A) com threshold
+CONFIRMADO >=-0.005 em NE AND SE; REFUTADO < -0.01 em qualquer. Resultado:
+alpha=1 NE B +0.013 (PASSA), SE B -0.032 (FAIL); alpha=10 NE B -0.064 (FAIL),
+SE B -0.043 (FAIL). Apenas 1/4 (NE alpha=1) marginalmente confirma; criterio
+AND pede ambas subs. C (residual_split) catastrofico em SE (delta_R² -0.469
+a -0.818 ambos alphas) — multicolinearidade severa. Sanity B2 perm
+revela contradica aparente: residual_total CARREGA sinal massivo (NE
+alpha=10 +105% MAE drop com shuffle 30 perms; SE +27%) mas mean R² perde.
+**Lesson canonica**: permutation_importance confirma sinal_intrinseco; NAO
+confirma feature_engineering_gain. Span linear (gen, pdp_prev_e, pdp_prev_s)
+ja contem (gen, residual_*) — transformacao reduz dim sem expandir basis.
+Convergencia H21 (OLS analitico + LGBM empirico) + H30 (Ridge alpha=1,10) =
+**ENCERRA H3-family residual no replay loop**. Apenas H22 (GBDT mecanismo
+nao-linear) segue como ultima frente teorica. Sanity B1 leak: residual sem
+NaN/inf, frac_neg NE 97.5%/SE 18.8% confirma estrutura PDP-vs-ger esperada.
+B3 holdout embedded (gap 7d). B4 baseline: NE Ridge 3-feat abaixo persist
+(-13.5%) — modelo minimal insuficiente em NE; SE acima persist (+7.5%).
+B5 dist_shift annotated_reuse iter_0012. B6 n_test 300 obs/cell >> 30 H20.
+Sem mudanca de champion. 2 follow-ups criados: H38 (P4, Ridge alpha<1
+para fechar caveat) + H39 (P5, doc-only sanity_checks/B2_interpretation.md).
+Atualizado anteriormente em iter_0039 (2026-05-25T18:30Z, **H28 NGBoost (Normal/LogNormal)
 vs LGBM quantile em NE — INDETERMINADO_PINBALL_DEGRADA**: NGBoost parametrico
 LIFTA cov_band_80 NE dramaticamente (+30pp Normal, +45pp LogNormal-equiv vs
 43.5% LGBM baseline H11 iter_0014) mas DEGRADA pinball P50 em ambas dists
