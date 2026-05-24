@@ -1,10 +1,10 @@
-# UlFor headless runner — status — 2026-05-24T05:39:10Z
+# UlFor headless runner — status — 2026-05-24T05:40:17Z
 
 **Saude**: green (runner saudavel)
 
 **Runner**: alive=yes pid=98068 .STOP=no
-**Loop status**: running
-**Ultimo heartbeat**: 2026-05-24T05:39:10Z
+**Loop status**: budget_usd_daily
+**Ultimo heartbeat**: 2026-05-24T05:40:17Z
 
 ## Iter / decisao
 
@@ -20,7 +20,7 @@
 - **Branch**: master
 - **Ultimo commit observado (state)**: 5c7963d4
 - **Ultimo checkpoint**: ulfor_2026-05-24T06-25.md
-  - **Idade**: 0 min
+  - **Idade**: 1 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
 
