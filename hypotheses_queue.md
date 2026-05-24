@@ -1331,13 +1331,54 @@ hypotheses:
     layer: curtailment
     target: ridge_alpha_minimal_residual
     priority: P4
-    status: queued
+    status: done
+    iter_handled: 0047
+    verdict: INDETERMINADO_ALPHA_LOW
     estimated_effort_hours: 0.3
+    actual_effort_hours: 0.3
     depends_on: [H30]
     blocks: []
     sanity_checks_required: [baseline]
+    sanity_checks_done: [leak, perm, holdout, baseline, dist_shift, zero_count]
     expected_value: fechar caveat alpha-sensitivity de H30; baixo impacto pratico
     created_at: 2026-05-25T20:00:00Z
+    completed_at: 2026-05-26T10:00:00Z
+    verdict_summary: |
+      INDETERMINADO_ALPHA_LOW. Alpha sweep [0.01, 0.1, 1.0, 10.0] sobre o
+      protocolo H30 (CV 5x60d gap7d, NE+SE v3, sets A/B/C). Replay H30 BIT-EXATO
+      (alpha=1 NE delta_r2_B=+0.01275; alpha=10 NE -0.06419; alpha=1 SE -0.03217;
+      alpha=10 SE -0.04313 — todos batem iter_0040 5 casas decimais). NE responde
+      bem ao shrinkage fraco: alpha=0.01 delta_r2_B=+0.0242 (wins_r2 5/5),
+      alpha=0.1 +0.0231 (4/5) — MELHORES que alpha=1 (+0.0128, 2/5). Hipotese
+      "alpha L2 forte destroi sinal residual minimal em NE" VALIDA — confirma
+      mecanismo conjecturado (basis-residual tem std reduzido vs basis-bruto, e
+      shrinkage absoluto pos-StandardScaler penaliza coef residual demais).
+      Em SE, no entanto, NENHUM alpha salva B (delta_r2_B in [-0.043, -0.031]
+      para todo o sweep; melhor caso alpha=0.01 ainda -0.031 << threshold -0.005).
+      Mecanismo SE: residual_total SE tem frac_negative=0.188 (vs 0.975 NE) e
+      mean=+11877 MWh (vs -99936 NE) — sinal qualitativamente diferente; SE
+      base A ja captura melhor o sinal pdp_prev_e/s separadamente e a soma
+      residual collapse perde informacao independente de regularizacao.
+      Set C (split residual) tambem so passa em NE alpha<=0.1 (delta +0.015/+0.014);
+      SE catastrofico em todos alphas (-0.47 a -0.88). H30 REFUTADO_RIDGE
+      veredito GLOBAL persiste em SE; em NE o veredito muda para
+      MARGINAL_PASS_em_alpha_baixo. Impacto pratico nulo (P4 explicito):
+      delta_r2_B=+0.024 em NE alpha=0.01 ainda deixa o modelo abaixo do
+      persist (NE skill A vs persist = -14% MAE, A perde para persist;
+      adicionar +2.4pp R² em A=-0.05 vai para -0.03 — modelo continua
+      sub-zero R²; champion UlFor Ridge_alpha10 com features completas
+      iter_0007 ja entrega NMAE 33.7% que esta features minimais nem
+      chegam perto). FECHA caveat tecnico "alpha-sensitivity foi a culpa
+      de H30 ter REFUTADO" com nuance: foi a culpa em NE (alpha grande
+      destrói o pouco sinal disponivel) mas NAO em SE (residual sub-set
+      e' estruturalmente inadequado, independente de shrinkage).
+      6 sanity checks PASS/REPORTED. Champions INTACTOS, zero rollback.
+      0 follow-ups (P4 explicitamente: nao reabrir Ridge minimal residual
+      mesmo com per-sub tuning; ganho marginal nao justifica swap operacional;
+      arco H21/H22/H30/H38 ENCERRA frente residual em curt D+1).
+    artefatos: outputs/iter_0047/h38_ridge_alpha_minimal_residual/
+      (results.json + summary.csv + sanity_summary.json + verdict.json)
+    follow_ups_created: []
 
   - id: H39
     summary: Doc — "perm_importance confirms signal != feature_engineering gain" playbook

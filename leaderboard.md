@@ -1,6 +1,42 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0046 (2026-05-26T08:00Z, **H41 GBDT vs Ridge_alpha10 NE com
+Atualizado em iter_0047 (2026-05-26T10:00Z, **H38 Ridge alpha-sensitivity em set
+minimal residual — INDETERMINADO_ALPHA_LOW**). Hipotese P4 (custo 0.3h), derivada
+do caveat tecnico H30 iter_0040 REFUTADO_RIDGE. Expandiu ALPHAS=[0.01, 0.1, 1.0, 10.0]
+sobre o protocolo H30 (CV 5x60d gap7d, NE+SE v3, sets A=brutos / B=residual_plus_gen
+2-feat / C=residual_split 3-feat). **Replay H30 BIT-EXATO** (alpha=1 NE delta_r2_B
+=+0.01275; alpha=10 NE -0.06419; alpha=1 SE -0.03217; alpha=10 SE -0.04313 —
+todos batem iter_0040 ate' 5 casas decimais; reproducibilidade total). **NE responde
+ao shrinkage fraco**: alpha=0.01 set B delta_r2_B=+0.0242 (wins_r2 5/5 folds),
+alpha=0.1 +0.0231 (4/5) — MELHORES que alpha=1 (+0.0128, 2/5) e MUITO melhores que
+alpha=10 (-0.0642, 1/5). Hipotese mecanistica "alpha L2 forte destroi sinal residual
+em set minimal porque residuals tem std reduzido vs basis bruto (NE std ~10k vs
+40k MWh) e shrinkage absoluto pos-StandardScaler colapsa coef residual em zero"
+VALIDA em NE. **MAS em SE, NENHUM alpha salva o set B**: delta_r2_B in [-0.043,
+-0.031] para todo o sweep; melhor caso alpha=0.01 ainda -0.031 << threshold -0.005.
+Mecanismo SE qualitativamente diferente: residual_total SE tem frac_negative=0.188
+(vs 0.975 NE) e mean=+11877 MWh (vs -99936 NE) — sinal estrutural distinto; SE base
+A ja captura melhor o sinal pdp_prev_e/s separadamente e a soma residual collapse
+perde informacao independente de regularizacao. Set C (split residual) tambem so'
+passa em NE alpha<=0.1 (delta +0.015/+0.014); SE catastrofico em todo o sweep
+(-0.47 a -0.88). **Verdict por queue spec**: INDETERMINADO_ALPHA_LOW (1 sub salva
+para algum alpha<1, outra falha). H30 REFUTADO_RIDGE veredito global persiste em
+SE; em NE muda para MARGINAL_PASS_em_alpha_baixo. **Impacto pratico nulo**
+(P4 explicito desde queueing): delta_r2_B=+0.024 em NE alpha=0.01 ainda deixa A=-0.05
+em -0.03 — modelo continua sub-zero R², nem chega perto do champion UlFor
+Ridge_alpha10 features completas (NMAE_CV 33.7%). **FECHA caveat tecnico**
+"alpha-sensitivity foi a culpa de H30 ter REFUTADO" com nuance NE-pass / SE-fail.
+Champions UlFor INTACTOS (zero rollback). 6 sanity checks PASS/REPORTED (leak diag
+identico H30 mean residual_total NE -99936 frac_neg 0.975 / SE +11877 frac_neg 0.188;
+perm test feature residual fold-final por alpha; holdout embedded CV walk-forward
+5 folds gap 7d; baseline persist_d1 floor; dist_shift annotated_reuse H7 KS p<0.0001
+NE+SE; zero_count NE 2.0% < 1 MWh / SE 0.5%). Custo iter 0.3h = estimado. **0
+follow-ups derivados**: arco H21 (OLS analitico REFUTADO) + H22 (3-feat GBDT-vs-OLS
+TIE/WORSE) + H30 (Ridge alpha=1,10 REFUTADO) + H38 (Ridge alpha [0.01..10] INDET
+NE-only) ESGOTA frente residual em curt D+1 no envelope iter_0002 + CV-5x60d.
+"Per-sub tuning poderia salvar" e' epistemicamente possivel mas P4 explicito
+nao reabre (ganho marginal nao justifica swap operacional + complexidade ops). Atualizado
+anteriormente em iter_0046 (2026-05-26T08:00Z, **H41 GBDT vs Ridge_alpha10 NE com
 features completas iter_0002 v3 (47 feats) — CONFIRMADO_PARCIAL**). Mesmo holdout
 80/20 H36 (n_train=352, n_test=88, 2025-12-26..2026-03-26), Ridge_alpha10 = champion
 UlFor NE iter_0007 (CV 5x60d NMAE_mean=33.7% venceu XGB/LGBM 5/5). H41 alinha

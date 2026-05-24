@@ -1,22 +1,22 @@
-# Loop status — 2026-05-24T20:29:02Z
+# Loop status — 2026-05-24T20:40:21Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=554874, .STOP=no)
 
-**Iter atual**: 46
-**Alvo ativo**: gbdt_vs_ridge_alpha10_ne_full
+**Iter atual**: 47
+**Alvo ativo**: ridge_alpha_minimal_residual
 
 **Budget**: 41 iters / 0.25 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0046_h41_gbdt_vs_ridge_ne_full.md
-  decision: |
+**Ultimo handoff**: iter_0047_h38_ridge_alpha_minimal_residual.md
+  decision: 
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 17d5193 bridge: sync iter 46 (69 seconds ago)
+**Bridge ultimo sync**: c421841 bridge: sync iter 46 (11 minutes ago)
 
 **UlFor HEAD**: 4f4e21f4 ulfor checkpoint: 17:44Z — fase 4, proximo: Breno desbloqueia (10o forcado, SEM substantive, standby puro tunnels DOWN, sinal/ruido 22.2%)
 
