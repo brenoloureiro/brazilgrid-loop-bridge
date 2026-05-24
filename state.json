@@ -1,9 +1,12 @@
 {
-  "iter_atual": 34,
+  "iter_atual": 35,
   "mode": "hypothesis_test",
-  "alvo_ativo": "h22_gbdt_vs_ols_gap",
+  "alvo_ativo": "h25_stacker_ridge",
   "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
+  "last_verdict": "REFUTADO_NO_GAIN",
+  "last_verdict_iter": 35,
+  "last_verdict_summary": "H25 Ridge stacker REFUTADO em 12/12 cells vs H10 inv_mae. Best ridge_no_intercept_a10 +2.1% a +90% pior. 30d inner_val \u00d7 4 bases overfit comprovado.",
   "metric_suite_primary": {
     "version": "1.0",
     "adopted_in_iter": 8,
@@ -2043,9 +2046,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 6,
-    "horas": 1.7142,
-    "usd": 27.561
+    "iter": 7,
+    "horas": 1.9278,
+    "usd": 32.6491
   },
   "low_n_test_policy": {
     "version": "1.0",

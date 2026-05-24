@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T17:41:33Z
+# Loop status — 2026-05-24T17:54:59Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=554874, .STOP=no)
 
-**Iter atual**: 34
-**Alvo ativo**: h22_gbdt_vs_ols_gap
+**Iter atual**: 35
+**Alvo ativo**: h25_stacker_ridge
 
 **Budget**: 34 iters / 0.8 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0034_h22_gbdt_vs_ols.md
+**Ultimo handoff**: iter_0035_h25_stacker_ridge.md
   decision: |
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 27360fd bridge: sync ulfor iter 89 (61 seconds ago)
+**Bridge ultimo sync**: ee3125a bridge: sync ulfor iter 93 (7 minutes ago)
 
-**UlFor HEAD**: 3545d8bb ulfor checkpoint: 17:38Z — fase 4, proximo: Breno desbloqueia (9o forcado, SEM substantive, standby puro tunnels DOWN, sinal/ruido 23.5%)
+**UlFor HEAD**: 4f4e21f4 ulfor checkpoint: 17:44Z — fase 4, proximo: Breno desbloqueia (10o forcado, SEM substantive, standby puro tunnels DOWN, sinal/ruido 22.2%)
 
 ---
 

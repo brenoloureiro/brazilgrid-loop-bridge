@@ -1,6 +1,20 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0033 (2026-05-25T04:30Z, RECON_DELTA UlFor
+Atualizado em iter_0035 (2026-05-25T06:30Z, **H25 stacker Ridge meta-modelo
+REFUTADO_NO_GAIN**: Ridge sobre 4 bases [lgb, persist_d1, ma7, clim_doy]
+treinado em inner_val=30d **perde para H10 inv_mae em 12/12 cells**, pct_delta
++2.1% a +90.0% (NE +10.1%, SE +14.2%, S +57.1%, N +33.3% mean). Best variante
+e' `ridge_no_intercept_a10` mas mesmo sem intercept o estimador overfit
+inner_val: shift MAE_test/MAE_inner_val medio 64-283% por cell, com fold
+extremo NE/v1 28280%. Ridge com intercept (alpha=0.1..100) e' catastrofico
+(MAE explode 50x-200x). Lesson: 30d × 4 bases = 5 params nao da' SNR para
+empirical risk minimization; weighted average analitico inv_mae H10 vence
+porque NAO memoriza inner_val. **H10 inv_mae confirmado como state-of-art
+para ensemble curt D+1 multi-base em janelas curtas.** Sanity required pela
+queue (holdout, leak, baseline) AMBOS PASS; perm n/a, dist_shift+zero_count
+reported. Verdict robusto: nem 1 cell confirma >=2% reducao clinica).
+Atualizado anteriormente em iter_0034 (H22 GBDT vs OLS REFUTADO_NO_NONLINEAR_GAIN).
+Atualizado anteriormente em iter_0033 (2026-05-25T04:30Z, RECON_DELTA UlFor
 `2917289c..80620230`, 5 commits — 2 substantivos + 3 checkpoints
 PARAR-E-PERGUNTAR. UlFor preparou **smoke test pos-promote v3**
 (`tests/services/test_forecast_loader_smoke.py`, 5 offline passed + 8

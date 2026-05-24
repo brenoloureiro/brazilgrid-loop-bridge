@@ -1009,13 +1009,42 @@ hypotheses:
     layer: curtailment
     target: ensemble_stacker_ridge
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0035
+    verdict: REFUTADO_NO_GAIN
     estimated_effort_hours: 2.0
     depends_on: [H10]
     blocks: []
     sanity_checks_required: [holdout, leak, baseline]
+    sanity_checks_done: [holdout, leak, baseline, dist_shift, zero_count]
     expected_value: validar se Ridge captura interacoes que weighted average perde
+    actual_value: |
+      Refutacao em 12/12 cells. Ridge stacker NUNCA bate H10 inv_mae.
+      pct_delta MAE vs H10: NE +10.1% / SE +14.2% / S +57.1% / N +33.3% (mean
+      across cells/folds). Best variant `ridge_no_intercept_a10` (suprime
+      intercept, alpha=10 shrinkage forte) ainda perde por +2.1% a +90.0%.
+      Variants com intercept (alpha=0.1..100) explodem MAE 50-200x (overfit
+      inner_val catastrofico).
+
+      Risco previsto no queue ("30d × 4 bases pequeno demais") SE CONCRETIZOU:
+        - dist_shift MAE_test/MAE_inner_val por cell: NE/v1 4545% / NE/v2 149%
+          / SE/v3 81% / S/v3 283% / N/v1 64%. Single fold extremo NE/v1
+          atinge 28280% (Ridge memoriza inner_val, test arrasa).
+        - Inv_mae H10 NAO memoriza inner_val (so 2 pesos derivados de MAE
+          escalar — invariante a ruido idiossincratico de val). Por isso
+          generaliza melhor sob distribution shift comprovada em iter_0012.
+
+      Convergencia com lessons:
+        H10 (CONFIRMADO_NE_SE): pesos analiticos > grid empirico em inner_val 30d
+        H24 (CONFIRMADO ridge_lr_NE_SE_N): mesmo paradigma (inv_mae) com
+          champions Ridge/LR ate melhor em SE (4x ganho).
+        H25 (REFUTADO): subir capacidade do ensemble (Ridge stacker 4-feat)
+          PIORA — confirmando que o gargalo NAO e' o esquema de pondera-
+          cao mas o sinal residual disponivel apos LGB. Adicionar bases
+          (ma7, clim_doy) na presenca de overfit inner_val nao destrava.
+    follow_ups_created: []
     created_at: 2026-05-24T10:30:00Z
+    completed_at: 2026-05-25T06:30:00Z
 
   - id: H26
     summary: Conformal prediction post-hoc para calibrar bandas P10/P90
