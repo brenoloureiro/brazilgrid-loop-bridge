@@ -1,6 +1,17 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0032 (2026-05-25T03:30Z, H20 — auto-flag bake-off
+Atualizado em iter_0033 (2026-05-25T04:30Z, RECON_DELTA UlFor
+`2917289c..80620230`, 5 commits — 2 substantivos + 3 checkpoints
+PARAR-E-PERGUNTAR. UlFor preparou **smoke test pos-promote v3**
+(`tests/services/test_forecast_loader_smoke.py`, 5 offline passed + 8
+online gated em CH/MLflow) que destrava quality_gate automatico assim
+que tunnels EC2 subirem. **Bugfix Windows-only** em `bakeoff_d1.py`
+isola `sys.stdout = TextIOWrapper(...)` ao `__main__` — destravava 13
+smoke tests + 19 importers (incluindo `loader.py` em PROD). Champions,
+loader.py defaults e MLflow Registry **INTOCADOS**. Promote v3
+(decidido por Breno em iter_0031) **NAO EXECUTADO** — mesmo bloqueio
+infra: tunnels CH+MLflow exit=28).
+Atualizado anteriormente em iter_0032 (H20 — auto-flag bake-off
 n_test<30 CONFIRMADO_DISPLAY: politica `low_confidence_n_test` explicita
 e auditada em 32 artefatos do loop + 18 parquets UlFor; 12 LGBM-replay
 runs iter_0002 + 8 sanity JSONs marcados LOW, 0 falsos negativos no topo

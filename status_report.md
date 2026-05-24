@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T17:17:24Z
+# Loop status — 2026-05-24T17:27:41Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=554874, .STOP=no)
 
-**Iter atual**: 32
-**Alvo ativo**: h20_low_n_test_warning
+**Iter atual**: 33
+**Alvo ativo**: recon_delta_ulfor_post_2917289c
 
 **Budget**: 32 iters / 1.8 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0032_h20_low_n_test_warning.md
-  decision: PROMOVE
+**Ultimo handoff**: iter_0033_recon_delta.md
+  decision: 
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: af6b14a bridge: sync ulfor iter 72 (10 seconds ago)
+**Bridge ultimo sync**: a091663 bridge: sync ulfor iter 79 (82 seconds ago)
 
-**UlFor HEAD**: 80620230 fix(bakeoff_d1): mover wrap stdout para __main__ (destrava smoke offline)
+**UlFor HEAD**: 7b2f1297 ulfor checkpoint: 17:24Z — fase 4, proximo: Breno desbloqueia (7o forcado, mas com 1 commit substantivo 80620230 fix bakeoff_d1 stdout wrap destrava 5 smoke offline)
 
 ---
 
