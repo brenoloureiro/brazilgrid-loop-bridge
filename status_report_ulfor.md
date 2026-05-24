@@ -1,14 +1,14 @@
-# UlFor headless runner — status — 2026-05-24T13:24:19Z
+# UlFor headless runner — status — 2026-05-24T13:27:24Z
 
 **Saude**: green (runner saudavel)
 
 **Runner**: alive=yes pid=273001 .STOP=no
 **Loop status**: running
-**Ultimo heartbeat**: 2026-05-24T13:24:19Z
+**Ultimo heartbeat**: 2026-05-24T13:27:24Z
 
 ## Iter / decisao
 
-- **Iter atual UlFor (runner)**: 25
+- **Iter atual UlFor (runner)**: 26
 - **Ultimo plan_step modo**: MODO_1_CONTINUACAO
 - **Ultimo plan_step razao**: sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE
 - **err_streak**: 0
@@ -16,20 +16,20 @@
 
 ## UlFor master (estado observado)
 
-- **HEAD**: 5d41d063 exp(forecast): correcao N — ridge+h22 NAO foi refutado em 14d real
+- **HEAD**: 756457c7 ulfor checkpoint: 14:25Z — Acao #2 (val14d) + ADDENDUM z-score, convergencia com parallel agent
 - **Branch**: master
-- **Ultimo commit observado (state)**: 5d41d063
-- **Ultimo checkpoint**: ulfor_2026-05-24T14-15.md
-  - **Idade**: 11 min
+- **Ultimo commit observado (state)**: 756457c7
+- **Ultimo checkpoint**: ulfor_2026-05-24T14-25.md
+  - **Idade**: 0 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
 
 ## Budget (reset diario 00:00 UTC)
 
 - **Data UTC**: 2026-05-24
-- **Iters hoje**: 25 / 30
-- **Horas hoje**: 5.4903 / 12
-- **Custo hoje**: $94.0825 / $50
+- **Iters hoje**: 26 / 30
+- **Horas hoje**: 5.6953 / 12
+- **Custo hoje**: $98.2366 / $50
 
 ---
 
