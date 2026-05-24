@@ -1,0 +1,25 @@
+# Never sync model artifacts or data through the bridge.
+*.joblib
+*.pkl
+*.parquet
+*.csv
+*.npz
+*.feather
+*.arrow
+*.h5
+*.hdf5
+
+# Never sync credentials or env files.
+.env
+.env.*
+*.pem
+*.key
+credentials*
+secrets*
+
+# OS / editor noise.
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/

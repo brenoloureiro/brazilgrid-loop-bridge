@@ -1,0 +1,15 @@
+{
+  "iter_atual": 0,
+  "alvo_ativo": null,
+  "layer_ativa": null,
+  "iter_no_alvo_atual": 0,
+  "baselines": {},
+  "leaderboard_dirty": false,
+  "ultimo_handoff": null,
+  "budget_consumido": {
+    "iter": 0,
+    "horas": 0.0,
+    "custo_usd": 0.0
+  },
+  "kill_requested": false
+}
