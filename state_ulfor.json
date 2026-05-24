@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
   "runner_id": "ulfor-headless",
-  "iter_atual_ulfor": 51,
+  "iter_atual_ulfor": 52,
   "last_checkpoint": null,
   "last_checkpoint_at": null,
   "last_commit_observed": "cf3097cd",
-  "iters_sem_commit": 0,
+  "iters_sem_commit": 1,
   "iters_sem_checkpoint": 0,
-  "last_plan_mode": "MODO_3_CHECKPOINT",
-  "last_plan_reason": "iters_sem_commit=4 >= 3: UlFor nao gerou commits nas ultimas iters. Pode estar travado.",
+  "last_plan_mode": "MODO_1_CONTINUACAO",
+  "last_plan_reason": "sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE",
   "loop_requests_done": [],
   "err_streak": 0,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 19,
-    "horas": 1.5081,
-    "usd": 26.5222
+    "iter": 20,
+    "horas": 1.535,
+    "usd": 27.2397
   },
   "started_at": "2026-05-24T02:58:18Z",
-  "last_heartbeat_at": "2026-05-24T16:41:40Z",
+  "last_heartbeat_at": "2026-05-24T16:44:05Z",
   "loop_status": "running"
 }
