@@ -1280,9 +1280,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 33,
-    "horas": 6.1789,
-    "usd": 103.2109,
+    "iter": 34,
+    "horas": 6.3825,
+    "usd": 107.6572,
     "note": "iter_0022 H24 ensemble_champion_persist (replay sklearn over iter_0002 features, no LLM cost)"
   }
 }
