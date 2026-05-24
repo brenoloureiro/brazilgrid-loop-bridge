@@ -307,13 +307,28 @@ hypotheses:
     layer: curtailment
     target: NE_d1_quantile_forecast
     priority: P2
-    status: queued
+    status: done
+    iter_handled: 0014
+    verdict: REFUTADO_NE
+    verdict_summary: |
+      Bandas LGBM quantile com defaults sistemicamente UNDERCOVERED:
+      coverage_band_80 mean NE = 43.6% vs 80% nominal (0/3 NE cells in
+      [70%, 90%]). Causa: LGBM nao modela heteroscedasticidade explicita +
+      distribution shift documentado (iter_0012 KS p<0.0001 NE+SE). P50
+      magnitude OK (delta NE +4.5% vs LGB-mean) mas banda inutil para
+      caso de uso "P90 conservador" do operador. Bonus: P50 quantile BATE
+      LGB-mean em N (-18%), S (-14%), SE (-1.6%) — mediana mais robusta
+      que mean em distribuicoes com cauda longa de zeros.
     estimated_effort_hours: 2.0
+    actual_effort_hours: 1.0
     depends_on: [H9]
     blocks: []
     sanity_checks_required: [holdout, baseline, dist_shift]
+    sanity_checks_done: [holdout, baseline, dist_shift, zero_count]
+    follow_ups_created: [H26, H27, H28]
     expected_value: deliverable para v1.0 com bandas de confianca
     created_at: 2026-05-24T03:30:00Z
+    completed_at: 2026-05-24T11:30:00Z
 
   - id: H12
     summary: feat_carga_history stale (parado em 2026-03-26) — refresh
@@ -674,3 +689,101 @@ hypotheses:
     sanity_checks_required: [holdout, leak, baseline]
     expected_value: validar se Ridge captura interacoes que weighted average perde
     created_at: 2026-05-24T10:30:00Z
+
+  - id: H26
+    summary: Conformal prediction post-hoc para calibrar bandas P10/P90
+    detail: |
+      Derivada de H11 iter_0014 (REFUTADO_NE). LGBM quantile com defaults
+      teve coverage_band_80 mean 43.6% vs 80% nominal — under-coverage
+      sistemico em todas as 4 subs. Causa raiz e' LGBM nao modelar
+      heteroscedasticidade explicita + distribution shift (iter_0012 KS
+      p<0.0001 NE+SE).
+
+      Fix candidate: split conformal prediction (Lei et al. 2018).
+        1. Treina LGBM quantile no train_inner (mesmo split H11).
+        2. No inner_val (30-60d), computa nonconformity scores:
+             s_i = max(q10_i - y_i, y_i - q90_i)
+        3. Calcula quantile empirico q_alpha = quantile(s_i, 1-alpha) (eg 0.8).
+        4. Inflar bandas: [q10 - q_alpha, q90 + q_alpha].
+      Goal: cov_band_80 in [75%, 85%] com sharpness preservada o maximo
+      possivel. Sem retreinar modelo, baixo custo.
+
+      Risco: inner_val 30d e' pequeno para conformal robusto. Considerar
+      enlarge para 60d ou usar cross-validation+ conformal.
+
+      Aceitacao: cov_band_80 mean NE in [75%, 85%] em pelo menos 2/3 cells,
+      AND sharpness < 2x do baseline (banda nao explode).
+    type: model
+    layer: curtailment
+    target: NE_d1_quantile_calibrated
+    priority: P3
+    status: queued
+    estimated_effort_hours: 2.0
+    depends_on: [H11]
+    blocks: []
+    sanity_checks_required: [holdout, baseline, dist_shift]
+    expected_value: torna H11 deliverable se calibracao funcionar
+    created_at: 2026-05-24T11:30:00Z
+
+  - id: H27
+    summary: P50 quantile como point estimate substituto em N+S
+    detail: |
+      Derivada de H11 iter_0014 (bonus finding). P50 quantile BATE
+      LGB-mean em magnitude:
+        N: -18% MAE mean (0.467k vs 0.578k)
+        S: -14% MAE mean (0.97k vs 1.07k)
+        SE: -1.6% MAE mean (praticamente empate)
+        NE: +4.5% MAE mean (P50 nao quebra, mas tampouco ajuda)
+      Mecanismo: mediana e' mais robusta que mean para distribuicoes com
+      cauda longa de zeros (N tem ~37% dias com curt~0).
+
+      Setup: trocar objective='regression' por objective='quantile',
+      alpha=0.5. Mesmo X, mesmo split. Bake-off em 12 cells x 5 folds CV
+      (mesma estrutura H7/H10/H11). Comparar metric_suite (MAE/R²/F1).
+
+      Aceitacao: P50 bate LGB-mean em MAE em pelo menos 2/3 cells de
+      N+S, e nao perde >5% em NE+SE.
+
+      Custo zero (objective swap), ganho transversal pequeno mas universal.
+    type: model
+    layer: curtailment
+    target: curtailment_d1_point_p50
+    priority: P3
+    status: queued
+    estimated_effort_hours: 1.0
+    depends_on: [H11]
+    blocks: []
+    sanity_checks_required: [holdout, baseline]
+    expected_value: ganho barato sem novo modelo, robustez vs outliers
+    created_at: 2026-05-24T11:30:00Z
+
+  - id: H28
+    summary: NGBoost vs LGBM quantile — distribuicao parametrica resolve under-coverage?
+    detail: |
+      Derivada de H11 iter_0014 (alt-modelo). NGBoost (Duan et al. 2020)
+      modela distribuicao parametrica (Normal/Lognormal) — sigma(x) e'
+      funcao explicita de X, lidando com heteroscedasticidade que LGBM
+      quantile nao captura.
+
+      Detail do H11 ja menciona: "Bench worktree ja tem NGBoost similar"
+      — UlFor pode ter codigo de referencia. Investigar e adaptar para o
+      replay loop (features iter_0002, CV walk-forward).
+
+      Aceitacao: NGBoost (Normal ou LogNormal) com defaults atinge
+      cov_band_80 in [70%, 90%] em pelo menos 2/3 NE cells, AND pinball
+      loss <= LGBM quantile em P50.
+
+      Risco: NGBoost e' lento (boosting de gradient natural). Considerar
+      n_estimators reduzido (100 vs 300 LGBM). Lognormal lida melhor com
+      curt positiva-skewed mas precisa transformacao log(y+1).
+    type: model
+    layer: curtailment
+    target: NE_d1_ngboost_quantile
+    priority: P3
+    status: queued
+    estimated_effort_hours: 3.0
+    depends_on: [H11]
+    blocks: []
+    sanity_checks_required: [holdout, baseline, dist_shift]
+    expected_value: alt-arquitetura para incerteza se conformal nao bastar
+    created_at: 2026-05-24T11:30:00Z

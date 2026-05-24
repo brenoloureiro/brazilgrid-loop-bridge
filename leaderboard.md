@@ -504,3 +504,108 @@ loop). H24 deriva: aplicar mesmo esquema sobre champions Ridge/LR.
 `pdp_residual = pdp_prev - gen`). Alt: H24 (ensemble champions, derivada
 de hoje), H11 (quantile, unblocked por H9), H22 (GBDT vs OLS gap), H19
 (extrair MAE/R²/F1 champions).
+
+
+## Iter 0014 — H11 LGBM Quantile Regression NE (REFUTADO_NE)
+
+Hipotese H11 (P2): LightGBM com objective='quantile' (alphas 0.1, 0.5, 0.9).
+Substituir ponto-estimativa por bandas — util para downstream (operador
+escolhe P90 conservador). Alvo explicito do queue = NE.
+
+CV walk-forward 5 folds (60d cada, gap 7d) sobre features iter_0002 nas 12
+cells (4 subs x 3 vers; verdict julgado APENAS em NE; SE/S/N viram bonus).
+Cada fold treina 4 modelos no mesmo train: mdl_mean (objective='regression'
+= baseline point) + mdl_q01 + mdl_q05 + mdl_q09 (quantile per alpha).
+
+### Resultados (mean across 5 folds, por cell — 12 cells)
+
+| cell  |  PB10  |  PB50  |  PB90  | cov80 | cov10 | cov90 | width  | cross | P50/mean Δ |
+|-------|-------:|-------:|-------:|------:|------:|------:|-------:|------:|-----------:|
+| NE/v1 |   7937 |  23198 |  18589 | 45.5% | 15.1% | 60.6% |  66276 |  1.7% |   -0.6%    |
+| NE/v2 |   6960 |  17091 |  13870 | 43.5% | 14.0% | 57.5% |  57228 |  6.7% |   +5.6%    |
+| NE/v3 |   7046 |  17002 |  14114 | 41.8% | 16.4% | 58.2% |  53463 |  6.8% |   +8.4%    |
+| SE/v1 |   1725 |   3784 |   2569 | 48.2% | 25.1% | 73.3% |  11319 |  4.0% |   -1.1%    |
+| SE/v2 |   1757 |   3853 |   2444 | 47.5% | 24.4% | 71.9% |  11957 |  3.0% |   -0.7%    |
+| SE/v3 |   2034 |   3484 |   2363 | 40.5% | 30.2% | 70.6% |   9579 | 13.4% |   -2.9%    |
+| S/v1  |    122 |    507 |    459 | 53.1% | 28.8% | 79.3% |   1985 |  9.7% |  -16.5%    |
+| S/v2  |    127 |    482 |    415 | 51.6% | 28.9% | 78.5% |   1674 | 13.0% |  -15.6%    |
+| S/v3  |    128 |    472 |    355 | 51.5% | 29.3% | 78.1% |   1753 | 14.5% |   -9.2%    |
+| N/v1  |     75 |    233 |    122 | 47.5% | 37.2% | 84.6% |   1011 |  2.0% |  -18.2%    |
+| N/v2  |     75 |    233 |    122 | 47.5% | 37.2% | 84.6% |   1011 |  2.0% |  -18.2%    |
+| N/v3  |     83 |    229 |    109 | 46.5% | 39.2% | 85.6% |    996 |  2.0% |  -17.1%    |
+
+cov80 nominal = 80%; cov10 nominal = 10%; cov90 nominal = 90%.
+Δ = (MAE_P50 - MAE_LGB_mean) / MAE_LGB_mean (negativo = P50 melhor).
+
+### Coverage por sub (mean)
+
+| sub | cov_band_80 | cov_10 | cov_90 | folds in [70%, 90%] | diagnostico                        |
+|-----|------------:|-------:|-------:|--------------------:|------------------------------------|
+| NE  |      43.6%  | 15.2%  | 58.8%  |  0/15               | severe under-coverage              |
+| SE  |      45.4%  | 26.6%  | 71.9%  |  1/15               | severe under-coverage              |
+| S   |      52.1%  | 29.0%  | 78.6%  |  1/15               | under-coverage (medio P10 alto)    |
+| N   |      47.1%  | 37.9%  | 84.9%  |  3/15               | melhor cov_90, mas cov_10 explode  |
+
+### Fold heterogeneity (cov_band por fold, NE/v1 exemplo)
+
+| fold | window           | cov_band | LGB mean MAE | y_te mean | comentario                |
+|------|------------------|---------:|-------------:|----------:|---------------------------|
+|   1  | 2025-09→2025-11  |    62%   | 39383        |       51k | regime mais estavel       |
+|   2  | 2025-11→2026-01  |    27%   | 62065        |       72k | transicao curt-up         |
+|   3  | 2026-01→2026-03  |    40%   | 58850        |       67k | transicao continua        |
+|   4  | 2026-03→2026-05  |    47%   | 43185        |       46k | novo regime, estabiliza   |
+|   5  | 2026-05→2026-07  |    52%   | 26311        |       32k | regime estavel novo       |
+
+Reproduz B5 distribution shift documentado em iter_0012 (NE+SE KS p<0.0001).
+
+### Sanity checks (queue requeridos: holdout, baseline, dist_shift)
+
+- **B1 leak**: SKIPPED — features identicas iter_0002, ja auditadas em
+  iter_0010 (PDP_prev forward-looking, p_perm=0.0).
+- **B2 perm**: SKIPPED — PI iter_0010 cobre 5/6 cells com p=0.0.
+- **B3 holdout strict**: PASSED_EMBEDDED — gap=7d em todas folds; n_test
+  58-60 em todas as folds, zero overlap.
+- **B4 baseline_compare**: PASSED_EMBEDDED — P50 comparada a persist_d1 E
+  LGB-mean por fold. delta_mae_p50_vs_mean_pct mean NE = +4.5% (passa).
+  Bonus: P50 BATE LGB-mean em N/S/SE (-18% a -1%).
+- **B5 dist_shift**: ANNOTATED_REUSE — evidencia iter_0012 (KS p<0.0001).
+  Padrao fold-a-fold do under-coverage confirma diagnostico.
+- **B6 zero_count**: PASSED_EMBEDDED — n_test >= 58 (threshold downgrade=30),
+  sem zero-only folds.
+
+Coverage total em `outputs/iter_0014/h11_quantile_regression_ne/sanity_summary.json`.
+
+### Decisao
+
+**REFUTADO_NE.** Bandas LGBM quantile com defaults sistemicamente
+UNDERCOVERED em todas as 4 subs (cov_band 41-53% vs 80% nominal).
+Operador escolhendo "P90 conservador" estaria errado em ~30% dos casos
+criticos. Nao virar deliverable v1.0 nesta forma.
+
+Causa raiz: LGBM nao modela heteroscedasticidade explicita (variancia
+vem de variancia em-amostra), e' insuficiente sob distribution shift
+fold-a-fold documentado em iter_0012. Sem req externo — UlFor nao
+desbloqueia mudanca de arquitetura.
+
+P50 magnitude OK em NE (delta +4.5% vs LGB-mean, passa B4); bonus em
+N/S/SE: P50 BATE LGB-mean (delta -1% a -18%) — mediana mais robusta
+que mean em distribuicoes com cauda longa de zeros.
+
+### Hipoteses derivadas
+
+- **H26** (P3): conformal prediction post-hoc — calibra banda LGBM via
+  nonconformity score do inner_val. Goal cov_band in [75%, 85%] sem
+  retreinar modelo. Likely-fix se atacarmos H11 de novo.
+- **H27** (P3): P50 quantile como POINT ESTIMATE substituto em N+S.
+  P50 BATE LGB-mean em magnitude com custo zero (objective swap). Ganho
+  transversal pequeno mas universal nos subs com cauda longa.
+- **H28** (P3): NGBoost vs LGBM quantile. Distribuicao parametrica
+  (Normal/Lognormal) lida com heteroscedasticidade que LGBM quantile
+  nao captura. Bench worktree ja tem NGBoost similar (per H11 detail).
+
+### Proxima iter
+
+`iter_0015` retoma planner_config: **H21** (P2 feature engineering
+`pdp_residual = pdp_prev - gen`, derivada H3 confirmado). Alt: H24
+(ensemble champions Ridge/LR), H27 (P50 substituto, derivada hoje,
+ganho baixo custo), H26 (conformal, fix de H11).

@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T03:55:18Z
+# Loop status — 2026-05-24T04:15:38Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=54759, .STOP=no)
 
-**Iter atual**: 13
-**Alvo ativo**: ensemble_v2_persist
+**Iter atual**: 14
+**Alvo ativo**: NE_d1_quantile_forecast
 
-**Budget**: 13 iters / 1.1 horas consumidas
+**Budget**: 14 iters / 1.0 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0013_h10_ensemble_v2_persist.md
+**Ultimo handoff**: iter_0014_h11_quantile_regression_ne.md
   decision: |
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: fbdb123 bridge: sync ulfor iter 2 (13 minutes ago)
+**Bridge ultimo sync**: 866af26 bridge: sync ulfor iter 3 (2 minutes ago)
 
-**UlFor HEAD**: 26617ba5 ulfor checkpoint: 06:15Z — Fase 3 fechada (H10 testada), Fase 4 iniciada (validate_d1 foundation)
+**UlFor HEAD**: 5dacb5a2 ulfor checkpoint: 07:15Z — Fase 4 step 1 fechada (Dagster+drift+Telegram)
 
 ---
 

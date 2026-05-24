@@ -1,7 +1,7 @@
 {
-  "iter_atual": 13,
+  "iter_atual": 14,
   "mode": "self_planning",
-  "alvo_ativo": "ensemble_v2_persist",
+  "alvo_ativo": "NE_d1_quantile_forecast",
   "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
@@ -126,6 +126,15 @@
       "decision": "CONFIRMADO_NE_SE. Ensemble (LGB + persist_d1, pesos inv_mae ou inv_mse) deve ser POST-PROCESSING DEFAULT para forecast curt D+1 no loop. Pesos analiticos (proportional-to-precision) > grid-search empirico (sobre-otimiza inner_val 30d). Sem req externo emitido: champions UlFor sao Ridge/LR (H10 testou LGBM, replay loop). H24 derivada (P2): aplicar mesmo esquema sobre Ridge/LR. H25 derivada (P3): stacker Ridge meta-modelo sobre [LGB, persist, ma7, climatologia].",
       "lesson_learned": "Em inner_val pequeno (30d), pesos analiticos derivados de MAE/MSE generalizam melhor que pesos otimizados por grid-search empirico (ens_opt_alpha venceu 0/12 cells). BMA classico (weights proportional-to-precision) e' a melhor escolha default. alpha_opt funciona como diagnostic: spread 0.0-1.0 entre folds da mesma cell confirma distribution shift documentado em iter_0012 — ensemble responde ao regime. Tambem: H10 e' UNICA hipotese ate hoje que beneficia TODAS as 4 subs (mesmo S parcialmente) — ganho transversal raro no curt D+1.",
       "follow_ups_created": ["H24", "H25"]
+    },
+    "H11_quantile_regression_ne": {
+      "iter": 14,
+      "verdict": "REFUTADO_NE",
+      "iter_closed": 14,
+      "evidence_final": "CV walk-forward 5 folds (60d, gap 7d) sobre features iter_0002 em 12 cells (4 subs x 3 vers; verdict julgado APENAS em NE). LGBM com objective='quantile' alphas=[0.1,0.5,0.9] + LGB-mean (objective='regression') como baseline point. Coverage_band_80 mean: NE 43.6% (0/3 cells in [70%,90%]), SE 45.4%, S 52.1%, N 47.1% — sistematicamente UNDERCOVERED em todas as 4 subs vs 80% nominal. Causa raiz: LGBM nao modela heteroscedasticidade explicita; banda treinada captura variancia em-amostra que e' menor que variancia em-test sob distribution shift (B5 iter_0012 KS p<0.0001 NE+SE). Padrao fold-a-fold NE/v1: cov 62% fold 1 (estavel) -> 27-40% folds 2-3 (transicao) -> 47-52% folds 4-5 (novo regime) reproduz shift. Quantile crossings BAIXAS (<7% NE+SE+N, 9-14% S). P50 magnitude OK em NE (delta vs LGB-mean: NE/v1 -0.6%, NE/v2 +5.6%, NE/v3 +8.4%; mean +4.5% passa B4 <=+10%). Bonus em N/S/SE: P50 BATE LGB-mean (N -18%, S -14%, SE -1.6%) — mediana mais robusta que mean em distribuicoes com cauda longa de zeros estruturais (cov_10 N=37% confirma).",
+      "decision": "REFUTADO_NE. LGBM quantile com defaults NAO produz bandas calibradas para curt D+1 em NE — operador escolhendo 'P90 conservador' estaria errado em ~30% dos casos criticos. Nao virar deliverable v1.0 nesta forma. Sem req externo emitido: causa raiz e' arquitetura (LGBM nao modela heteroscedasticidade) + shift conhecido. UlFor nao desbloqueia.",
+      "lesson_learned": "Quantile regression LGBM padrao subestima variancia sob distribution shift. Coverage e' a metrica que IMPORTA para forecast probabilistico — pinball loss sozinho mascara o problema (todos pinball sao 'baixos' em escala absoluta porque P10/P90 nao tem chance de errar nos eventos centrais quando banda esta estreita). Bonus: P50 quantile robusto domina LGB-mean em subs com cauda longa de zeros (mecanismo BMV-classico: median > mean sob outliers). Tres follow-ups baratos (H26 conformal, H27 P50 substituto, H28 NGBoost) cobrem todo o espaco de solucao.",
+      "follow_ups_created": ["H26", "H27", "H28"]
     }
   },
   "sanity_checks_disponiveis": [
@@ -137,10 +146,10 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0013_h10_ensemble_v2_persist.md",
+  "ultimo_handoff": "iter_0014_h11_quantile_regression_ne.md",
   "budget_consumido": {
-    "iter": 13,
-    "horas": 1.1,
+    "iter": 14,
+    "horas": 1.0,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -217,9 +226,9 @@
   ],
   "planner_config": {
     "mode": "self_planning",
-    "next_iter_should_be": "H21 (P2 feature engineering pdp_residual = pdp_prev - gen). Continua valida pos-iter_0013: derivada direta de H3 iter_0010, codavel localmente, sem dep externa. Bake-off replay iter_0002 + adicionar coluna pdp_residual_mwh + comparar PI/perm + check coliner com pdp_prev_* originais. Sanity B1 leak (pdp_prev D-1 safe, gen D-only) + B2 perm + B4 baseline. Usar LGBM (confirmado iter_0012 como GBDT padrao do loop) + considerar ensemble post-processing (H10 confirmado iter_0013) para baseline final.",
-    "alt_next": "H24 (P2 ensemble sobre champions Ridge/LR — derivada de H10 iter_0013; reimplementar Ridge/LR no replay sobre features iter_0002 e aplicar mesmo CV+inner_val), H11 (P2 quantile regression para P10/P50/P90 — unblocked desde H9), H22 (P3 GBDT vs OLS gap para curt~gen+pdp), H25 (P3 stacker Ridge meta-modelo), H19 (P2 extrair MAE/R²/F1 dos champions UlFor Ridge/LR — agora pode parsear FINDING_MULTICOLINEARITY.md + commit 3ac5916a CV outputs), H20 (P3 auto-flag n_test<30), H8 (P3 perm validation feat_intercambio).",
-    "notas_iter0013": "H10 fechada como CONFIRMADO_NE_SE (+ bonus N). Sem novos requests externos. Lesson tecnica: em inner_val pequeno (30d), pesos analiticos proportional-to-precision (inv_mae/inv_mse) > grid-search empirico (ens_opt_alpha venceu 0/12). H10 unica hipotese ate hoje que beneficia TODAS as 4 subs — ganho transversal. H24 e' a candidata natural para validar transferencia a producao (champions Ridge/LR). Considerar H21 vs H24 no proximo plan: H21 da' features, H24 da' confirmacao de producao do esquema."
+    "next_iter_should_be": "H21 (P2 feature engineering pdp_residual = pdp_prev - gen). Continua valida pos-iter_0014: derivada direta de H3 iter_0010, codavel localmente, sem dep externa. Bake-off replay iter_0002 + adicionar coluna pdp_residual_mwh + comparar PI/perm + check coliner com pdp_prev_* originais. Sanity B1 leak (pdp_prev D-1 safe, gen D-only) + B2 perm + B4 baseline. Usar LGBM (confirmado iter_0012 como GBDT padrao do loop) + considerar ensemble post-processing (H10 confirmado iter_0013) para baseline final.",
+    "alt_next": "H24 (P2 ensemble sobre champions Ridge/LR — derivada de H10 iter_0013; reimplementar Ridge/LR no replay sobre features iter_0002 e aplicar mesmo CV+inner_val), H27 (P3 P50 quantile como point estimate substituto — derivada H11 iter_0014, ganho transversal -1% a -18% MAE em N/S/SE custo zero), H26 (P3 conformal prediction post-hoc — fix de H11 sem retreinar), H22 (P3 GBDT vs OLS gap para curt~gen+pdp), H25 (P3 stacker Ridge meta-modelo), H19 (P2 extrair MAE/R²/F1 dos champions UlFor Ridge/LR), H28 (P3 NGBoost vs LGBM quantile), H20 (P3 auto-flag n_test<30), H8 (P3 perm validation feat_intercambio).",
+    "notas_iter0014": "H11 fechada como REFUTADO_NE. Bandas LGBM quantile com defaults sistemicamente undercovered (cov_band 41-53% vs 80% nominal) — distribution shift (iter_0012 KS p<0.0001) + LGBM sem heteroscedasticidade explicita = causa raiz. Bonus inesperado: P50 BATE LGB-mean em magnitude em N/S/SE (-1% a -18%) — mediana robusta vs cauda longa. 3 follow-ups derivados (H26 conformal, H27 P50 substituto, H28 NGBoost). H27 e' o mais barato (objective swap custo zero, ganho universal). H21 mantida como plan natural — H3 confirmado da' feature mais informativa antes de tentar arquitetura alt. Considerar inserir H27 entre H21 e H24 (custo 1h, ganho garantido em N+S baseado em evidencia hoje)."
   },
   "kill_requested": false
 }
