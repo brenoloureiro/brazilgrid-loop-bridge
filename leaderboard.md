@@ -37,6 +37,19 @@ Champions UlFor sao Ridge/LR (iter_0007) — H7 e' diagnostica do replay loop, n
 producao. Lesson reforca iter_0006/req-0003 (n=11 falsos positivos). Detalhe em
 `iterations/iter_0012_h7_xgb_vs_lgbm_cv.md`.
 
+**Iter 0013 (H10):** Ensemble LGBM + persist_d1 com pesos analiticos derivados de
+inner_val 30d (zero leak) **CONFIRMADO_NE_SE + bonus N**. CV walk-forward 5x60d gap 7d,
+4 esquemas (equal / inv_mae / inv_mse / opt_alpha). Best ensemble bate LGB-only em
+maioria das folds em: **NE 3/3 cells** (-12.996 MWh em v1 = 28%, -4.188 em v2 = 13%,
+-4.065 em v3 = 13%), **SE 3/3 cells** (-565..-293 MWh = 4-7%), **N 3/3 cells** (-100
+MWh = 17% — bonus, persist forte em N como H10 previa), S 2/3 (v3 +26 MWh irrelevante).
+Esquemas vencedores: ens_inv_mae 6 cells, ens_inv_mse 4, ens_equal 2, ens_opt_alpha 0
+(sobre-otimiza). Pesos analiticos > grid-search empirico. alpha_opt varia 0.0-1.0
+entre folds confirmando adaptacao a regime (NE/v1 fold 4 alpha=0.00 = pura persist
+quando LGB MAE=43k vs PER=33k). R² NE/v2 sobe 0.22->0.41; N/v1 -0.33->+0.01. H24
+(ensemble sobre champions Ridge/LR) + H25 (stacker Ridge meta-modelo) derivadas a
+queue. Detalhe em `iterations/iter_0013_h10_ensemble_v2_persist.md`.
+
 | layer | alvo | sub | baseline (MAE_mwh, CV) | best_metric (MAE/R²/F1, modelo) | NMAE secundario | last_iter | sanity_ok | data_utc |
 |---|---|---|---|---|---|---|---|---|
 | curtailment | d1_ENE_CNF | NE | persist_d1 (UlFor CV 5 folds — MAE pendente extracao) | **ridge_curt_ne_d1 @champion (R² +0.469±0.098 CV; in-sample R²=0.830)** | NMAE 33.7±8.1% | 0011 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T08:30Z |
@@ -57,6 +70,10 @@ producao. Lesson reforca iter_0006/req-0003 (n=11 falsos positivos). Detalhe em
 | meta | h3_pdp_residual_signal | SE | r2_gen_only=0.187 | r2_gen+pdp_prev=0.438 (r2_extra +0.251; partial_corr +0.56) | perm p=0.0; test/train delta=+0.002; leak ok | 0010 | H3 CONFIRMADO | 2026-05-24T07:30Z |
 | meta | h3_pdp_residual_signal | S | r2_gen_only=0.053 | r2_gen+pdp_prev=0.210 (r2_extra +0.157 train; +0.001 test!) | perm p=0.0; **dist_shift FAIL** (test colapsa, cobertura 12 usinas) | 0010 | H3 fragil em S | 2026-05-24T07:30Z |
 | meta | h7_xgb_vs_lgbm_cv | — | persist_d1 por fold | **LGBM > XGB em 10/12 cells (83%) CV 5x60d gap7d**; NE/v3 R² LGBM +0.257 vs XGB -0.178 (inverteu iter_0002 n=11) | NE/v2 ΔMAE+11.299 MWh, SE/v1 wins XGB so 4/5 mag -210 MWh = 2.8% (irrelevante) | 0012 | H7 REFUTADO; [3/3 sanity B3+B4+B5] | 2026-05-24T09:30Z |
+| curtailment | ensemble_lgb_persist_d1 | NE | LGBM-only (CV 5x60d) MAE 32.2k v2 | **best=ens_inv_mae MAE 28.0k v2 (-13%), -28% em v1, -13% em v3**; R² NE/v2 0.22->0.41 | NE/v1 LGB catastrofico 46k corrigido por persist (alpha=0.00 fold 4) | 0013 | H10 CONFIRMADO; [B3+B4+B5 done; B1 inherit; B2/B6 N/A] | 2026-05-24T10:30Z |
+| curtailment | ensemble_lgb_persist_d1 | SE | LGBM-only (CV 5x60d) MAE 7.74k v2 | best=ens_inv_mae MAE 7.21k v2 (-7%); -7% v1, -4% v3 | wins 3-4/5 folds; magnitude clinica modesta mas consistente | 0013 | H10 CONFIRMADO | 2026-05-24T10:30Z |
+| curtailment | ensemble_lgb_persist_d1 | S  | LGBM-only (CV 5x60d) MAE 1.06k v2 | best=ens_inv_mse MAE 1.06k (~0%); v1 -5%, v3 +3% (irrelevante) | regime instavel; alpha varia 0.00-1.00 entre folds | 0013 | H10 PARCIAL (2/3 confirming) | 2026-05-24T10:30Z |
+| curtailment | ensemble_lgb_persist_d1 | N  | LGBM-only (CV 5x60d) MAE 0.58k v1-v2 | **best=ens_inv_mae MAE 0.48k (-17%)**; R² LGB -0.33 -> ens +0.01 | bonus H10 — persist forte em N (skill_LGB_vs_persist negativo); ensemble corrige | 0013 | H10 CONFIRMADO (bonus) | 2026-05-24T10:30Z |
 
 ---
 
@@ -383,3 +400,107 @@ producao real:
 `iter_0012` retoma planner_config: **H21** (P2 feature engineering
 `pdp_residual = pdp_prev - gen`). Derivada de H3 iter_0010, codavel
 localmente, sem dep externa. Alt: H10, H22, H19.
+
+## Iter 0013 — H10 Ensemble LGBM + persist_d1 (CONFIRMADO_NE_SE)
+
+Hipotese H10 (P2): ensemble simples LGBM + persist_d1 com pesos derivados de
+skill em CV pode dominar LGBM puro em subs onde persistencia carrega muito
+sinal. Alvo explicito do queue = NE+SE; detail H10 destaca persist forte em N.
+
+CV walk-forward 5 folds (60d cada, gap 7d) sobre features iter_0002 nas 12
+cells (4 subs x 3 vers). Inner split adicional: ultimos 30d do train viram
+inner_val para derivar pesos do ensemble SEM leak de test. 4 esquemas de peso:
+`ens_equal`, `ens_inv_mae` (w∝1/MAE), `ens_inv_mse` (BMA Gaussian),
+`ens_opt_alpha` (grid 0..1 step 0.05 argmin MAE inner_val).
+
+### Resultados (best ensemble vs LGB-only, deltas MAE em MWh; negativo=ganho)
+
+| cell  | LGB MAE | PER MAE | best ens MAE | best_scheme    | delta vs LGB | wins  | R² LGB | R² best |
+|-------|--------:|--------:|-------------:|----------------|-------------:|-------|-------:|--------:|
+| NE/v1 |  45.959 |  33.722 |       32.963 | ens_inv_mse    |     -12.996  | 5/5   | -0.634 | +0.187  |
+| NE/v2 |  32.181 |  33.837 |       27.993 | ens_inv_mae    |      -4.188  | 4/5   | +0.217 | +0.412  |
+| NE/v3 |  31.593 |  33.837 |       27.528 | ens_inv_mae    |      -4.065  | 3/5   | +0.257 | +0.423  |
+| SE/v1 |   7.752 |   8.328 |        7.186 | ens_equal      |        -565  | 3/5   | -0.135 | -0.001  |
+| SE/v2 |   7.736 |   8.328 |        7.211 | ens_inv_mae    |        -525  | 4/5   | -0.081 | +0.004  |
+| SE/v3 |   7.222 |   8.328 |        6.929 | ens_inv_mse    |        -293  | 3/5   | +0.074 | +0.104  |
+| S/v1  |   1.157 |   1.266 |        1.104 | ens_equal      |         -53  | 3/5   | -0.291 | -0.151  |
+| S/v2  |   1.064 |   1.268 |        1.058 | ens_inv_mse    |          -6  | 3/5   | -0.168 | -0.118  |
+| S/v3  |   0.977 |   1.268 |        1.003 | ens_inv_mse    |         +26  | 3/5   | -0.007 | -0.005  |
+| N/v1  |   0.578 |   0.513 |        0.478 | ens_inv_mae    |        -100  | 4/5   | -0.334 | +0.012  |
+| N/v2  |   0.578 |   0.513 |        0.478 | ens_inv_mae    |        -100  | 4/5   | -0.334 | +0.012  |
+| N/v3  |   0.553 |   0.513 |        0.475 | ens_inv_mae    |         -78  | 4/5   | -0.164 | +0.028  |
+
+Sub-summary (cells confirming / total):
+- **NE 3/3** — best delta -12.996 MWh em v1 (LGB catastrofico 46k corrigido
+  por persist via fold 4 alpha=0.00 = pura persist). v2 (cell alvo H10)
+  -4.188 MWh = 13% reduction.
+- **SE 3/3** — magnitude menor mas wins 3-4/5 folds.
+- **N 3/3 (bonus)** — confirmacao do mecanismo H10 detail: persist forte
+  em N corrige LGB-pior-que-persist. R² LGB -0.33 -> ensemble +0.01.
+- **S 2/3** — v3 +26 MWh (2.7%, irrelevante em escala 1k MWh).
+
+### Esquemas de peso — ranking por frequencia de win
+
+| esquema         | n_cells_won | nota                                                     |
+|-----------------|------------:|----------------------------------------------------------|
+| ens_inv_mae     |           6 | mais robusto (NE/v2-v3, SE/v2, N/v1-v2-v3)              |
+| ens_inv_mse     |           4 | BMA Gaussian (NE/v1, SE/v3, S/v2-v3)                    |
+| ens_equal       |           2 | surpresa positiva (SE/v1, S/v1)                          |
+| ens_opt_alpha   |           0 | grid-search sobre-otimiza inner_val 30d, generaliza pior |
+
+**Insight**: pesos analiticos proportional-to-precision >> minimo empirico
+em inner_val pequeno. Consistente com BMA classico.
+
+### Adaptacao do alpha por fold
+
+alpha_opt varia 0.0-1.0 entre folds da mesma cell — confirma que pesos
+respondem a regime shift documentado em iter_0012 B5 (KS p<0.0001 NE+SE).
+
+| cell  | alphas por fold (1..5)                | interpretacao                              |
+|-------|---------------------------------------|--------------------------------------------|
+| NE/v1 | 0.70, 0.30, 0.70, 0.00, 0.15          | fold 4 LGB MAE=43k vs PER=33k -> pura persist |
+| NE/v2 | 0.80, 0.70, 0.75, 0.75, 0.50          | LGB confiavel, peso LGB > peso persist     |
+| NE/v3 | 0.75, 0.75, 0.90, 0.80, 0.50          | LGB carry, mix em fold 5 (PER>LGB)         |
+| SE    | 0.55-0.90                             | LGB carry com pequeno hedge persist        |
+| S/v*  | 0.00 a 1.00                           | regime instavel; fold 1 LGB suprime curto  |
+| N     | 0.20-1.00                             | LGB e persist similares em folds 1-2       |
+
+### Sanity checks (queue requeridos: baseline, holdout)
+
+- **B1 leak**: INHERITED iter_0002 features ja auditadas; persist_d1 =
+  y_d1[i-1] D-1 safe por construcao.
+- **B2 perm**: N/A — ensemble e' meta-modelo de 2 ponteiros, sem features.
+- **B3 holdout strict**: DONE_VIA_CV — 12 cells x 5 folds = 60 holdouts,
+  gap 7d entre train e test, inner_val 30d sem overlap com test.
+- **B4 baseline_compare**: DONE_INTEGRADO — persist_d1 e' componente direto
+  do ensemble; skill vs persist computado em todas as 12 cells (skill +0.07
+  a +0.21).
+- **B5 dist_shift**: INHERITED iter_0012 + evidencia adicional
+  `weights_distribution.csv` (alpha varia 0.0-1.0 entre folds = ensemble
+  responde a shift).
+- **B6 zero_count**: N/A — nao introduz features.
+
+Coverage total documentada em
+`outputs/iter_0013/h10_ensemble_v2_persist/sanity_summary.json`.
+
+### Decisao
+
+CONFIRMADO_NE_SE. Ensemble (LGBM + persist_d1, pesos inv_mae ou inv_mse)
+deve ser POST-PROCESSING DEFAULT para forecast curt D+1 no loop. Sem req
+externo emitido — champions UlFor sao Ridge/LR; H10 testou LGBM (replay
+loop). H24 deriva: aplicar mesmo esquema sobre champions Ridge/LR.
+
+### Hipoteses derivadas
+
+- **H24** (P2): mesmo ensemble aplicado a champions Ridge/LR UlFor — ganho
+  similar? Implementacao codavel local (Ridge_alpha10 + LR_sklearn no
+  replay sobre features iter_0002).
+- **H25** (P3): stacker Ridge meta-modelo sobre [LGB, persist, ma7,
+  climatologia] supera weighted average analitico?
+
+### Proxima iter
+
+`iter_0014` retoma planner_config: **H21** (P2 feature engineering
+`pdp_residual = pdp_prev - gen`). Alt: H24 (ensemble champions, derivada
+de hoje), H11 (quantile, unblocked por H9), H22 (GBDT vs OLS gap), H19
+(extrair MAE/R²/F1 champions).

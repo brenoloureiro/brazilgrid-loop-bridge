@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T09:30:00Z
+last_updated: 2026-05-24T10:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -260,17 +260,42 @@ hypotheses:
       Iter 0002 mostra persist_d1 baseline forte em N (vence ML). Ensemble
       simples (peso = skill score em CV) pode dominar v2 puro em subs onde
       persistencia carrega muito sinal. Testar em NE+SE.
+
+      VEREDITO iter_0013: CONFIRMADO_NE_SE (+ bonus N). CV walk-forward
+      5x60d gap 7d sobre features iter_0002 em 12 cells (4 subs x 3 vers),
+      inner_val 30d para derivar pesos sem leak. 4 esquemas testados
+      (ens_equal/inv_mae/inv_mse/opt_alpha). Best ensemble bate LGB-only
+      em maioria das folds em:
+        NE 3/3 cells (best delta -12.996 MWh em v1; -4.188 em v2/v3)
+        SE 3/3 cells (best delta -565 MWh em v1)
+        S  2/3 cells (v3 +26 MWh = 2.7% irrelevante)
+        N  3/3 cells (best delta -100 MWh, corrige LGB-pior-que-persist)
+      Esquemas vencedores por frequencia: ens_inv_mae 6 cells, ens_inv_mse
+      4, ens_equal 2, ens_opt_alpha 0 (sobre-otimiza inner_val). Pesos
+      analiticos (proportional-to-precision) > grid-search empirico em
+      inner_val de 30d. alpha_opt varia 0.0-1.0 entre folds confirmando
+      adaptacao a regime (NE/v1 fold 4: alpha=0.00 = pura persist quando
+      LGB falha; NE/v3 fold 5: alpha=0.50 quando persist > LGB).
+      Magnitude: NE 13-28% MAE reduction (v1 maior por LGB catastrofico);
+      SE 4-7%; N 14-17%; S 0-13%. R² melhora em todas confirming cells
+      (NE/v2 0.22->0.41, N/v1 -0.33->+0.01).
     type: model
     layer: curtailment
     target: ensemble_v2_persist
     priority: P2
-    status: queued
+    status: done
+    iter_handled: 0013
+    verdict: CONFIRMADO_NE_SE
     estimated_effort_hours: 1.0
+    actual_effort_hours: 1.1
     depends_on: [H9]
     blocks: []
     sanity_checks_required: [baseline, holdout]
+    sanity_checks_done: [baseline, holdout, dist_shift]
+    follow_ups_created: [H24, H25]
     expected_value: ganhos baratos sem novo modelo
     created_at: 2026-05-24T03:30:00Z
+    completed_at: 2026-05-24T10:30:00Z
 
   - id: H11
     summary: Quantile regression para incerteza P10/P50/P90 em NE
@@ -582,3 +607,70 @@ hypotheses:
     sanity_checks_required: [holdout, baseline]
     expected_value: maybe upside, ja menos urgente que pre-PDP-fix
     created_at: 2026-05-24T03:30:00Z
+
+  - id: H24
+    summary: Mesmo ensemble (model + persist) aplicado aos champions Ridge/LR UlFor
+    detail: |
+      Derivada de H10 iter_0013 (CONFIRMADO LGBM+persist beat LGBM-only
+      em NE 13-28%, SE 4-7%, N 14-17%). Champions UlFor em producao sao
+      Ridge_NE, LR_SE, LR_S, Ridge_N (iter_0007/iter_0011, endpoint
+      /api/forecast/d1 LIVE). H24 testa: o mesmo esquema de ensemble
+      (peso analitico inv_mae ou inv_mse) com champion Ridge/LR no lugar
+      do LGBM produz ganho similar?
+
+      Mecanismo esperado: Ridge/LR sao baixa-variancia/alto-bias por
+      construcao linear; persist_d1 e' alta-variancia/baixo-bias em
+      regimes estaveis. Combinacao deve dar ganho parecido ou maior do
+      que com LGBM (LGBM ja' captura mais regime change interno).
+
+      Implementacao codavel local sobre features iter_0002 (reimplementar
+      Ridge_alpha10 e LR_sklearn no replay loop nao requer dump MLflow).
+      Mesmo CV walk-forward 5x60d gap 7d + inner_val 30d para pesos.
+      Comparar Ridge-only vs Ridge+persist em todas as 4 subs.
+
+      Se confirmado, FINDING.md pode sugerir ao UlFor adicionar
+      post-processing ensemble no endpoint /api/forecast/d1.
+    type: model
+    layer: curtailment
+    target: ensemble_champion_persist
+    priority: P2
+    status: queued
+    estimated_effort_hours: 1.5
+    depends_on: [H10]
+    blocks: []
+    sanity_checks_required: [baseline, holdout, dist_shift]
+    expected_value: validar se ganho do ensemble se propaga a producao (Ridge/LR)
+    created_at: 2026-05-24T10:30:00Z
+
+  - id: H25
+    summary: Stacker meta-modelo (Ridge sobre base preds) supera weighted average?
+    detail: |
+      Derivada de H10 iter_0013. H10 mostrou que pesos analiticos
+      (inv_mae, inv_mse) > grid-search empirico (ens_opt_alpha) em
+      inner_val de 30d. H25 sobe um nivel: stacker via Ridge regression
+      sobre features = [LGB_pred, persist_d1_pred, ma7_pred,
+      climatologia_doy_pred] no inner_val pode capturar interacoes
+      lineares simples (ex: peso de persist depende do nivel da
+      previsao do LGB).
+
+      Cuidado de leak: stacker treinado no inner_val SO. Pesos do Ridge
+      aplicados ao test sem retreino. Comparar contra H10 (peso analitico
+      simples) e LGB-only.
+
+      Risco: inner_val 30d e' pequeno para Ridge robusto (4 baselines +
+      intercept = 5 parametros). Considerar shrinkage forte (alpha alto)
+      ou inner_val maior (60d?) ao custo de perder fold.
+
+      Aceitacao: stacker bate H10 best em maioria das cells por >=2% MAE
+      reduction (significancia clinica).
+    type: model
+    layer: curtailment
+    target: ensemble_stacker_ridge
+    priority: P3
+    status: queued
+    estimated_effort_hours: 2.0
+    depends_on: [H10]
+    blocks: []
+    sanity_checks_required: [holdout, leak, baseline]
+    expected_value: validar se Ridge captura interacoes que weighted average perde
+    created_at: 2026-05-24T10:30:00Z

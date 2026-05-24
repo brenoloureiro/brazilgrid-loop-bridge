@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T03:40:50Z
+# Loop status — 2026-05-24T03:55:18Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=54759, .STOP=no)
 
-**Iter atual**: 12
-**Alvo ativo**: model_comparison_lgbm_xgb
+**Iter atual**: 13
+**Alvo ativo**: ensemble_v2_persist
 
-**Budget**: 12 iters / 0.9 horas consumidas
+**Budget**: 13 iters / 1.1 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0012_h7_xgb_vs_lgbm_cv.md
+**Ultimo handoff**: iter_0013_h10_ensemble_v2_persist.md
   decision: |
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 0f02dd1 bridge: sync iter 11 (17 minutes ago)
+**Bridge ultimo sync**: fbdb123 bridge: sync ulfor iter 2 (13 minutes ago)
 
-**UlFor HEAD**: c0e80193 feat(forecast): validate_d1.py — replay validation diaria dos champions
+**UlFor HEAD**: 26617ba5 ulfor checkpoint: 06:15Z — Fase 3 fechada (H10 testada), Fase 4 iniciada (validate_d1 foundation)
 
 ---
 

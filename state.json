@@ -1,7 +1,7 @@
 {
-  "iter_atual": 12,
+  "iter_atual": 13,
   "mode": "self_planning",
-  "alvo_ativo": "model_comparison_lgbm_xgb",
+  "alvo_ativo": "ensemble_v2_persist",
   "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
@@ -117,6 +117,15 @@
       "decision": "REFUTADO. LGBM continua MODELO PADRAO para bake-offs do loop (defaults: n_est=300, lr=0.05, num_leaves=31, min_child=10, subsample=0.8, colsample=0.9). XGB default nao competitivo no replay loop com features iter_0002. Champions UlFor sao Ridge/LR (iter_0007) — H7 e' diagnostica do replay, nao de producao.",
       "lesson_learned": "Confirma iter_0006 lesson (req-0003): test n=11 da' falsos positivos sistematicos para vitorias de modelo. Diferenca XGB vs LGBM no iter_0002 desapareceu (ou inverteu) em CV. Modelo default escolhido em janela curta nao generaliza. Tambem: GBDT default nao e' familia certa para curt-d1 — UlFor confirmou via Ridge/LR superando ambos.",
       "follow_ups_created": []
+    },
+    "H10_ensemble_v2_persist": {
+      "iter": 13,
+      "verdict": "CONFIRMADO_NE_SE",
+      "iter_closed": 13,
+      "evidence_final": "CV walk-forward 5 folds (60d, gap 7d) sobre features iter_0002 em 12 cells. Inner_val 30d para derivar pesos do ensemble (zero leak test). 4 esquemas: ens_equal, ens_inv_mae, ens_inv_mse, ens_opt_alpha. Best ensemble bate LGB-only em maioria das folds (>= ceil(n/2)) em: NE 3/3 cells (best delta -12.996 MWh = 28% em v1; -4.188 v2 = 13%; -4.065 v3 = 13%); SE 3/3 cells (-565 a -293 MWh = 4-7%); N 3/3 cells (-100 MWh = 17% em v1-v2; -78 v3 = 14%); S 2/3 cells (v3 +26 MWh = 2.7% irrelevante). Wins esquemas: ens_inv_mae 6 cells, ens_inv_mse 4, ens_equal 2, ens_opt_alpha 0. alpha_opt varia 0.0-1.0 entre folds (NE/v1 fold 4 = 0.00 quando LGB MAE=43k vs PER=33k; NE/v3 fold 5 = 0.50). R² LGB -0.334 -> ens +0.012 em N/v1; LGB +0.217 -> ens +0.412 em NE/v2.",
+      "decision": "CONFIRMADO_NE_SE. Ensemble (LGB + persist_d1, pesos inv_mae ou inv_mse) deve ser POST-PROCESSING DEFAULT para forecast curt D+1 no loop. Pesos analiticos (proportional-to-precision) > grid-search empirico (sobre-otimiza inner_val 30d). Sem req externo emitido: champions UlFor sao Ridge/LR (H10 testou LGBM, replay loop). H24 derivada (P2): aplicar mesmo esquema sobre Ridge/LR. H25 derivada (P3): stacker Ridge meta-modelo sobre [LGB, persist, ma7, climatologia].",
+      "lesson_learned": "Em inner_val pequeno (30d), pesos analiticos derivados de MAE/MSE generalizam melhor que pesos otimizados por grid-search empirico (ens_opt_alpha venceu 0/12 cells). BMA classico (weights proportional-to-precision) e' a melhor escolha default. alpha_opt funciona como diagnostic: spread 0.0-1.0 entre folds da mesma cell confirma distribution shift documentado em iter_0012 — ensemble responde ao regime. Tambem: H10 e' UNICA hipotese ate hoje que beneficia TODAS as 4 subs (mesmo S parcialmente) — ganho transversal raro no curt D+1.",
+      "follow_ups_created": ["H24", "H25"]
     }
   },
   "sanity_checks_disponiveis": [
@@ -128,10 +137,10 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0012_h7_xgb_vs_lgbm_cv.md",
+  "ultimo_handoff": "iter_0013_h10_ensemble_v2_persist.md",
   "budget_consumido": {
-    "iter": 12,
-    "horas": 0.9,
+    "iter": 13,
+    "horas": 1.1,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -208,9 +217,9 @@
   ],
   "planner_config": {
     "mode": "self_planning",
-    "next_iter_should_be": "H21 (P2 feature engineering pdp_residual = pdp_prev - gen). Continua valida pos-iter_0012: derivada direta de H3 iter_0010, codavel localmente, sem dep externa. Bake-off replay iter_0002 + adicionar coluna pdp_residual_mwh + comparar PI/perm + check coliner com pdp_prev_* originais. Sanity B1 leak (pdp_prev D-1 safe, gen D-only) + B2 perm + B4 baseline. Usar LGBM (confirmado iter_0012 como GBDT padrao do loop).",
-    "alt_next": "H10 (P2 ensemble v2_LGBM + persist_d1, unblocked desde H9), H22 (P3 GBDT vs OLS gap para curt~gen+pdp), H19 (P2 extrair MAE/R²/F1 dos champions UlFor Ridge/LR — agora pode parsear FINDING_MULTICOLINEARITY.md + commit 3ac5916a CV outputs), H20 (P3 auto-flag n_test<30), H8 (P3 perm validation feat_intercambio).",
-    "notas_iter0012": "H7 fechada como REFUTADO. Sem novos requests. Lesson reforca iter_0006 (n=11 falsos positivos sistematicos). Modelo padrao do loop continua LGBM. Champions UlFor sao Ridge/LR — H7 e' diagnostica do replay, nao de producao. Considerar H23 (P3 opcional) 'XGB tunado via Optuna reduz gap?' se proxima recon tiver budget."
+    "next_iter_should_be": "H21 (P2 feature engineering pdp_residual = pdp_prev - gen). Continua valida pos-iter_0013: derivada direta de H3 iter_0010, codavel localmente, sem dep externa. Bake-off replay iter_0002 + adicionar coluna pdp_residual_mwh + comparar PI/perm + check coliner com pdp_prev_* originais. Sanity B1 leak (pdp_prev D-1 safe, gen D-only) + B2 perm + B4 baseline. Usar LGBM (confirmado iter_0012 como GBDT padrao do loop) + considerar ensemble post-processing (H10 confirmado iter_0013) para baseline final.",
+    "alt_next": "H24 (P2 ensemble sobre champions Ridge/LR — derivada de H10 iter_0013; reimplementar Ridge/LR no replay sobre features iter_0002 e aplicar mesmo CV+inner_val), H11 (P2 quantile regression para P10/P50/P90 — unblocked desde H9), H22 (P3 GBDT vs OLS gap para curt~gen+pdp), H25 (P3 stacker Ridge meta-modelo), H19 (P2 extrair MAE/R²/F1 dos champions UlFor Ridge/LR — agora pode parsear FINDING_MULTICOLINEARITY.md + commit 3ac5916a CV outputs), H20 (P3 auto-flag n_test<30), H8 (P3 perm validation feat_intercambio).",
+    "notas_iter0013": "H10 fechada como CONFIRMADO_NE_SE (+ bonus N). Sem novos requests externos. Lesson tecnica: em inner_val pequeno (30d), pesos analiticos proportional-to-precision (inv_mae/inv_mse) > grid-search empirico (ens_opt_alpha venceu 0/12). H10 unica hipotese ate hoje que beneficia TODAS as 4 subs — ganho transversal. H24 e' a candidata natural para validar transferencia a producao (champions Ridge/LR). Considerar H21 vs H24 no proximo plan: H21 da' features, H24 da' confirmacao de producao do esquema."
   },
   "kill_requested": false
 }
