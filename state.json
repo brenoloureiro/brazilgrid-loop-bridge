@@ -1,8 +1,8 @@
 {
-  "iter_atual": 33,
-  "mode": "recon_delta",
-  "alvo_ativo": "recon_delta_ulfor_post_2917289c",
-  "layer_ativa": "meta",
+  "iter_atual": 34,
+  "mode": "hypothesis_test",
+  "alvo_ativo": "h22_gbdt_vs_ols_gap",
+  "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
     "version": "1.0",
@@ -610,6 +610,57 @@
         "ulfor_parquets_ok": 18,
         "leaderboard_top_rows_low": 0
       }
+    },
+    "H22_pdp_gen_gbdt_vs_ols_gap": {
+      "status": "done",
+      "iter_handled": 34,
+      "veredito": "REFUTADO_NO_NONLINEAR_GAIN",
+      "closed_at": "2026-05-25T05:30:00Z",
+      "summary": "Holdout temporal 80/20 (n_train=388, n_test=98) em NE/SE/S sobre 3 feats (gen_renov + pdp_prev_eolica + pdp_prev_solar). OLS lstsq vs LightGBM defaults. NE: OLS R^2=+0.550 vs GBDT +0.507 (gap -4.3pp); SE: +0.072 vs +0.088 (+1.5pp TIE); S: -0.252 vs -0.426 (-17.4pp). max_gap = +0.015 < +5pp em todos os subs; mean_gap = -0.067. GBDT overfit severo (R^2_train 0.81-0.99 vs test 0.07-0.55). PI duo refit-drop diverge OLS-GBDT em ate +-85pp (NE pdp_eolica OLS 43pp vs GBDT 128pp) reconfirmando EMPIRICAMENTE lesson H22_MA UlFor (commit 2daa5d40), mas a divergencia NAO traduz em R^2_test melhor para GBDT. OLS 3-feat bate persist_d1 em NE+SE; GBDT empata. H21+H22 esgotam o espaco de 'transformar (gen, pdp_prev)': linear redundante OK, nao-linear tambem nao ajuda em 3D. Decisao UlFor iter_0007 (Ridge/LR > GBDT em curt D+1) CORROBORADA pelo replay loop.",
+      "evidence": {
+        "max_gap_r2_test": 0.015,
+        "mean_gap_r2_test": -0.067,
+        "per_sub": {
+          "NE": {
+            "ols_r2_test": 0.55,
+            "gbdt_r2_test": 0.507,
+            "gap_pp": -4.3,
+            "ols_train_r2": 0.703,
+            "gbdt_train_r2": 0.989,
+            "verdict_local": "GBDT_WORSE"
+          },
+          "SE": {
+            "ols_r2_test": 0.072,
+            "gbdt_r2_test": 0.088,
+            "gap_pp": 1.5,
+            "ols_train_r2": 0.538,
+            "gbdt_train_r2": 0.959,
+            "verdict_local": "TIE"
+          },
+          "S": {
+            "ols_r2_test": -0.252,
+            "gbdt_r2_test": -0.426,
+            "gap_pp": -17.4,
+            "ols_train_r2": 0.24,
+            "gbdt_train_r2": 0.814,
+            "verdict_local": "GBDT_WORSE"
+          }
+        },
+        "pi_duo_max_abs_gap_pp": 85.3,
+        "pi_duo_max_feat": "NE/pdp_prev_eolica (OLS 43.2 vs GBDT 128.5)"
+      },
+      "sanity_checks_done": [
+        "leak_passed_inherited_h3_rechecked",
+        "perm_passed_gbdt_pi",
+        "holdout_strict_passed",
+        "baseline_passed_gen_only_and_persist_d1",
+        "dist_shift_reported_severo",
+        "zero_count_reported"
+      ],
+      "artefatos": "outputs/iter_0034/h22_gbdt_vs_ols_gap/ (results.json + summary.csv + sanity_checks.json + verdict.md), scripts/h22_gbdt_vs_ols.py",
+      "budget_horas": 0.8,
+      "h_derivada": "H36",
+      "lesson_learned": "Capacidade nao-linear sem features novas != ganho. GBDT defaults overfit em pequeno feat-space (3 feats) sob distribution shift, perdendo para OLS. Reproduz empiricamente lesson H22_MA UlFor (PI eh model-dependent ate +-85pp) sem que isso traduza em melhor R^2 test. H21+H22 esgotam transformar (gen, pdp_prev) \u2014 novo sinal exige novas variaveis (H36 testa com 37 feats v3)."
     }
   },
   "sanity_checks_disponiveis": [
@@ -873,10 +924,10 @@
       "warn": ""
     }
   },
-  "ultimo_handoff": "iterations/iter_0032_h20_low_n_test_warning.md",
+  "ultimo_handoff": "iterations/iter_0034_h22_gbdt_vs_ols.md",
   "budget_consumido": {
-    "iter": 32,
-    "horas": 1.8,
+    "iter": 34,
+    "horas": 0.8,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -1992,9 +2043,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 5,
-    "horas": 1.4995,
-    "usd": 20.8757
+    "iter": 6,
+    "horas": 1.7142,
+    "usd": 27.561
   },
   "low_n_test_policy": {
     "version": "1.0",

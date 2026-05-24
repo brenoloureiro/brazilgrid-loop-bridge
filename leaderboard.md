@@ -478,6 +478,7 @@ iterations/iter_0002 a iter_0006.
 | 0029 | H13 persist_d7 baseline aux | CONFIRMADO_DISPLAY_REFUTADO_REGIME_CLAIM — persist_d7 ja' presente no leaderboard desde iter_0007 (display OK); sub-claim "vence persist_d1 em S" REFUTADO em CV canonico (persist_d1 vence 4/4 subs no agregado, 19/20 per-fold cells). Unica inversao: N fold 0 (regime sazonal antigo, nao S). Origem da premissa: replay iter_0002 n=11 onde d7 venceu d1 EM N (nao S, erro de transcricao do detail). Mantido como diagnostico auto-correlacao | 59-60 (CV) | FALSE | — (definitivo) |
 | 0030 | H15 S classifier vs regressor binarizado | CONFIRMADO_PARCIAL_NON_RARE — em thr_zero (any curt, pos_rate 40%) e thr_p75 (big curt, pos_rate 25%) LogReg(class_weight=balanced) bate LR_reg+Ridge_reg binarizados em **+4.5pp/+6.8pp AUC** e **+5.1pp/+8.1pp PR-AUC**; em thr_p90 (rare event, pos_rate 10%) regressor binarizado EMPATA classifier (ΔAUC −1.6pp, ΔPR-AUC −0.6pp, dentro do ruido). Mecanismo: rare events com test_pos absoluto baixo (1-5 positivos em fold 5) inviabilizam calibracao do LogReg. Perm test FORTE: real AUC=0.872 vs perm 0.512±0.13 (p=0.000). Hipotese original ("classifier > regressor em rare-event") REFUTADA, mas H15 derivada: classifier e' o caminho para alerta binario "vai ter curt em S?" (LogReg AUC 0.78 vs persist 0.62, +16.8pp) | 59-60 (CV) | FALSE | H35 (alerta operacional moderado S) |
 | 0032 | H20 auto-flag low_confidence_n_test | CONFIRMADO_DISPLAY — politica `low_confidence_n_test=(n_test<30)` propagada para meta.json/summary_replay.csv/leaderboard; audit cobre 12 meta runs + 21 outros JSON + 18 parquets UlFor; 12 LGBM-replay runs + 8 sanity-JSONs marcados LOW, 0 marcados LOW na secao Champions/Baselines do topo. Runner `run_bakeoff_replay.py` patcheado. | n/a (display) | n/a | — (definitivo) |
+| 0034 | H22 GBDT vs OLS gap (3 feats gen+pdp_prev) | REFUTADO_NO_NONLINEAR_GAIN — holdout temporal 80/20 (n_train=388/n_test=98 per sub). NE: OLS R²=+0.550 vs GBDT +0.507 (gap −4.3pp); SE: OLS +0.072 vs GBDT +0.088 (gap +1.5pp TIE); S: OLS −0.252 vs GBDT −0.426 (gap −17.4pp). max_gap=+0.015 < +5pp threshold em todos; mean_gap=−0.067. GBDT overfit train R²=0.81-0.99 vs test 0.51/0.09/−0.43 sob distribution shift (B5 iter_0012 KS<1e-4). PI duo refit-drop reconfirma EMPIRICAMENTE lesson H22_MA UlFor: gap_per_feat ±85pp (NE pdp_eolica OLS 43pp vs GBDT 128pp) — PI eh model-dependent, mas isso NAO traduz em R²_test melhor para GBDT. OLS bate persist_d1 em NE+SE; GBDT empata. H36 derivada (testar com 37 feats v3). | 98 (holdout 80/20) | FALSE | — (definitivo, escopo 3 feats) |
 
 ## Lessons learned (transferiveis)
 
@@ -515,6 +516,17 @@ iterations/iter_0002 a iter_0006.
   visivel em meta.json + summary_replay.csv + leaderboard, mais auditoria
   unificada em `outputs/iter_0032/h20_leaderboard_low_n_test_warning/`.
   Threshold `n_test < 30` herdado de B6 H16 v1.1 (iter_0009).
+- **Capacidade nao-linear sem features novas != ganho** (iter_0034 H22):
+  com apenas 3 features (gen + pdp_prev_eolica + pdp_prev_solar), GBDT
+  defaults overfit (R²_train 0.81-0.99 → R²_test 0.07-0.55) e NAO supera
+  OLS em nenhum sub. max_gap = +0.015 (SE) abaixo do threshold +5pp em
+  todos. Mecanismo: distribution shift severo (B5 iter_0012) penaliza
+  modelos com variance alta. PI duo OLS-vs-GBDT diverge ±85pp empiricamente
+  (reproducao do lesson H22_MA UlFor com magnitude ampliada por feat-space
+  pequeno) mas isso NAO traduz em R²_test melhor. **Conclusao operacional**:
+  novo sinal em curt D+1 EXIGE novas variaveis, nao apenas trocar familia
+  de modelo sobre as mesmas variaveis (H21+H22 esgotam o espaco de
+  "transformar (gen, pdp_prev)" — linear redundante OK, nao-linear tambem).
 
 ## Como atualizar
 

@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-25T03:30:00Z
+last_updated: 2026-05-25T05:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -839,17 +839,43 @@ hypotheses:
       ~10pp. Protocolo H22 nosso deve usar PI-com-GBDT (nao OLS), e a
       comparacao OLS-vs-GBDT no R^2 final continua valida como medida do
       gap nao-linear.
+
+      VEREDITO iter_0034: REFUTADO_NO_NONLINEAR_GAIN. Holdout temporal
+      80/20 (n_train=388, n_test=98, 2024-12 -> 2026-05) em NE/SE/S com
+      3 features (gen_renov_mwh + pdp_prev_eolica + pdp_prev_solar). OLS
+      lstsq vs LightGBM (n_est=300, lr=0.05, num_leaves=31).
+        NE:  OLS R^2=+0.550 vs GBDT R^2=+0.507; gap -4.3pp (GBDT_WORSE)
+        SE:  OLS R^2=+0.072 vs GBDT R^2=+0.088; gap +1.5pp (TIE)
+        S:   OLS R^2=-0.252 vs GBDT R^2=-0.426; gap -17.4pp (GBDT_WORSE)
+      max gap = +0.015 (< +5pp em todos); mean gap = -0.067. GBDT overfit
+      severo train: R^2_train 0.99/0.96/0.81 vs R^2_test 0.51/0.09/-0.43.
+      Premissa central "GBDT extrai sinal nao-linear adicional" NAO se
+      sustenta com 3 features. Persist_d1 baseline test: NE 0.37 / SE -0.37
+      / S -0.39 -- OLS_3feat bate persist em NE+SE+S, GBDT_3feat empata.
+      PI duo (refit-test drop) RECONFIRMA H22_MA empirico: gap_per_feat
+      OLS-vs-GBDT abs_drop chega a +85pp (NE pdp_eolica) e -20pp (SE
+      pdp_eolica) -- PI EH model-dependente, mas isso nao traduz em
+      ganho de R^2 (model-flexible signal nao excede signal capturada
+      pelo linear basis com 3 features). H36 derivada (P3 queued): testar
+      mesma comparacao com features iter_0002 v3 (37+ feats) -- so' com
+      mais features as interacoes nao-lineares teriam espaco; com 3 feats
+      o limite e' do espaco de hipoteses do GBDT vs OLS, nao de capacidade.
     type: model
     layer: curtailment
     target: pdp_gen_gbdt_vs_ols_gap
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0034
     estimated_effort_hours: 1.0
+    actual_effort_hours: 0.8
     depends_on: [H3]
     blocks: []
+    follow_ups_created: [H36]
     sanity_checks_required: [holdout, baseline]
+    sanity_checks_done: [leak_passed, perm_passed_gbdt, holdout_strict_passed, baseline_passed, dist_shift_reported, zero_count_reported]
     expected_value: validar engineering linear vs deixar GBDT capturar interacoes
     created_at: 2026-05-24T07:30:00Z
+    completed_at: 2026-05-25T05:30:00Z
 
   - id: H15
     summary: S 'nao aprendivel' — rare event classifier em vez de regressor?
@@ -1382,3 +1408,53 @@ notas_iter0031:
     sanity_checks_required: [holdout, baseline, perm]
     expected_value: novo endpoint binario para dashboard operador, ganho 5pp AUC vs binarizar champion. Sem pedido formal, fica em backlog.
     created_at: 2026-05-25T01:30:00Z
+
+  - id: H36
+    summary: GBDT vs OLS gap em features completas iter_0002 v3 (37+ feats)
+    detail: |
+      Derivada de H22 iter_0034 (REFUTADO_NO_NONLINEAR_GAIN, 3 features).
+      Com apenas 3 features (gen + pdp_prev_eolica + pdp_prev_solar), GBDT
+      NAO supera OLS em nenhum sub (max gap R^2 test = +0.015 SE; NE -4.3pp
+      e S -17.4pp). Mecanismo provavel: overfit do GBDT em espaco
+      hipoteticamente pequeno (3 feats nao da room para arvores capturarem
+      interacoes uteis em test sob distribution shift NE+SE iter_0012 KS<1e-4).
+      H10/H21 lgbm_cv_supplement mostraram GBDT util com 37 feats (NE/SE/S
+      v3) -- entao a comparacao critica seria com features completas.
+
+      Plano:
+        - mesmo protocolo H22 (holdout 80/20 temporal, R^2 test primary)
+        - features: iter_0002 v3 (37 feats incluindo curt_lag*, gen_*, pdp_*,
+          cmo_*, ter_verif_*) sub-a-sub
+        - modelos: OLS (sklearn LinearRegression, sem regularizacao) vs
+          LightGBM defaults H10
+        - PI duo refit-drop nas top-10 features de cada modelo
+        - Se GBDT vence OLS por >=5pp R^2 em algum sub: CONFIRMADO_em_feats_full
+          -> entao engineering NAO substitui GBDT (UlFor ja' usa GBDT no
+          bake-off mas champions sao Ridge/LR, e' subotimo?)
+        - Se OLS empata/supera: a) UlFor champions Ridge/LR estao corretos
+          dada a colinearidade VIF>=10 em 38/55 feats; b) gap nao-linear
+          NAO existe em curt D+1, OLS basis e' suficiente para o sinal
+          disponivel.
+
+      Bloqueador: depende de UlFor ja' ter dataset 37-feats v3 publicado em
+      parquet (iter_0002/runs/{NE,SE,S}/v3/features.parquet existe local
+      desde iter_0002). Custo: ~30 LoC adicionais sobre h22_gbdt_vs_ols.py.
+
+      ATUALIZACAO PROXIMA SESSAO: ler features.parquet iter_0002 v3 per
+      sub, mesmo split temporal 80/20, calcular GBDT R^2 test vs OLS R^2
+      test. Decision rule identica (5pp confirma, -2pp todos refuta).
+    type: model
+    layer: curtailment
+    target: gbdt_vs_ols_gap_full_features
+    priority: P3
+    status: queued
+    estimated_effort_hours: 1.0
+    depends_on: [H22]
+    blocks: []
+    sanity_checks_required: [holdout, baseline, dist_shift]
+    expected_value: |
+      Saber se GBDT default beneficia D+1 curt com features completas
+      (UlFor ja' rodou XGB/LGBM no bake-off mas perdeu para Ridge/LR;
+      H36 mede gap diretamente vs OLS sem regularizacao para isolar
+      contribuicao nao-linear das arvores).
+    created_at: 2026-05-25T05:30:00Z
