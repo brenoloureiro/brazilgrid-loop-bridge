@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T12:30:00Z
+last_updated: 2026-05-24T14:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -563,6 +563,18 @@ hypotheses:
     sanity_checks_done: [baseline]
     follow_ups_created: []
     related_external_request: req-0007
+    external_unblock_note: |
+      ATUALIZADO iter_0017 RECON_DELTA: req-0007 DONE (UlFor commit 6b21ffdf).
+      F1_p50 + per-fold parquet publicados em
+      experiments/bakeoff_curtailment_multisub/outputs/cv_summary_per_fold_{full,clean_plus}.parquet
+      (140 rows cada = 4 subs * 7 modelos * 5 folds, schema MAE/RMSE/NMAE/bias/R²/
+      F1_p50/ymean_test/threshold_p50/n_train/n_test/janelas). F1_p50 clean_plus
+      headline: NE ridge/lr=0.80 / SE xgb=0.71 / N ridge=0.79 / S=NaN (P50=0).
+      Follow-up cheap (<0.5h) destrava upgrade CONFIRMADO_PARCIAL -> CONFIRMADO:
+      (1) parser parquet 'full' p/ extrair F1_p50 dos champions ridge/lr per sub;
+      (2) substituir MAE-em-MWh derivado pelo per-fold real (remove caveat 1a
+      ordem ~10-15%); (3) re-escrever 4 linhas champion do leaderboard com F1
+      preenchido. Recomendar warmup iter_0018 (notas_iter0017 do planner_config).
     expected_value: leaderboard internamente consistente (MAE/R²/F1 em todas linhas)
     created_at: 2026-05-24T06:00:00Z
     completed_at: 2026-05-24T13:30:00Z

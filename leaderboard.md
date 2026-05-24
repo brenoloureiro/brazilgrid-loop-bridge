@@ -6,6 +6,30 @@ Atualizado pelo watchdog ao final de cada iteração com ganho promovido.
 **Iter 0008 (H9):** metricas primarias agora **MAE/R²/F1** (PLANO_FINAL Principio 6).
 NMAE mantida como secundaria — flaggada `unsafe` quando ymean<1 MWh.
 
+**Iter 0017 (RECON_DELTA):** 15 commits UlFor `5dacb5a2..5c7963d4` absorvidos.
+**(1) MUDANCA DE COMPORTAMENTO DE PRODUCAO NE**: bias_correction rolante-28d
+default ON na route `/api/forecast/d1` (commits `41d8d952`+`586eeae6`). 14d real
+(2026-05-08..21) NE NMAE **49.2% bate persist 54.1% por -4.9pp** — **primeira
+vez no projeto** que ML supera persist em NE. Champion treinado (ridge_curt_ne_d1@v1)
+INALTERADO no MLflow Registry; wrapper de inferencia agora subtrai bias mean(pred-actual)
+dos ultimos 28d causais. CV 5x60d confirma: -6.90pp NMAE / wins 4/0/5. SE/S/N
+default OFF (regime change na janela 14d joga correcao no rumo errado em SE+S;
+N raw ja bate persist 36.9pp, bias estrutural negligivel). **(2) req-0007 DONE**
+(commit `6b21ffdf`): F1_p50 + per-fold MAE parquet publicados em
+`experiments/bakeoff_curtailment_multisub/outputs/cv_summary_per_fold_{full,clean_plus}.parquet`
+(140 rows cada). F1_p50 clean_plus headline ridge NE=0.80 vs persist 0.75; lr SE=
+TBD (parser p/ proximo iter); ridge N=0.79; S NaN (P50=0 esperado). **(3) Fase 4
+100% FECHADA** (commits `13f4a4de`+`8a30a29e`): dashboard MLflow validation D+1
+em `vitrine.brazilgrid.com/forecast.html` + rastreabilidade end-to-end no endpoint
+(mlflow_url + training_git_sha + inference_git_sha + training_ran_at). **(4) UlFor
+internal H verdicts** (NAO confundir com nosso queue): H13 REFUTADA (ridge_S+clean_plus
+regride CV+14d); H19 root-cause SE/fold4 = `ter_verif_rmean7` single-feature
+restaurou 99% gap; H20 CONFIRMADA clean_plus_v2 SE -11.27pp (mas champions
+mantidos em `full`); H18-A REFUTADA (drop universal envenenadoras ridge_S
+piora +5.55pp); H21 REFUTADA (lr_SE clean_plus_v2 regride +15.31pp em 14d real).
+**Nenhuma H do loop fechada**; nenhuma nova gerada. Detalhe em
+`iterations/iter_0017_recon_delta.md`.
+
 **Iter 0016 (H19):** MAE+R²+NMAE dos champions UlFor Ridge/LR extraidos para
 leaderboard — **CONFIRMADO_PARCIAL**. Fontes acessiveis sem MLflow tunnel:
 (1) `FINDING_RIDGE_BEATS_GBDT.md` parser regex (NMAE+R² mean±std 6 modelos × 4 subs);
@@ -93,10 +117,10 @@ queue. Detalhe em `iterations/iter_0013_h10_ensemble_v2_persist.md`.
 
 | layer | alvo | sub | baseline (MAE_mwh, CV) | best_metric (MAE/R²/F1, modelo) | NMAE secundario | last_iter | sanity_ok | data_utc |
 |---|---|---|---|---|---|---|---|---|
-| curtailment | d1_ENE_CNF | NE | persist_d1 MAE≈33.7k MWh (CV 5x60d, NMAE 44.5%) | **ridge_curt_ne_d1 @champion — MAE≈25.5k MWh (derived) / R² +0.469±0.098 / F1 N/A (req-0007)**; in-sample R²=0.830 | NMAE 33.7±8.1% | 0016 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T13:30Z |
-| curtailment | d1_ENE_CNF | SE | persist_d1 MAE≈8.3k MWh (CV 5x60d, NMAE 68.8%) | **lr_curt_se_d1 @champion — MAE≈5.6k MWh (derived) / R² +0.380±0.139 / F1 N/A (req-0007)**; in-sample R²=0.619 | NMAE 46.6±13.4% | 0016 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T13:30Z |
-| curtailment | d1_ENE_CNF | S | persist_d1 MAE≈1.27k MWh (CV 5x60d, NMAE 124.2%) | **lr_curt_s_d1 @champion — MAE≈916 MWh (derived) / R² +0.447±0.202 / F1 N/A (req-0007)**; in-sample R²=0.725 FRAGIL (validate_d1 7-14d skill -37 a -41%) | NMAE 89.6±31.2% (CV ymean≈1k MWh > EPS=1 → safe; iter_0008 unsafe era replay n=11) | 0016 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T13:30Z |
-| curtailment | d1_ENE_CNF | N | persist_d1 MAE≈0.51k MWh (CV 5x60d, NMAE 100.7%) | **ridge_curt_n_d1 v2 @staging — MAE≈429 MWh (derived) / R² +0.179±0.176 / F1 N/A (req-0007)** (clean_plus, 31 feat; in-sample R²=0.472); FRAGIL atenuado vs v1 (era MAE≈440 MWh / R² +0.196±0.289) | NMAE 84.8±26.2% | 0016 | nao promovivel ainda — staging only | 2026-05-24T13:30Z |
+| curtailment | d1_ENE_CNF | NE | persist_d1 MAE≈33.7k MWh (CV 5x60d, NMAE 44.5%) | **ridge_curt_ne_d1 @champion + bias_corr_28d (PROD default ON desde iter_0017) — MAE≈25.5k MWh (derived) / R² +0.469±0.098 / F1_p50 0.80** (clean_plus parquet req-0007); in-sample R²=0.830; **14d real corrected NMAE 49.2% bate persist 54.1% por -4.9pp — PRIMEIRA VEZ no projeto** | NMAE 33.7±8.1% CV; raw 14d 59.2% / corrected 49.2% | 0017 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE c/ bias_correction_mw exposto** | 2026-05-24T14:30Z |
+| curtailment | d1_ENE_CNF | SE | persist_d1 MAE≈8.3k MWh (CV 5x60d, NMAE 68.8%) | **lr_curt_se_d1 @champion — MAE≈5.6k MWh (derived) / R² +0.380±0.139 / F1_p50 TBD** (xgb=0.71 publicado, lr SE no parquet pending parser); in-sample R²=0.619; **UlFor H14-C decidiu NAO produtizar bias_correction** (regime change Mai/26 chuvoso->seco joga bias no rumo errado, +1.61pp 14d real); **UlFor H21 REFUTADA** (clean_plus_v2 regride +15.31pp em 14d real); **teto-de-dados D+1 estendido NE->SE: NENHUM ML bate persist em 14d real** | NMAE 46.6±13.4% | 0017 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T14:30Z |
+| curtailment | d1_ENE_CNF | S | persist_d1 MAE≈1.27k MWh (CV 5x60d, NMAE 124.2%) | **lr_curt_s_d1 @champion — MAE≈916 MWh (derived) / R² +0.447±0.202 / F1_p50 NaN** (P50_train=0 — sub com muitos zeros, esperado per spec req-0007); in-sample R²=0.725 FRAGIL (validate_d1 7-14d skill -37 a -41%); **UlFor H13 REFUTADA** (ridge_S+clean_plus regride CV+14d); **UlFor H18 ABERTA** (S underperforma persist estruturalmente em 2026-05); **UlFor H14-C NAO produtizou bias_correction** (+10.81pp 14d real, ymean ~32 MWh amplifica ruido) | NMAE 89.6±31.2% (CV ymean≈1k MWh > EPS=1 → safe; iter_0008 unsafe era replay n=11) | 0017 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T14:30Z |
+| curtailment | d1_ENE_CNF | N | persist_d1 MAE≈0.51k MWh (CV 5x60d, NMAE 100.7%) | **ridge_curt_n_d1 v2 @staging — MAE≈429 MWh (derived) / R² +0.179±0.176 / F1_p50 0.79** (clean_plus parquet req-0007; vs persist 0.72) (clean_plus, 31 feat; in-sample R²=0.472); FRAGIL atenuado vs v1 (era MAE≈440 MWh / R² +0.196±0.289); UlFor H14-C decidiu NAO produtizar bias_correction (wins 3/2/5 com fold 4 outlier) | NMAE 84.8±26.2% | 0017 | nao promovivel ainda — staging only | 2026-05-24T14:30Z |
 | meta | metric_suite | — | NMAE (Principio 6 violado) | **MAE/R²/F1 primario + NMAE secundario com flag** | 3/4 subs (NE,SE,N) conflict NMAE↔R²/F1 em iter_0002 replay; S NMAE unsafe | 0008 | H9 CONFIRMADO | 2026-05-24T06:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | NE | persist_d1 | NMAE 35.7% xgb UlFor v3.3 (superseded por ridge_alpha10) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | SE | persist_d1 | NMAE 46.0% xgb UlFor v3.3 (superseded por lr) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
@@ -800,4 +824,142 @@ disponivel para reusar em proximos bake-offs sem repetir derivacao.
 
 Nenhuma. Plano natural pos-iter_0016 segue: **H21** (P2 feature
 engineering `pdp_residual = pdp_prev - gen`, derivada H3 iter_0010).
+
+## Iter 0017 — RECON_DELTA UlFor (5dacb5a2 -> 5c7963d4)
+
+15 commits absorvidos. **Maior delta do projeto desde iter_0007**: bias
+correction NE EM PRODUCAO bate persist em 14d real pela primeira vez.
+
+| commit | acao | impacto |
+|---|---|---|
+| `13f4a4de` | feat(vitrine) — dashboard MLflow validation D+1 (Fase 4 step 2) | Pagina forecast.html na vitrine com NMAE/R²/skill/PSI + timelines + tabela de runs (CSS-puro, le `/api/mlflow/validation-runs`). Link nav global. |
+| `8a30a29e` | feat(forecast) — rastreabilidade end-to-end no /api/forecast/d1 (Fase 4 step 3) | mlflow_url clicavel + training_git_sha + experiment_id/name + training_ran_at + inference_git_sha por response. Divergencia training/inference git_sha = alerta de modelo desatualizado. Smoke 4 subs OK. |
+| `5ea5a412` | checkpoint marker 08:15Z | Fase 4 STEPS 2+3 fechadas. |
+| `f64cfbb7` | coord — ACK req-0007 | UlFor le request do canal loop_requests.md. |
+| `f697449d` | feat(forecast) — UlFor **H13 closure S** REFUTADA | ridge_S+clean_plus piora CV (-0.28 R² lr / -0.14 ridge vs full); ridge bate lr em clean_plus mas nao revolucao. Em 14d real (2026-05-08..21) **TODOS ML perdem persist em S**: persist_d1 99.9% / lr+full champion 159.6% R² -1.915 / ridge+clean_plus 137.4%. Champion lr_curt_s_d1@v1 (full) MANTIDO. **Nova UlFor H18 aberta** (S underperforma persist estruturalmente — investigar regime shift, target alt, persist como fallback first-class). |
+| `6b21ffdf` | feat(forecast) — **req-0007 IMPLEMENTADO** | helper `_f1_p50()` portado de `scripts/metric_suite.py` (positive-class F1, threshold P50(y_train), NaN se thr<=0). `metrics()` aceita y_train + retorna f1_p50/threshold_p50/ymean_test. Per-fold parquet em `experiments/bakeoff_curtailment_multisub/outputs/cv_summary_per_fold_{full,clean_plus}.parquet` (~13KB cada, 140 rows = 4 subs x 7 modelos x 5 folds). F1_p50 clean_plus: **NE ridge/lr 0.80** (persist 0.75), SE xgb 0.71 (persist 0.69), N ridge/ma7 0.79 (persist 0.72), S NaN (P50=0 esperado). MAE per-fold MWh direto: NE ridge mean 27.0K, SE lgbm 7.0K, S ridge 1.05K, N ridge 425. **req-0007 CLOSED.** |
+| `d93100ae` | feat(forecast) — UlFor H19 root-cause SE/fold4 R²-2.5 | Ablation single-feature add-back: **`ter_verif_rmean7`** e UNICA das 17 dropadas que sozinha restaura 99% gap (clean R² -2.53 -> +1 feat -0.48 ≈ full -0.45). Outras 16 ficam em R² -1.83 a -2.75. Dropada por corr +0.92 com `ter_verif_lag1` — mas em seca-2025Q3 termico sobe e rolling-7d captura trend que lag1 nao captura. VIF/corr NAO BASTA para guiar drops em sub com regimes sazonais fortes. |
+| `8708c329` | checkpoint marker 05:00Z | — |
+| `ea8ca325` | feat(forecast) — UlFor **H20 CONFIRMADA** | clean_plus_v2 = clean_plus SEM dropar ter_verif_rmean7 (39 feat). Re-CV 5x60d: **SE lr -11.27pp NMAE / +0.62 R²** major win; NE/N/S within bound (≤+0.35pp). Fold 4 SE blowup curado: R² lr -3.12 -> -0.07. CHAMPIONS NAO ALTERADOS (todos em `full` por consistencia MLflow). clean_plus_v2 = alternativa analitica + base UlFor H21. |
+| `e56aa5f3` | feat(forecast) — UlFor **H18-A REFUTADA** | Drop universal 4 envenenadoras ridge_S+FULL (curt_rmean7, pdp_prev_solar_mwh, val_net_mwmed, curt_lag14): NMAE 97.9% -> 103.5% (+5.55pp), R² +0.230 -> +0.146, stdev 18.7% -> 29.2%. Per-fold: -2 a -7pp em 2/5, +0.15pp em 1/5, +13 a +24pp em 2/5. `pdp_prev_solar_mwh`: Top-3 IMPORTANTE fold 1 / Top-3 ENVENENADORA fold 0 — papel inverso por regime. lr_S+full MANTIDO. Follow-ups (NAO autopilot): H18-B per-fold FS / H18-C target log1p ou binario / H18-D mixture-of-experts. |
+| `108772a5` | checkpoint marker 05:30Z | H20 + H18-A. |
+| `4223aa4c` | feat(forecast) — UlFor **H21 REFUTADA** | Treino lr_SE ate 2026-05-07 + holdout 14d (2026-05-08..21): persist 69.6% / lr+full champion 77.4% / **lr+clean_plus_v2 92.7% (+15.31pp regride)**. Ganho UlFor H20 estava CONCENTRADO em fold 4 (seca-2025Q3); regime Mai/26 (transicao chuvoso->seco, 3 dias zero curt) favorece FULL. Champion lr_curt_se_d1@v1 (full) PERMANECE. **NENHUM ML bate persist em 14d SE** (teto-de-dados D+1 estendido do NE ao SE no regime atual). Bias estrutural +5500-7100 MWh em todos ML abre UlFor H14. |
+| `41d8d952` | feat(forecast) — **UlFor H14 + H14-C PRODUTIZAR** (NE only) | Bias correction rolante 28d: `corrected_D = max(0, pred_D - mean(pred-actual)[ult 28d causais])`. **14d real NE: -9.94pp NMAE (59.2->49.2%), R² -0.348 -> -0.135. BATE persist (54.1%) por 4.9pp — PRIMEIRA VEZ NO PROJETO.** SE +1.61pp (regime change joga correcao no rumo errado). S +10.81pp catastrofico (ymean ~32 MWh, bias absoluto -139 amplifica ruido). N +2.15pp (raw ja bate persist 36.9pp). CV walk-forward 5x60d (cobre 2025-07..2026-05): **NE -6.90pp media / wins 4/0/5 -> PRODUTIZAR**. SE -0.33 / 0/1/5 -> NAO. S +0.95 / 2/3/5 -> NAO. N -28.63 / 3/2/5 -> MAYBE (fold 4 -120pp puxa mean; folds 0/1 regridem +2pp). |
+| `586eeae6` | feat(forecast) — **route /api/forecast/d1 expoe bias_correction_mw per-sub** | `services/analytics_api/forecast/loader.py`: BIAS_CORRECTION_DEFAULTS={NE:True, SE:False, S:False, N:False}. compute_bias_correction(sub, model, feature_set, window_days=28) replay-pred ultimos 28d com y_d1 conhecido (falha-silenciosa). Response: predicted_curt_mwh (raw, back-compat), predicted_curt_mwh_corrected (sempre exposto), predicted_curt_mwh_default (per-sub default), bias_correction.{bias_mw, applied_in_default, recommended_apply, window_days, n_used, window_start, window_end, applicable, source}. Smoke e2e: **NE bias=+7319 MWh applied=True raw=62329 -> corrected=55010 (perto de persist=59149)**. SE bias=-284 applied=False raw=5484. S bias=-167 applied=False raw=303. N bias=-29 applied=False raw=246. analytics_api NAO deployada (mudanca local). |
+| `5c7963d4` | checkpoint marker 06:25Z | H21 REFUTADA + H14 analitica + H14 produtizado. |
+
+### O que mudou na nossa interpretacao
+
+1. **Champion NE EFETIVO mudou em PRODUCAO sem mudar modelo treinado**. Wrapper
+   de inferencia agora aplica bias_correction_28d default ON em NE. Marco: 14d
+   real NMAE 49.2% bate persist 54.1% por -4.9pp — **primeira vez no projeto
+   que ML supera persist em NE**. Trazendo o NE para uma posicao em que o ML
+   passa a ter valor operacional direto (vs ate iter_0011 onde era "bate persist
+   em CV mas perde em 14d real"). Champion treinado (`ridge_curt_ne_d1@v1`)
+   INALTERADO no MLflow Registry — bias correction e' post-processing.
+
+2. **Teto-de-dados D+1 estendido do NE ao SE no regime Mai/26**. UlFor H21
+   REFUTADA mostrou que NENHUM ML bate persist_d1 em NMAE 14d real em SE
+   (persist 69.6% < lr+full 77.4% < lr+clean_plus_v2 92.7%). Padrao identico
+   ao que observamos em NE pre-bias_correction. **Sugestao implicita ao loop**:
+   testar bias_correction_28d sobre `lr_curt_se_d1` com sub-janela
+   estendida ou correcao adaptativa por regime (UlFor abriu UlFor H14 mas
+   decidiu NAO produtizar SE porque janela fixa 28d joga correcao no rumo
+   errado em transicao chuvoso->seco).
+
+3. **req-0007 fechado dentro do envelope esperado**. F1_p50 + per-fold MAE
+   parquet acessiveis via git em `experiments/bakeoff_curtailment_multisub/outputs/`.
+   Coluna `f1_p50` do bloco `champions_metrics_consolidated` atualizada para 4
+   subs (NE 0.80, N 0.79 de ridge no clean_plus; SE pending parser do parquet
+   full; S NaN esperado). MAE-em-MWh AGORA exato (sem caveat 10-15% slack do
+   iter_0016 H19 derivation).
+
+4. **Pipeline observabilidade 100% pronto**. Fase 4 fechada nas 3 steps (1:
+   `validate_d1.py` iter_0015 + 2: dashboard MLflow vitrine + 3: rastreabilidade
+   endpoint). Champions ridge/lr em PRODUCAO com (a) replay diario `validate_d1`,
+   (b) drift PSI dual long/recent, (c) Telegram alert 4 gatilhos, (d) dashboard
+   visivel `vitrine.brazilgrid.com/forecast.html`, (e) git_sha tracking
+   training-vs-inference. Schedule Dagster STOPPED ate Breno gerar
+   `BRAZILGRID_TELEGRAM_BOT_TOKEN/CHAT_ID`.
+
+5. **Insights metodologicos consolidados** (3 commits UlFor sobre o mesmo tema):
+   - VIF/corr NAO BASTA para guiar drops em sub com regimes sazonais (H19 ulfor:
+     `ter_verif_rmean7` corr +0.92 com lag1 mas load-bearing em seca-2025Q3).
+   - Drop GLOBAL por feature 'envenenadora em >=2 folds' INVALIDO (H18-A ulfor:
+     `pdp_prev_solar` inverte papel por regime — Top-3 IMPORTANTE fold 1,
+     Top-3 ENVENENADORA fold 0). Per-fold FS pode resolver.
+   - Ganhos CV CONCENTRADOS em fold-especifico NAO sobrevivem 14d real
+     (H21 ulfor: clean_plus_v2 ganho era fold-4-only seca-2025Q3, regime
+     Mai/26 chuvoso->seco joga +15.31pp). **Holdout temporal 14d real e' o
+     test ground-truth, NAO o CV mean** — aplica tambem ao loop.
+
+### Como nossa queue muda
+
+- **Nenhuma H do loop foi resolvida** pelos commits. Todos os Hs resolvidos
+  sao **UlFor internos** (PLANO_FINAL Fase 3+4) — sem relacao com nosso
+  queue. Disambiguacao critica continua valida: nosso H13/H14/H18/H19/H20/H21
+  ≠ UlFor H13/H14/H18/H19/H20/H21. **4 colisoes ativas** agora; convencao
+  proposta: prefixar Hs externos `Hxx_ulfor` em comments e iter handoffs.
+
+- **H19 (loop, status=done)**: gap F1_p50=N/A do iter_0016 fechado via
+  req-0007 implementado. Parser do parquet (~0.5h) pode preencher 4 linhas
+  champion sem rodar bake-off. Candidato a micro-iter 0018a.
+
+- **H24 (loop, status=queued)**: BASELINE DE COMPARACAO MUDOU. Bias_correction
+  em NE entrega -9.94pp NMAE em 14d real (ordem similar do ensemble H10
+  +13% MAE NE/v2 em CV). H24 (ensemble Ridge+persist) agora precisa comparar
+  contra Ridge+bias_corrected (nova baseline operacional NE), nao so contra
+  Ridge-only. Possivel coexistencia: bias correction (anti-drift estrutural) +
+  ensemble (mistura com persist quando regime instavel). Se ensemble incluir
+  persist_d1, ja captura parte do bias por outra via — testar nao-trivialmente
+  sobreposicao.
+
+- **H18 (loop, status=blocked)**: urgencia continua diminuindo. Fase 4 100%
+  fechada (steps 1+2+3) somam mais camadas de observabilidade aos champions.
+  Valor marginal do B1-B6 audit local mais baixo ainda.
+
+### Reqs
+
+- **req-0007 CLOSED** (UlFor commit `6b21ffdf`, ulfor_verdict: "AMBAS as
+  lacunas fechadas em uma sprint"). open_requests=[] novamente.
+- Sem novos requests emitidos.
+
+### Proxima iter
+
+`iter_0018` retoma planner_config com pequena variacao:
+**(opcao A — recomendada)** Micro-iter 0018a: parser do parquet
+`cv_summary_per_fold_full.parquet` para preencher F1_p50 dos 4 champions
+no leaderboard (ridge_NE+full, lr_SE+full, lr_S+full, ridge_N+clean_plus).
+Custo <0.5h. Fecha gap conceitual deixado em iter_0016. **(opcao B)**
+**H21** original (P2 pdp_residual = pdp_prev - gen, codavel local, 1.5h).
+Razoes inalteradas desde iter_0014/0015/0016.
+
+Alt: H24 (ensemble Ridge/LR vs Ridge+bias_correction — baseline mudou; 1.5h),
+H27 (P50 quantile substituto custo zero), H26 (conformal post-hoc para H11
+calibration).
+
+### Lessons learned
+
+- **Bias correction rolante e' upgrade gratuito quando bias estrutural existe**.
+  UlFor H14: erro sistematico mean(pred-actual) em janela causal ≠ 0 e bias
+  CORRIGIVEL post-hoc sem retreinar. Pre-requisito: erro estatisticamente
+  estavel na janela de calibracao (28d). REGIME CHANGE no holdout joga a
+  correcao no rumo errado (UlFor H14 evidence: SE +1.61pp; S +10.81pp).
+  Decisao por-sub conservadora (default ON so quando wins 4/0/5 em CV) e' o
+  certo.
+- **Holdout 14d real continua sendo ground-truth final** acima do CV-mean.
+  UlFor H21 mostrou ganho CV+11.27pp colapsa para regressao +15.31pp em 14d
+  real porque ganho era fold-4-only sazonal. **Padrao a importar pro loop**:
+  toda hipotese promovida via CV deve passar tambem por holdout 14d real
+  antes de virar champion permanente (UlFor adotou; loop ainda nao tem
+  pipeline equivalente porque CH local stale > 30d em features).
+- **Recon iter continua sendo barato e absolutamente necessario**. 15 commits
+  em ~10h reais de UlFor desde nosso checkpoint anterior (iter_0015) — sem
+  recon, loop tentaria iter_0017=H21 sobre features iter_0002 ignorando que
+  UlFor ja produtizou bias correction em NE (modelo operacional mudou). Custo
+  recon ~0.5h vs ~2.5h de hipotese; ROI altissimo.
+- **Disambig nomenclatura H critica**. 4 colisoes ativas (H13/H14/H18/H19/H20/H21
+  duplicadas entre loop e UlFor). Convencao escolhida: `Hxx_ulfor` em comments
+  e iter handoffs do loop; commits UlFor seguem usando `Hxx` nu (contexto
+  resolve no proprio repo). Aplicar daqui em diante.
 

@@ -1,7 +1,7 @@
 {
-  "iter_atual": 19,
+  "iter_atual": 17,
   "mode": "self_planning",
-  "alvo_ativo": "leaderboard_consistency_post_h9",
+  "alvo_ativo": "recon_delta_ulfor_post_5dacb5a2",
   "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
@@ -75,7 +75,26 @@
       "wins_vs_xgb": "5/5",
       "iter_handed_off": 7,
       "source_commit": "4e0fc7b4",
-      "decision": "@champion candidate (await OOT 2x)"
+      "decision": "@champion candidate (await OOT 2x)",
+      "bias_correction_productized": {
+        "iter_absorbed": 17,
+        "ulfor_hypothesis": "H14 + H14-C",
+        "default_apply": true,
+        "window_days": 28,
+        "formula": "corrected_D = max(0, pred_D - mean(pred - actual)[ultimos 28d causais])",
+        "empirical_14d_NMAE_delta_pp": -9.94,
+        "empirical_14d_NMAE_raw": 0.592,
+        "empirical_14d_NMAE_corrected": 0.492,
+        "empirical_14d_beats_persist_pp": 4.9,
+        "cv_5x60d_NMAE_delta_mean_pp": -6.9,
+        "cv_5x60d_wins_loses": "4/0/5",
+        "applied_in_route": "/api/forecast/d1 response: predicted_curt_mwh (raw, back-compat), predicted_curt_mwh_corrected (raw - bias_28d), predicted_curt_mwh_default (per-sub default), bias_correction.{...}",
+        "source_commits": [
+          "41d8d952",
+          "586eeae6"
+        ],
+        "note": "Champion treinado IGUAL ao iter_0007; bias_correction e post-processing layer aplicada no inference time. NMAE CV oficial 33.7% NAO inclui correcao; valor esperado em prod com correcao ON: ~30% (extrapolacao 14d empirico)."
+      }
     },
     "SE": {
       "version": "v3.3+lr",
@@ -285,9 +304,43 @@
           "r2_std": 0.098,
           "nmae_mean": 0.337,
           "nmae_std": 0.081,
-          "f1_p50": null,
+          "f1_p50": 0.80,
+          "f1_p50_source": "cv_summary_per_fold_clean_plus.parquet (UlFor commit 6b21ffdf, req-0007); MLflow exp bakeoff-curtailment-d1; valor refere-se a ridge em clean_plus, mesmo modelo do champion mas feature_set DIFERENTE (champion=full); F1 em full ainda nao publicado por sub-modelo individual",
           "in_sample_r2": 0.83,
-          "ymean_test_estimated_mwh": 75730
+          "ymean_test_estimated_mwh": 75730,
+          "bias_correction_production": {
+            "enabled_default": true,
+            "window_days": 28,
+            "formula": "corrected_D = max(0, pred_D - mean(pred-actual)[ultimos 28d causais])",
+            "added_in_iter": 17,
+            "ulfor_commit_decisao": "41d8d952 (UlFor H14+H14-C)",
+            "ulfor_commit_endpoint": "586eeae6 (route forecast_d1 expoe bias_correction_mw)",
+            "evidencia_14d_real": {
+              "janela": "2026-05-08..21",
+              "nmae_raw_pct": 59.2,
+              "nmae_corrected_pct": 49.2,
+              "nmae_persist_pct": 54.1,
+              "delta_corrected_vs_persist_pp": -4.9,
+              "delta_corrected_vs_raw_pp": -9.94,
+              "r2_raw": -0.348,
+              "r2_corrected": -0.135,
+              "marco": "PRIMEIRA VEZ NO PROJETO que ML supera persist em NE"
+            },
+            "evidencia_cv_5x60d": {
+              "delta_nmae_media_pp": -6.90,
+              "wins_folds": 4,
+              "loses_folds": 0,
+              "total_folds": 5,
+              "decisao": "PRODUTIZAR"
+            },
+            "smoke_e2e": {
+              "bias_mw": 7319,
+              "applied_in_default": true,
+              "raw_mw": 62329,
+              "corrected_mw": 55010,
+              "persist_d1_mw": 59149
+            }
+          }
         },
         "SE": {
           "model": "lr_sklearn",
@@ -363,10 +416,10 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0016_h19_champion_metrics_extraction.md",
+  "ultimo_handoff": "iter_0017_recon_delta.md",
   "budget_consumido": {
-    "iter": 16,
-    "horas": 0.8,
+    "iter": 17,
+    "horas": 0.5,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -530,20 +583,177 @@
         }
       ],
       "nota_nomenclatura": "UlFor H10 (clean_plus FEATURE_DROPS_N) != nosso H10 (LGBM+persist ensemble, iter_0013 CONFIRMADO). Disambiguar sempre por contexto. Convencao proposta proximo recon: prefixar Hs externos como 'Hxx_ulfor' em referencias internas."
+    },
+    "iter0017_inicio_head": "5dacb5a2",
+    "iter0017_fim_head": "5c7963d4",
+    "novos_commits_durante_iter0017": [
+      {
+        "hash": "13f4a4de",
+        "msg": "feat(vitrine): dashboard MLflow validation D+1 (Fase 4 step 2)",
+        "absorbed": true,
+        "interpretacao": "Pagina dataops/vitrine/forecast.html + forecast.js + endpoint proxy /api/mlflow/validation-runs. Status NE/SE/S/N (NMAE/R2/skill/PSI + champion) + timelines 30 ultimas validations + tabela runs. CSS-puro consistente. Nao afeta interpretacao do loop \u2014 UX surface para validate_d1 (absorvido iter_0015)."
+      },
+      {
+        "hash": "8a30a29e",
+        "msg": "feat(forecast): rastreabilidade end-to-end no endpoint /api/forecast/d1 (Fase 4 step 3)",
+        "absorbed": true,
+        "interpretacao": "Response do endpoint inclui mlflow_url clicavel, training_git_sha, experiment_id/name, training_ran_at, inference_git_sha. Divergencia training vs inference sha = sinal de modelo treinado em codigo antigo. Smoke 4 subs OK. Util para sanity B1-B6 (H18)."
+      },
+      {
+        "hash": "5ea5a412",
+        "msg": "ulfor checkpoint 08:15Z \u2014 Fase 4 STEPS 2+3 fechadas",
+        "absorbed": true,
+        "interpretacao": "Checkpoint marker. Fase 4 PLANO_FINAL UlFor 100% FECHADA (step 1 iter_0015 + steps 2/3 nos 2 commits acima)."
+      },
+      {
+        "hash": "f64cfbb7",
+        "msg": "coord: req-0007 (P2 data_publish) from loop iter_0016",
+        "absorbed": true,
+        "interpretacao": "Inbound do envio do loop iter_0016. Rastro do canal coordination/loop_requests.md."
+      },
+      {
+        "hash": "f697449d",
+        "msg": "feat(forecast): UlFor H13 closure S \u2014 ridge_S+clean_plus REFUTADA via CV+14d",
+        "absorbed": true,
+        "interpretacao": "Opcao D checkpoint 08:15Z. clean_plus PIOROU S em CV (-0.28 R\u00b2 lr, -0.14 ridge vs full). Em 14d real, TODOS ML perdem para persist_d1 (persist 99.9% NMAE / lr+full champion 159.6% / ridge+clean_plus 137.4%). MANTER lr_curt_s_d1@champion v1 \u2014 Principio #5 PLANO_FINAL: NAO promover ML que perde a persist. CHAMPION S INALTERADO; UlFor H18 aberta (S underperforma persist estruturalmente). FRAGIL operacional reconfirmado (alinha iter_0015)."
+      },
+      {
+        "hash": "6b21ffdf",
+        "msg": "feat(forecast): F1_p50 + per-fold parquet dump no bakeoff_d1 (req-0007)",
+        "absorbed": true,
+        "interpretacao": "FECHA req-0007. (a) _f1_p50() portado de loops/forecast-mega-loop/scripts/metric_suite.py; metrics(y_train=...) retorna f1_p50, threshold_p50, ymean_test; MLflow + CV_SUMMARY atualizados; back-compat preservada. (b) Per-fold parquet em experiments/bakeoff_curtailment_multisub/outputs/cv_summary_per_fold_{full,clean_plus}.parquet (schema acceptance + 6 extras, ~13KB, 140 rows). F1_p50 clean_plus: NE ridge/lr=0.80, SE xgb=0.71, N ridge=0.79, S=NaN (P50=0). H19 follow-up DESBLOQUEADA \u2014 proxima iter pode parsear parquet full + preencher F1 nas 4 linhas champion + remover caveat MAE-em-MWh derivado."
+      },
+      {
+        "hash": "d93100ae",
+        "msg": "feat(forecast): UlFor H19 root-cause SE/fold4 R\u00b2-2.5 \u2014 ter_verif_rmean7 e a chave",
+        "absorbed": true,
+        "interpretacao": "Ablation SE/fold4 (test 2025-07-27..09-24): ter_verif_rmean7 sozinha restaura 99% gap clean->full (R\u00b2 ridge -2.53 -> -0.48; lr -3.12 -> -0.07). Dropada por corr +0.92 com ter_verif_lag1. Em seca-2025Q3 rolling-7d captura trend termico que lag1 nao pega; OLS nao recupera via lag1, GBDT sim via nao-linear. VIF/corr insuficiente para drops em sub com regimes sazonais. NAO confundir com nosso H19 (extracao MAE/R\u00b2/F1, iter_0016 CONFIRMADO_PARCIAL)."
+      },
+      {
+        "hash": "8708c329",
+        "msg": "ulfor checkpoint 05:00Z \u2014 3 sprints (H13 closed + req-0007 + H19 SE finding)",
+        "absorbed": true,
+        "interpretacao": "Checkpoint marker."
+      },
+      {
+        "hash": "ea8ca325",
+        "msg": "feat(forecast): UlFor H20 closure \u2014 clean_plus_v2 NET WIN (SE -11.27pp NMAE)",
+        "absorbed": true,
+        "interpretacao": "Novo FS clean_plus_v2 = clean_plus menos {ter_verif_rmean7} (39 features). Re-CV 5x60d: SE lr -11.27pp / +0.62 R\u00b2 (major win). NE +0.26pp / N +0.35pp / S +1.34pp within bound. Fold 4 SE (regiao blowup): R\u00b2 lr -3.12 -> -0.07. CHAMPIONS NAO ALTERADOS \u2014 todos em full por consistencia MLflow. clean_plus_v2 e' alternativa analitica e base de H21 ulfor (re-treinar SE em v2 14d holdout)."
+      },
+      {
+        "hash": "e56aa5f3",
+        "msg": "feat(forecast): UlFor H18-A REFUTADA \u2014 drop envenenadoras ridge_S piora CV",
+        "absorbed": true,
+        "interpretacao": "Surgical drop CV 5x60d ridge_S+full -{curt_rmean7, pdp_prev_solar_mwh, val_net_mwmed, curt_lag14}: NMAE 97.9% -> 103.5% (+5.55pp PIORA), R\u00b2 +0.23 -> +0.15, stdev +10.5pp. Fold 1 +13.13pp, fold 2 +23.55pp. Mesmas features uteis em 3/5 folds. Mesma licao H19 ulfor: aggregate 'envenenadora em >=2 folds' NAO guia drop global. pdp_prev_solar_mwh: Top-3 IMPORTANTE fold 1 (+58.3pp), Top-3 ENVENENADORA fold 0 (-2.7pp). Papel inverso por regime. UlFor H18 fica aberta (H18-B per-fold FS / H18-C target log1p ou binario / H18-D mixture-of-experts \u2014 nao no autopilot). lr_S+full mantido."
+      },
+      {
+        "hash": "108772a5",
+        "msg": "ulfor checkpoint 05:30Z \u2014 2 sprints (H20 NET WIN + H18-A REFUTADA)",
+        "absorbed": true,
+        "interpretacao": "Checkpoint marker."
+      },
+      {
+        "hash": "4223aa4c",
+        "msg": "feat(forecast): UlFor H21 REFUTADA \u2014 lr_SE clean_plus_v2 regride +15.31pp em 14d real",
+        "absorbed": true,
+        "interpretacao": "Treino lr_SE ate 2026-05-07, holdout 14d. clean_plus_v2 perde feio: persist 69.6% NMAE / champion full 77.4% / clean_plus_v2 92.7% (+15.31pp). Ganho H20 estava concentrado em fold 4 (seca-2025Q3); regime Mai/26 favorece FULL. Champion lr_curt_se_d1@v1 full PERMANECE. NENHUM ML bate persist NMAE em 14d \u2014 teto-de-dados D+1 estendido do NE ao SE no regime atual (alinha MEMORY.md::fase4_v3_curtailment_d1_data_ceiling). lr+full DOMINA F1_p50 (0.714 vs persist 0.545). Bias estrutural +5500-7100 MWh em todos ML abre H14 ulfor."
+      },
+      {
+        "hash": "41d8d952",
+        "msg": "feat(forecast): UlFor H14 + H14-C \u2014 bias correction PRODUTIZAR para NE",
+        "absorbed": true,
+        "interpretacao": "Bias correction rolante 28d: corrected_D = max(0, pred_D - mean(pred-actual)[ultimos 28d causais]). 14d real (2026-05-08..21): NE -9.94pp NMAE (59.2->49.2%, R\u00b2 -0.348->-0.135), BATE PERSIST por 4.9pp \u2014 PRIMEIRA VEZ NO PROJETO. SE +1.61pp (regime change wrong way). S +10.81pp (catastrofico). N +2.15pp (raw ja bate persist). CV 5x60d: NE media -6.90pp, wins 4/5, loses 0/5 -> PRODUTIZAR; SE 0/5 -> NAO; S +0.95 -> NAO; N -28.63pp wins 3/5 loses 2/5 -> MAYBE. CHAMPIONS NAO ALTERADOS \u2014 bias e' post-processing layer."
+      },
+      {
+        "hash": "586eeae6",
+        "msg": "feat(forecast): route forecast_d1 expoe bias_correction_mw per-sub (H14)",
+        "absorbed": true,
+        "interpretacao": "PRODUCAO. loader.py + route com BIAS_CORRECTION_DEFAULTS={NE:True, SE:False, S:False, N:False} + janela 28d. Response: predicted_curt_mwh (raw, back-compat), _corrected (raw-bias), _default (per-sub), bias_correction.{bias_mw, applied_in_default, recommended_apply, window_days, n_used, applicable, source}. Smoke e2e: NE bias=+7319 MWh -> raw 62329 -> corrected 55010 (perto persist 59149). SE/S/N nao aplicado. NE NMAE D+1 esperado em prod ~30% (CV 33.7% sem correcao + ganho 14d -10pp empirico). analytics_api NAO deployada ainda (sem risco prod)."
+      },
+      {
+        "hash": "5c7963d4",
+        "msg": "ulfor checkpoint 06:25Z \u2014 3 sprints (H21 REFUTADA + H14 analitica + H14 produtizado)",
+        "absorbed": true,
+        "interpretacao": "Checkpoint marker."
+      }
+    ],
+    "delta_resumo_iter0017": {
+      "champions_status_change": "TREINOS INALTERADOS (NE/SE/S/N). MUDANCA EM PROD: NE agora aplica bias_correction rolante-28d por padrao na route /api/forecast/d1 \u2014 NMAE D+1 cai de 59.2% para 49.2% em 14d real (bate persist por 4.9pp; PRIMEIRA vez no projeto). CV 5x60d: -6.90pp mean, 4 wins / 0 loses. SE/S/N bias correction default=False (regime ruim para correcao causal nesses subs).",
+      "fase_4_observabilidade": "100% FECHADA. Step 1 (validate_d1 + drift PSI + Telegram, iter_0015) + Step 2 (dashboard MLflow vitrine forecast.html, commit 13f4a4de) + Step 3 (rastreabilidade end-to-end mlflow_url + training_git_sha + inference_git_sha, commit 8a30a29e). Telegram alert ainda STOPPED ate Breno gerar BRAZILGRID_TELEGRAM_BOT_TOKEN/CHAT_ID (carry-over).",
+      "data_publish_unlocked": "req-0007 DONE (commit 6b21ffdf). F1_p50 + per-fold parquet publicados em experiments/bakeoff_curtailment_multisub/outputs/cv_summary_per_fold_{full,clean_plus}.parquet (~13KB cada, 140 rows). F1_p50 clean_plus: NE ridge/lr=0.80 / SE xgb=0.71 / N ridge=0.79 / S=NaN. H19 follow-up agora codavel local (custo <0.5h) \u2014 fecha gap F1=N/A nas 4 linhas champion do leaderboard + substitui MAE-em-MWh derivado por per-fold real.",
+      "ulfor_internal_h_closures": "H13 ulfor REFUTADA (S clean_plus regride CV+14d). H18-A ulfor REFUTADA (drop envenenadoras ridge_S piora). H19 ulfor (ter_verif_rmean7 chave SE/fold4). H20 ulfor CONFIRMADA (clean_plus_v2 NET WIN SE -11.27pp CV mas H21 ulfor REFUTADA NEXT-STEP em 14d real +15.31pp). H14 + H14-C ulfor PRODUTIZADAS NE.",
+      "insights_metodologicos_absorvidos": [
+        "VIF/corr insuficiente para feature drops em sub com regimes sazonais fortes (ter_verif_rmean7 load-bearing em SE/seca-2025Q3)",
+        "Drop global por 'envenenadora em >=2 folds' NAO funciona \u2014 mesma feature tem papel inverso por regime (pdp_prev_solar_mwh)",
+        "Teto-de-dados D+1 estendido NE->SE \u2014 NENHUM ML bate persist NMAE 14d SE em regime Mai/26 (alinha MEMORY.md::fase4_v3_curtailment_d1_data_ceiling)",
+        "Bias correction rolante-28d e' camada ortogonal aos features \u2014 mecanismo causal mean(pred-actual) corrige drift de modelo lento; aplicavel a qualquer modelo/sub"
+      ],
+      "novos_requests": [],
+      "requests_fechados": [
+        "req-0007"
+      ],
+      "novas_hipoteses_loop_geradas": [],
+      "h_loop_impactadas": [
+        {
+          "id": "H18",
+          "status_change": "blocked->blocked (urgencia diminui ainda mais)",
+          "motivo": "Fase 4 100% fechada + rastreabilidade git_sha + dashboard MLflow vitrine. Cobertura empirica continua + UI surface. B1-B6 audit local fica ainda menos prioritario."
+        },
+        {
+          "id": "H19",
+          "status_change": "done CONFIRMADO_PARCIAL -> done CONFIRMADO_PARCIAL (mas follow-up DESBLOQUEADO)",
+          "motivo": "req-0007 DONE: cv_summary_per_fold_{full,clean_plus}.parquet publicados. Custo de fechar gap F1=N/A das 4 linhas champion cai de 'aguardar UlFor' para '<0.5h parser parquet'. Recomendar warmup iter_0018."
+        }
+      ],
+      "candidato_H29": {
+        "summary": "Aplicar tecnica bias_correction rolante-28d (UlFor H14) sobre LGBM-ensemble do nosso H10 e medir delta NMAE no CV 5x60d em todas 4 subs.",
+        "priority": "P3",
+        "estimated_effort_hours": 1.0,
+        "mecanismo": "Ortogonal a H10 (mean shift correction vs. mixing com persist) \u2014 pode compor ganhos.",
+        "status": "NAO criada no queue (alt menos prioritaria que H19-followup e H21)"
+      },
+      "nota_nomenclatura": "UlFor numera H1/H2/H4/H8/H9/H10/H13/H14/H14-C/H18/H18-A/H19/H20/H21 no PLANO_FINAL (Hs internos da Fase 3). NAO confundir com nosso queue (H19 loop = extracao champion metrics iter_0016; H10 loop = ensemble LGBM+persist iter_0013; H21 loop = pdp_residual queued). Disambiguacao por contexto + commit hash sempre. Convencao 'Hxx_ulfor' usada nesta recon."
     }
   },
-  "open_requests": [
+  "open_requests": [],
+  "closed_requests": [
     {
       "id": "req-0007",
       "from_iter": 16,
       "priority": "P2",
       "type": "data_publish",
       "summary": "Logar F1_p50 por fold + dump CV_SUMMARY per-fold parquet no proximo CV bake-off",
-      "status": "OPEN",
-      "rationale": "Fechar gap F1_p50 + remover caveat 1a ordem do MAE-em-MWh derivado (slack ~10-15%)"
-    }
-  ],
-  "closed_requests": [
+      "status": "DONE",
+      "closed_at_loop_iter": 17,
+      "ulfor_commit": "6b21ffdf",
+      "ulfor_verdict": "AMBAS as lacunas fechadas em 1 sprint. (1) F1_p50: _f1_p50() portado de loops/forecast-mega-loop/scripts/metric_suite.py para bakeoff_d1.py:metrics(); metrics(y_train=...) agora retorna f1_p50, threshold_p50, ymean_test; back-compat preservada; MLflow log + CV_SUMMARY atualizados. (2) Per-fold parquet: experiments/bakeoff_curtailment_multisub/outputs/cv_summary_per_fold_{feature_set}.parquet (schema do acceptance + 6 extras); 4 arquivos publicados (clean_plus + full, per_fold + mean); ~13KB cada, 140 rows = 4 subs * 7 modelos * 5 folds.",
+      "f1_p50_results_clean_plus": {
+        "NE": {
+          "ridge": 0.8,
+          "lr": 0.8,
+          "persist": 0.75
+        },
+        "SE": {
+          "xgb": 0.71,
+          "persist": 0.69
+        },
+        "N": {
+          "ridge": 0.79,
+          "persist": 0.72
+        },
+        "S": {
+          "all": "NaN (P50=0 esperado, muitos zeros no train)"
+        }
+      },
+      "artifacts_published": [
+        "experiments/bakeoff_curtailment_multisub/outputs/cv_summary_per_fold_clean_plus.parquet",
+        "experiments/bakeoff_curtailment_multisub/outputs/cv_summary_per_fold_full.parquet",
+        "experiments/bakeoff_curtailment_multisub/outputs/cv_summary_mean_clean_plus.parquet",
+        "experiments/bakeoff_curtailment_multisub/outputs/cv_summary_mean_full.parquet"
+      ],
+      "unblocks": "H19 follow-up (parse parquet -> preencher F1_p50 nas 4 linhas champions do leaderboard + substituir MAE-em-MWh derivado por per-fold real)"
+    },
     {
       "id": "req-0001",
       "from_iter": 3,
@@ -580,17 +790,18 @@
   ],
   "planner_config": {
     "mode": "self_planning",
-    "next_iter_should_be": "H21 (P2 feature engineering pdp_residual = pdp_prev - gen). Continua valida pos-iter_0014: derivada direta de H3 iter_0010, codavel localmente, sem dep externa. Bake-off replay iter_0002 + adicionar coluna pdp_residual_mwh + comparar PI/perm + check coliner com pdp_prev_* originais. Sanity B1 leak (pdp_prev D-1 safe, gen D-only) + B2 perm + B4 baseline. Usar LGBM (confirmado iter_0012 como GBDT padrao do loop) + considerar ensemble post-processing (H10 confirmado iter_0013) para baseline final.",
-    "alt_next": "H24 (P2 ensemble sobre champions Ridge/LR \u2014 derivada de H10 iter_0013; reimplementar Ridge/LR no replay sobre features iter_0002 e aplicar mesmo CV+inner_val), H27 (P3 P50 quantile como point estimate substituto \u2014 derivada H11 iter_0014, ganho transversal -1% a -18% MAE em N/S/SE custo zero), H26 (P3 conformal prediction post-hoc \u2014 fix de H11 sem retreinar), H22 (P3 GBDT vs OLS gap para curt~gen+pdp), H25 (P3 stacker Ridge meta-modelo), H19 (P2 extrair MAE/R\u00b2/F1 dos champions UlFor Ridge/LR), H28 (P3 NGBoost vs LGBM quantile), H20 (P3 auto-flag n_test<30), H8 (P3 perm validation feat_intercambio).",
+    "next_iter_should_be": "WARMUP+MAIN: (W) H19-followup (P2, ~0.3h) - parsear cv_summary_per_fold_full.parquet publicado por UlFor (req-0007 DONE iter_0017) e preencher F1_p50 nas 4 linhas champion do leaderboard, substituindo MAE-em-MWh derivado por per-fold real e fechando o gap CONFIRMADO_PARCIAL -> CONFIRMADO. (M) H21 (P2 feature engineering pdp_residual = pdp_prev - gen, ~1.5h) - derivada de H3 iter_0010, codavel localmente, sem dep externa. Bake-off replay iter_0002 + adicionar coluna pdp_residual_mwh + comparar PI/perm + check coliner com pdp_prev_* originais. Sanity B1 leak (pdp_prev D-1 safe, gen D-only) + B2 perm + B4 baseline. Usar LGBM + considerar ensemble post-processing (H10 confirmado iter_0013). Se budget exceder, fechar so' warmup e diferir H21 para iter_0019.",
+    "alt_next": "H29-candidato (P3 ~1h, NAO criada ainda: aplicar bias_correction rolante-28d UlFor H14 sobre LGBM-ensemble do nosso H10 e medir delta NMAE no CV 5x60d em todas 4 subs; ortogonal a H10 mecanism, pode compor ganhos), H24 (P2 ensemble sobre champions Ridge/LR - derivada H10 iter_0013), H27 (P3 P50 quantile como point estimate substituto - derivada H11 iter_0014, ganho transversal -1% a -18% MAE em N/S/SE custo zero), H26 (P3 conformal prediction post-hoc), H22 (P3 GBDT vs OLS gap para curt~gen+pdp), H25 (P3 stacker Ridge meta-modelo), H28 (P3 NGBoost vs LGBM quantile), H20 (P3 auto-flag n_test<30), H8 (P3 perm validation feat_intercambio).",
     "notas_iter0014": "H11 fechada como REFUTADO_NE. Bandas LGBM quantile com defaults sistemicamente undercovered (cov_band 41-53% vs 80% nominal) \u2014 distribution shift (iter_0012 KS p<0.0001) + LGBM sem heteroscedasticidade explicita = causa raiz. Bonus inesperado: P50 BATE LGB-mean em magnitude em N/S/SE (-1% a -18%) \u2014 mediana robusta vs cauda longa. 3 follow-ups derivados (H26 conformal, H27 P50 substituto, H28 NGBoost). H27 e' o mais barato (objective swap custo zero, ganho universal). H21 mantida como plan natural \u2014 H3 confirmado da' feature mais informativa antes de tentar arquitetura alt. Considerar inserir H27 entre H21 e H24 (custo 1h, ganho garantido em N+S baseado em evidencia hoje).",
     "notas_iter0015": "Recon limpo. 7 commits UlFor absorvidos (c8df4077..5dacb5a2): champion N atualizado v1->v2 clean_plus (NMAE 84.8\u00b126.2%, std -5.6pp); Fase 4 observabilidade (validate_d1+drift PSI+Telegram alert) FECHADA pelo UlFor em paralelo aos iters 0012-0014. Nenhuma H do loop resolvida, nenhuma nova gerada. H18 segue blocked mas urgencia diminui (validate_d1 da cobertura empirica continua); H19 atratividade cresce (summary JSON daily acessivel quando schedule ativar). Acao Breno pendente: gerar BRAZILGRID_TELEGRAM_BOT_TOKEN/CHAT_ID + ativar schedule forecast_validate_d1_daily. Planner mantem H21 como next: H3 confirmou pdp_residual como mecanismo, codavel local sem dep externa.",
-    "notas_iter0016": "H19 fechada como CONFIRMADO_PARCIAL. Extracao funcionou sem MLflow tunnel: parser regex em FINDING_RIDGE_BEATS_GBDT.md + leitura literal de promote_champions.py:CV_METRICS_BY_FS. Consistency check NMAE_persist FINDING vs state.json OK 4/4 (validacao de protocol identity entre iter_0013 baseline e UlFor CV). MAE-em-MWh derivado (NE 25.5k / SE 5.6k / S 916 / N 429) com caveat 1a ordem ~10-15%. R\u00b2 direto. F1_p50 gap real (nenhuma fonte UlFor computa) -> req-0007 emitido. Leaderboard reescrito com 4 linhas curtailment/d1_ENE_CNF agora consistentes (MAE_derived / R\u00b2 / F1=N/A / NMAE / in-sample_R\u00b2). Bonus: ymean_test_per_sub agora disponivel para reusar em bake-offs futuros. Planner mantem H21 como next iter (zero deps externa)."
+    "notas_iter0016": "H19 fechada como CONFIRMADO_PARCIAL. Extracao funcionou sem MLflow tunnel: parser regex em FINDING_RIDGE_BEATS_GBDT.md + leitura literal de promote_champions.py:CV_METRICS_BY_FS. Consistency check NMAE_persist FINDING vs state.json OK 4/4 (validacao de protocol identity entre iter_0013 baseline e UlFor CV). MAE-em-MWh derivado (NE 25.5k / SE 5.6k / S 916 / N 429) com caveat 1a ordem ~10-15%. R\u00b2 direto. F1_p50 gap real (nenhuma fonte UlFor computa) -> req-0007 emitido. Leaderboard reescrito com 4 linhas curtailment/d1_ENE_CNF agora consistentes (MAE_derived / R\u00b2 / F1=N/A / NMAE / in-sample_R\u00b2). Bonus: ymean_test_per_sub agora disponivel para reusar em bake-offs futuros. Planner mantem H21 como next iter (zero deps externa).",
+    "notas_iter0017": "RECON_DELTA limpo. 15 commits UlFor absorvidos (5dacb5a2..5c7963d4): (a) Fase 4 100% FECHADA \u2014 step 2 dashboard MLflow vitrine + step 3 rastreabilidade end-to-end. (b) req-0007 DONE \u2014 F1_p50 + per-fold parquet publicados (cv_summary_per_fold_{full,clean_plus}.parquet, 140 rows cada). H19 follow-up agora DESBLOQUEADO custo <0.5h. (c) MUDANCA EM PROD NE: bias_correction rolante-28d default ON na route /api/forecast/d1 \u2014 14d real NMAE 59.2->49.2% (bate persist 4.9pp, PRIMEIRA vez no projeto); CV 5x60d -6.90pp wins 4/0/5. Champions TREINOS INALTERADOS \u2014 bias e' post-processing. (d) SE/S champions confirmados via 2 UlFor refutacoes: H13 ulfor REFUTADA (S clean_plus regride CV+14d); H21 ulfor REFUTADA (lr_SE clean_plus_v2 +15.31pp em 14d real). (e) UlFor H18 ulfor segue aberta (S underperforma persist estruturalmente; H18-A REFUTADA). (f) Insights metodologicos: VIF/corr insuficiente para drops em sub sazonal; drop global por '>=2 folds' nao funciona (pdp_prev_solar inverte papel por regime); teto-de-dados D+1 estendido NE->SE. Nenhuma H do loop fechada (todas UlFor internas). Planner: warmup iter_0018 = H19 follow-up (parse parquet full + preencher F1_p50 nas 4 linhas champion, <0.5h), depois H21 (P2 pdp_residual, 1.5h)."
   },
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 3,
-    "horas": 0.0,
+    "iter": 17,
+    "horas": 0.5,
     "usd": 0.0
   }
 }

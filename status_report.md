@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T12:05:48Z
+# Loop status — 2026-05-24T12:25:08Z
 
 **Saude**: green (loop saudavel)
 
-**Loop continuo**: no (pid=54759, .STOP=no)
+**Loop continuo**: yes (pid=272863, .STOP=no)
 
-**Iter atual**: 19
-**Alvo ativo**: leaderboard_consistency_post_h9
+**Iter atual**: 17
+**Alvo ativo**: recon_delta_ulfor_post_5dacb5a2
 
-**Budget**: 16 iters / 0.8 horas consumidas
+**Budget**: 17 iters / 0.5 horas consumidas
 
-**Open requests ao UlFor**: 1
+**Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0016_h19_champion_metrics_extraction.md
-  decision: |
+**Ultimo handoff**: iter_0017_recon_delta.md
+  decision: 
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 8e52f46 bridge: sync iter 18 (7 seconds ago)
+**Bridge ultimo sync**: b2d29dc bridge: sync ulfor iter 10 (9 minutes ago)
 
-**UlFor HEAD**: 5c7963d4 ulfor checkpoint: 06:25Z — 3 sprints (H21 REFUTADA + H14 analitica + H14 produtizado)
+**UlFor HEAD**: eb9fca05 exp(forecast): H14-B sweep da janela bias correction (28/60/90d)
 
 ---
 
