@@ -1,15 +1,37 @@
 {
-  "iter_atual": 0,
-  "alvo_ativo": null,
-  "layer_ativa": null,
-  "iter_no_alvo_atual": 0,
-  "baselines": {},
+  "iter_atual": 2,
+  "alvo_ativo": "curtailment_d1_ENE_CNF_multisubsistema",
+  "layer_ativa": "curtailment",
+  "iter_no_alvo_atual": 2,
+  "baselines": {
+    "NE": {"tipo": "persist_d1", "nmae_test_n11": 0.388, "r2": -0.157},
+    "SE": {"tipo": "persist_d1", "nmae_test_n11": 0.633, "r2": -1.043},
+    "S":  {"tipo": "persist_d7", "nmae_test_n11": null,  "r2": null, "nota": "ymean_test=0"},
+    "N":  {"tipo": "persist_d1", "nmae_test_n11": 0.342, "r2": -0.072}
+  },
+  "best_ml": {
+    "NE": {"version": "v2", "model": "lgbm", "nmae": 0.282, "r2": 0.660, "iter": 2},
+    "SE": {"version": "v2", "model": "lgbm", "nmae": 0.362, "r2": 0.394, "iter": 2,
+           "warn": "ganho_some_em_holdout_strict_+6.4pp"},
+    "S":  null,
+    "N":  null
+  },
   "leaderboard_dirty": false,
-  "ultimo_handoff": null,
+  "ultimo_handoff": "iter_0002_sanity_checks_v1v2v3.md",
   "budget_consumido": {
-    "iter": 0,
-    "horas": 0.0,
-    "custo_usd": 0.0
+    "iter": 2,
+    "horas": 2.4,
+    "custo_usd": null
+  },
+  "ulfor_session_sync": {
+    "iter0002_inicio_head": "055b9d03",
+    "iter0002_fim_head": "b7fa795c",
+    "novos_commits_durante_iter": [
+      "5e1bc70a feat: bakeoff v3.2 — pdp_has_data indicator + restore PDP NE",
+      "e283a03a fix: bakeoff v3.3 final — PDP NE off, indicator p/ outros",
+      "b7fa795c ulfor checkpoint: 00:25Z — fase 3, proximo: per-conjunto NE com crosswalk"
+    ],
+    "acao": "registrado_para_iter_0003"
   },
   "kill_requested": false
 }
