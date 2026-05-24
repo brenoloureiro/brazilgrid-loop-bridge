@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T10:30:00Z
+last_updated: 2026-05-24T12:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -481,6 +481,15 @@ hypotheses:
       do loop. Loop NAO emite req-0004 nesta iter (auto-pesado vs valor
       incremental: FINDING_MULTICOLINEARITY + FINDING_LR_N_INSTABILITY
       ja' resumem o que B1-B6 reconfirmaria).
+
+      ATUALIZADO iter_0015: urgencia DIMINUI. UlFor fechou Fase 4 inteira
+      (validate_d1.py + drift PSI nativo + Telegram alert + Dagster
+      schedule daily 07h BRT — commits c0e80193, 9d7652de, 9873e3c8).
+      Pipeline da cobertura empirica continua dos champions com 4 gatilhos
+      (skill<0, R²<0, psi_recent_max>1.0, n_feat_drift>10), reduzindo
+      valor marginal do B1-B6 audit local. Bloqueio req-0005 continua
+      mas pressao caiu. Schedule STOPPED ate Breno gerar token Telegram
+      + ativar Dagster UI.
     type: methodology
     layer: curtailment
     target: ridge_lr_champion_audit_pre_fase4
@@ -513,6 +522,15 @@ hypotheses:
       NMAE 33.7%" mas iter_0002 replay LGBM em NE/v2 mostra NMAE 28.2%
       sem R²/F1. Conclusao "ridge melhor" depende de comparar metricas
       identicas.
+
+      ATUALIZADO iter_0015: atratividade CRESCE. UlFor adicionou
+      validate_d1.py (commit c0e80193) que loga daily summary JSON com
+      MAE/RMSE/NMAE/R²/skill_vs_persist + tabela de predicoes por sub
+      no MLflow experiment `ulfor-validation-d1`. Quando Breno ativar
+      schedule (07h BRT daily) + loop ganhar acesso a summary JSON via
+      filesystem ou MLflow URI, custo H19 cai de "parse MLflow proxy
+      file" para "parse summary JSON daily". Manter P2; eligible para
+      promover quando schedule estiver LIVE.
     type: metric
     layer: meta
     target: leaderboard_consistency_post_h9

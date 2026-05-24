@@ -37,6 +37,32 @@ Champions UlFor sao Ridge/LR (iter_0007) — H7 e' diagnostica do replay loop, n
 producao. Lesson reforca iter_0006/req-0003 (n=11 falsos positivos). Detalhe em
 `iterations/iter_0012_h7_xgb_vs_lgbm_cv.md`.
 
+**Iter 0015 (RECON_DELTA):** 7 commits UlFor `c8df4077..5dacb5a2` absorvidos.
+**Champion N atualizado**: ridge_curt_n_d1 v1 (full, 55 feat) → **v2 (clean_plus, 31
+feat)** @staging, NMAE 86.3±31.8% → **84.8±26.2%** (-1.5pp mean, -5.6pp std). UlFor
+H10 (FEATURE_DROPS_N = CLEAN ∪ {cmo_range, ter_verif_lag1, carga_mwmed_rmean7}) **PARCIALMENTE
+CONFIRMADA** (nao confundir com nosso H10 ensemble iter_0013). Endpoint `/api/forecast/d1`
+agora feature-set aware (loader le `feature_set` do MLflow run params, backward-compat v1).
+**Fase 4 observabilidade FECHADA** pelo UlFor: `validate_d1.py` (replay daily MAE/R²/skill)
++ drift PSI nativo numpy/scipy (dual long/recent, Evidently abandonado por conflito plotly 5/6)
++ Telegram alert 4 gatilhos (`skill<0`, `R²<0`, `psi_recent_max>1.0`, `n_feat_drift>10`) +
+Dagster asset `forecast/validate_d1` + schedule 07h BRT **STOPPED** ate Breno gerar
+`BRAZILGRID_TELEGRAM_BOT_TOKEN/CHAT_ID`. Smoke confirma `lr_S` em colapso operacional
+(NMAE 137-184% em 7-14d, skill -37 a -41%) e drift NE alto (psi_recent_max=11.74,
+39/45 features) — reproduz B5 distribution shift documentado iter_0012. Sem novos
+requests; sem H do loop resolvida. Detalhe em `iterations/iter_0015_recon_delta.md`.
+
+**Iter 0014 (H11):** LGBM quantile regression para incerteza P10/P50/P90 — **REFUTADO_NE**.
+CV walk-forward 5x60d gap 7d sobre features iter_0002 em 12 cells; verdict julgado em NE.
+Coverage_band_80 mean: NE **43.6%** (0/3 cells in [70%, 90%]) vs 80% nominal —
+under-coverage sistemico em todas as 4 subs (SE 45.4%, S 52.1%, N 47.1%). Causa raiz:
+LGBM nao modela heteroscedasticidade + distribution shift (iter_0012 KS p<0.0001).
+P50 magnitude OK em NE (delta +4.5% vs LGB-mean) mas banda inutil para "P90 conservador"
+do operador. **Bonus inesperado**: P50 quantile BATE LGB-mean em magnitude em N (-18%),
+S (-14%), SE (-1.6%) — mediana mais robusta que mean em distribuicoes com cauda longa
+de zeros. H26 (conformal post-hoc), H27 (P50 substituto, custo zero) e H28 (NGBoost)
+derivadas. Detalhe em `iterations/iter_0014_h11_quantile_regression_ne.md`.
+
 **Iter 0013 (H10):** Ensemble LGBM + persist_d1 com pesos analiticos derivados de
 inner_val 30d (zero leak) **CONFIRMADO_NE_SE + bonus N**. CV walk-forward 5x60d gap 7d,
 4 esquemas (equal / inv_mae / inv_mse / opt_alpha). Best ensemble bate LGB-only em
@@ -55,7 +81,7 @@ queue. Detalhe em `iterations/iter_0013_h10_ensemble_v2_persist.md`.
 | curtailment | d1_ENE_CNF | NE | persist_d1 (UlFor CV 5 folds — MAE pendente extracao) | **ridge_curt_ne_d1 @champion (R² +0.469±0.098 CV; in-sample R²=0.830)** | NMAE 33.7±8.1% | 0011 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T08:30Z |
 | curtailment | d1_ENE_CNF | SE | persist_d1 (UlFor CV 5 folds) | **lr_curt_se_d1 @champion (R² +0.380±0.139 CV; in-sample R²=0.619)** | NMAE 46.6±13.4% | 0011 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T08:30Z |
 | curtailment | d1_ENE_CNF | S | persist_d1 (UlFor CV 5 folds) | **lr_curt_s_d1 @champion (R² +0.447±0.202 CV; in-sample R²=0.725)** | NMAE 89.6±31.2% (NMAE unsafe em test n=11 — S baixo ymean, iter_0008) | 0011 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T08:30Z |
-| curtailment | d1_ENE_CNF | N | persist_d1 (UlFor CV 5 folds) | **ridge_curt_n_d1 @staging (R² +0.196±0.289 CV; in-sample R²=0.472)** FRAGIL — lr_N investigado iter_0011, fold 4 blowup 208% | NMAE 86.3±31.8% | 0011 | nao promovivel ainda — staging only | 2026-05-24T08:30Z |
+| curtailment | d1_ENE_CNF | N | persist_d1 (UlFor CV 5 folds) | **ridge_curt_n_d1 v2 @staging (clean_plus, 31 feat; R² +0.196±0.289 CV; in-sample R²=0.472)** FRAGIL atenuado — v2 reduz std -5.6pp vs v1 full | NMAE 84.8±26.2% (era 86.3±31.8% em v1) | 0015 | nao promovivel ainda — staging only (UlFor H10 PARCIALMENTE CONFIRMADA) | 2026-05-24T12:30Z |
 | meta | metric_suite | — | NMAE (Principio 6 violado) | **MAE/R²/F1 primario + NMAE secundario com flag** | 3/4 subs (NE,SE,N) conflict NMAE↔R²/F1 em iter_0002 replay; S NMAE unsafe | 0008 | H9 CONFIRMADO | 2026-05-24T06:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | NE | persist_d1 | NMAE 35.7% xgb UlFor v3.3 (superseded por ridge_alpha10) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | SE | persist_d1 | NMAE 46.0% xgb UlFor v3.3 (superseded por lr) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
@@ -609,3 +635,69 @@ que mean em distribuicoes com cauda longa de zeros.
 `pdp_residual = pdp_prev - gen`, derivada H3 confirmado). Alt: H24
 (ensemble champions Ridge/LR), H27 (P50 substituto, derivada hoje,
 ganho baixo custo), H26 (conformal, fix de H11).
+
+## Iter 0015 — RECON_DELTA UlFor (c8df4077 -> 5dacb5a2)
+
+7 commits absorvidos. Champion N teve upgrade marginal de versao (v1 full ->
+v2 clean_plus). Fase 4 observabilidade (validate_d1 + drift PSI + Telegram
+alert) FECHADA pelo UlFor em paralelo aos iters 0012-0014 do loop:
+
+| commit | acao | impacto |
+|---|---|---|
+| `0481a5a6` | checkpoint marker 05:15Z | "H8 ulfor refutada, endpoint operacional, H9 ulfor respondida" — todos Hs UlFor internos (Fase 3), nao do loop |
+| `c8e27784` | H10 ulfor clean_plus + endpoint feature-set aware | **MUDANCA DE CHAMPION N**: ridge_curt_n_d1 v2 (clean_plus, 31 feat) @staging substitui v1 (full, 55 feat). NMAE 86.3±31.8% -> **84.8±26.2%** (-1.5pp mean, **-5.6pp std**). lr_N nao promovido. UlFor H10 = CLEAN ∪ {cmo_range, ter_verif_lag1, carga_mwmed_rmean7} PARCIALMENTE CONFIRMADA. `loader.py` agora le `feature_set` do MLflow run params e aplica drops em `build_inference_row` (backward-compat v1 via param `55_feat_*_v3.3 -> full`) |
+| `c0e80193` | validate_d1.py foundation | **FASE 4 STEP 1**. Replay-predict ultimos N dias usando features as-of D + comparacao vs realized y_d1 e baseline persist D-1. MLflow experiment `ulfor-validation-d1`. Smoke 14d: NE 49.2% +9% skill, SE 55.4% +20%, **S 137% -37% (alerta)**, N 60.5% +45% |
+| `26617ba5` | checkpoint marker 06:15Z | "Fase 3 fechada, Fase 4 iniciada" |
+| `9d7652de` | Dagster asset + schedule 07h BRT | Asset `forecast/validate_d1` + schedule `forecast_validate_d1_daily` (10h UTC, **STOPPED**). Subprocess pro venv raiz (mlflow nao em dataops). Smoke 7d: NE 40.5% +29%, SE 71.7% +37%, **S 184.3% -41% (alerta)**, N 56.6% +59% |
+| `9873e3c8` | drift PSI + Telegram alert | **FASE 4 STEPS 2+3 (Opcao C closure)**. Evidently ABANDONADO (conflito `evidently>=0.5 depends on plotly<6` vs nosso pin `plotly>=6.5`). PSI nativo numpy/scipy: bins adaptativos n/3 max 10, Laplace smoothing, dual `psi_long`+`psi_recent`, SEASONAL_FEATURES excluidas. Telegram standalone com 4 gatilhos. Window default 60d. Smoke: **NE psi_recent_max=11.74 39/45 features** drift |
+| `5dacb5a2` | checkpoint marker 07:15Z | "Fase 4 step 1 fechada (Dagster+drift+Telegram)" |
+
+### O que mudou na nossa interpretacao
+
+1. **Champion N evoluiu silenciosamente**. Iter_0011 marcou ridge_N@staging
+   v1 (full); 1 commit depois, v2 clean_plus. Tracking versao do champion
+   no leaderboard agora obrigatorio (nao so' modelo + NMAE — incluir
+   `feature_set` + `versao MLflow`). Linha N atualizada com `v2 (clean_plus, 31 feat)`.
+
+2. **Pipeline observabilidade Fase 4 inteira PRONTA**. Champions tem 3
+   camadas de validacao continua quando schedule for ativado: replay
+   diario (`validate_d1`), drift PSI (`compute_drift`), Telegram alert
+   (`alert.py`). **Acao Breno**: gerar `BRAZILGRID_TELEGRAM_BOT_TOKEN`
+   + `BRAZILGRID_TELEGRAM_CHAT_ID` (mesma convencao `sintegre_freshness_alert`)
+   + ativar `forecast_validate_d1_daily` no Dagster UI.
+
+3. **Smoke validate_d1 confirma fragilidade lr_S**. Janelas 7d e 14d:
+   skill_vs_persist NEGATIVO (-37 a -41%), NMAE 137-184%. CV 5x60d
+   ainda mostra +0.447 R² mas operacionalmente o modelo colapsa em
+   janelas curtas. Valida flag "FRAGIL" no leaderboard.
+
+4. **Drift PSI confirma B5 distribution shift iter_0012**. NE smoke 60d:
+   psi_recent_max=11.74 (vs industry-std threshold 0.2), 39/45 features
+   driftando. Top: rolling-means de carga e CMO. Threshold calibrado em
+   `>1.0` (vs std 0.2) sera recalibrado em 2 semanas de operacao real.
+
+### Reqs / hipoteses
+
+- Sem novos requests pendentes. Os 3 antigos (req-0001/2/3) continuam DONE
+  (verificado contra `git show 5dacb5a2:coordination/loop_requests.md`).
+- Sem novas hipoteses do **loop** geradas. Mudancas absorvidas referem-se
+  a Hs UlFor internos (PLANO_FINAL). **Critico**: UlFor H10 (clean_plus
+  FEATURE_DROPS_N) != nosso H10 (LGBM+persist ensemble, iter_0013).
+  Disambig persistente em `state.json.nota_nomenclatura`.
+- **H18 (sanity B1-B6 sobre champions)**: bloqueio segue, mas urgencia
+  diminui — pipeline validate_d1 + drift PSI da cobertura empirica
+  continua que reduz valor marginal do B1-B6 audit local.
+- **H19 (extrair MAE/R²/F1 dos champions)**: atratividade cresce — daily
+  summary JSON do validate_d1 tem MAE/R²/skill por sub. Quando schedule
+  ativar + loop ganhar acesso MLflow URI, custo H19 cai significativamente.
+
+### Proxima iter
+
+`iter_0016` retoma planner_config: **H21** (P2 feature engineering
+`pdp_residual = pdp_prev - gen`). Derivada de H3 iter_0010, codavel
+localmente, sem dep externa. Razoes inalteradas desde iter_0014/0015.
+Considerar usar ensemble post-processing (H10 nosso, iter_0013 confirmado)
++ LGBM (iter_0012 confirmado GBDT padrao) para baseline final do bake-off
+H21. Alt: H27 (P50 substituto custo zero), H24 (ensemble Ridge/LR), H19
+(MAE/R²/F1 dos champions — agora parseavel via summary JSON UlFor).
+

@@ -1,22 +1,22 @@
-# Loop status — 2026-05-24T04:15:38Z
+# Loop status — 2026-05-24T04:24:29Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=54759, .STOP=no)
 
-**Iter atual**: 14
-**Alvo ativo**: NE_d1_quantile_forecast
+**Iter atual**: 15
+**Alvo ativo**: recon_delta_ulfor_post_c8df4077
 
-**Budget**: 14 iters / 1.0 horas consumidas
+**Budget**: 15 iters / 0.4 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0014_h11_quantile_regression_ne.md
-  decision: |
+**Ultimo handoff**: iter_0015_recon_delta.md
+  decision: 
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 866af26 bridge: sync ulfor iter 3 (2 minutes ago)
+**Bridge ultimo sync**: 165391d bridge: sync iter 14 (9 minutes ago)
 
 **UlFor HEAD**: 5dacb5a2 ulfor checkpoint: 07:15Z — Fase 4 step 1 fechada (Dagster+drift+Telegram)
 
