@@ -1,6 +1,6 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0023 (2026-05-24T19:30Z). Suite canonica MAE/R²/F1/RMSE/skill
+Atualizado em iter_0024 (2026-05-24T20:30Z). Suite canonica MAE/R²/F1/RMSE/skill
 + NMAE/bias secundarios. Fonte unica: parquets UlFor commit `6b21ffdf`
 (`experiments/bakeoff_curtailment_multisub/outputs/cv_summary_*.parquet`),
 extraidos via parse direto. **Zero retrain neste iter.**
@@ -100,6 +100,61 @@ iter_0022.
 (sorte amostral). Recomendacao implicita UlFor: **SE → ridge+h22** (R²
 essencialmente empate vs lr atual sem risco numerico). H31_emergente
 candidata (replicar h22_per_fold em holdout 14d real NE+SE).
+
+### Sucessores via H22_model_aware (commit `2daa5d40`, iter_0023)
+
+Patch que substitui PI universal (Ridge) por PI medida com **champion-model
+real de cada sub** (NE/N=ridge, SE/S=lr). Resolve bug H23_ulfor (Ridge L2
+mascara importance de colineares — caso canonico `ter_verif_rmean7` em SE/lr).
+
+| sub | candidato | feature_set | NMAE | R² | n_drops | delta vs H22 universal |
+|---|---|---|---:|---:|---:|---|
+| NE/N | ridge | h22_model_aware | ≡ H22 | ≡ H22 | ≡ H22 | sem mudanca (mesmo champion) |
+| SE | **lr** | **h22_model_aware** | **48.1%** | **+0.381** | 11 (−10 vs H22=21) | **+9.1pp NMAE / +0.449 R²** vs H22 universal |
+| S | lr | h22_model_aware | 84.3% | +0.387 | 4 (−3 vs H22=7) | +2.9pp NMAE / +0.387 R² vs full |
+
+**Implicacao operacional**: SE agora tem candidato sucessor **SEM trocar
+familia LR** (era unica opcao "ridge+h22" pos-iter_0021). Recomendacao
+matriz: SE lr+h22_MA preserva NMAE (+1.6pp vs full / R² ≈ empate) e
+**mitiga cond_num 2.5e17 com −11 features**. PROMOVIVEL.
+
+### Bias correction alternativa H14-G (commit `1ba9cb39`, iter_0023)
+
+Sweep `window × k` para threshold sigma_bias (reusa fold_one H14-E). Subs
+N+NE (SE/S nao-corrigiveis per H14-F). Criterio strict: wins >= −5pp.
+
+| sub | atual em prod | candidato H14-G | mean dNMAE | wins/loses | apply_rate | decisao UlFor |
+|---|---|---|---:|---:|---:|---|
+| **N** | H14-B w=60 always-on (−19.63pp 3W/1L 100%) | **w=14d k=1.5** | **−31.87pp** | **3W/1L** | **41%** | **PROMOVIVEL** (SUPERA por −12.24pp) |
+| NE | H14-C w=28 always-on (−6.90pp 4W/0L 100%) | w=14d k=0.5 (best) | −8.29pp | 3W/0L | 79% | MANTER status quo (−1.39pp marginal) |
+| NE | H14-C w=28 always-on (−6.90pp 4W/0L) | w=14d k=1.0 | −7.79pp | 5W/0L | 66% | Pareto-strict (Wins↑) — opcao secundaria |
+
+UlFor explicito: **PARAR E PERGUNTAR Breno antes de promover** (mudar
+loader.py = tocar prod). Custo produtizar similar H14-F (cache
+`sigma_bias_rolling_train` em runtime).
+
+### CHAMPION_DECISION_MATRIX (commit `c5004bac`, iter_0023)
+
+Documento decision-aid consolidando **7 acoes PROMOVIVEIS** (5 modelo+feature,
+2 bias correction). Validation gap explicito: **tudo CV, sem 14d real**.
+UlFor sugere `--feature-set h22_per_fold --cv-folds 1 --no-mlflow` antes
+de produtizar. Ranking risk/value:
+
+| Acao | Esforco | Beneficio CV | Risco |
+|---|---|---|---|
+| Promover NE ridge+h22 | Baixo | −8.8pp NMAE / +0.07 R² | Baixo |
+| Promover N ridge+h22 | Baixo | **−23.7pp / +0.51 R²** | Baixo |
+| Promover SE lr+h22_MA | Baixo | +1.6pp / −0.002 R² | Mesma ordem do full + −11 feat |
+| Promover SE ridge+h22 | Baixo | +1.8pp / +0.007 R² | Trade-off NMAE↔estabilidade |
+| Promover S lr+h22 | Baixo | −2.9pp / +0.016 R² | Baixo |
+| NE bias H14-C→H14-G(w=14,k=1) | Baixo | −0.9pp / Wins↑ | Pareto strict |
+| N bias H14-B→H14-G(w=60,k=1) | Baixo | +8.4pp / 2 loses evitadas | Trade-off, nao Pareto |
+
+**CAVEAT detectado pelo loop**: matriz "Champion ATUAL em prod" lista
+TODOS os 4 subs como `lr + full`, contradiz state.json (NE=ridge, N=ridge).
+Provavel bug de documentacao da matriz (outras secoes "substituir X por Y"
+sao consistentes com state.json). FLAGGADO para proxima recon; leaderboard
+**mantem ridge_NE / lr_SE / lr_S / ridge_N** por seguranca.
 
 ### Sucessores via ensemble (H24_loop CONFIRMADO_3SUBS iter_0022)
 

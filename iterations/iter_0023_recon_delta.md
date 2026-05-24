@@ -5,8 +5,8 @@ iter_num: 0023
 type: recon_delta
 data_utc: 2026-05-24T19:30:00Z
 ulfor_head_inicio: ec0fd937
-ulfor_head_fim: 4427a718
-commits_absorvidos: 6
+ulfor_head_fim: 99af14b7
+commits_absorvidos: 7
 novos_requests: 0
 requests_fechados_extras: 0
 novas_hipoteses_loop: 0
@@ -14,21 +14,23 @@ hypothesis: null
 baseline_tipo: null
 sanity_checks_required: []
 sanity_checks_done: []
-budget_horas: 0.4
+budget_horas: 0.5
 ---
 
-# Iter 0023 — RECON_DELTA UlFor (ec0fd937 → 4427a718)
+# Iter 0023 — RECON_DELTA UlFor (ec0fd937 → 99af14b7)
 
 ## Objetivo
 
-Absorver 6 commits novos da sessao UlFor entre `ec0fd937` (HEAD na entrada
-do iter_0022, fim do bloco H22 ulfor ABERTA-EM-CV) e `4427a718` (checkpoint
-14:15Z, fechamento de 3 sprints + decisao matrix pendente Breno). Janela
-~75 min reais de UlFor (13:00-14:15Z = 09:57-10:13 BRT). Conteudo
-**MUITO denso e load-bearing**: 1 patch H22 model-aware que DESBLOQUEIA SE
-preservando familia LR, 1 sweep H14-G window×k que SUPERA H14-B em N (mas
-sub-aplicado), 1 documento de sintese CHAMPION_DECISION_MATRIX (7 acoes
-promovieis), 1 profile S, 3 checkpoints markers.
+Absorver 7 commits novos da sessao UlFor entre `ec0fd937` (HEAD na entrada
+do iter_0022, fim do bloco H22 ulfor ABERTA-EM-CV) e `99af14b7` (sprint
+autopilot post-checkpoint 14:15Z, validacao 14d real que REFUTA promoves
+S/N). Janela ~90 min reais de UlFor (13:00-~14:30Z = 09:57-~10:28 BRT).
+Conteudo **MUITO denso e load-bearing**: 1 patch H22 model-aware que
+DESBLOQUEIA SE preservando familia LR, 1 sweep H14-G window×k que SUPERA
+H14-B em N (mas sub-aplicado), 1 documento de sintese
+CHAMPION_DECISION_MATRIX (7 acoes promovieis), 1 sprint autopilot 14d
+real que REFUTA 2/7 dos promoves (S+N originais) e reduz consolidado
+para **4 acoes alta-confianca**, 1 profile S, 2 checkpoints markers.
 
 ## PHASE A — Commits inspecionados
 
@@ -42,6 +44,7 @@ Em ordem cronologica:
 | 4 | `de190f9d` | chore — checkpoint 14:05Z (frente bias correction H14..H14-G fechada) | Marker | state |
 | 5 | `c5004bac` | docs — CHAMPION_DECISION_MATRIX (24 cells + 7 acoes Breno) | **Sintese decision-aid load-bearing** — consolida H22/H22_MA/H14-G | PHASE B leaderboard + state |
 | 6 | `4427a718` | chore — checkpoint 14:15Z + FINDING_S_PROFILE.md | Profile S (curt-zero estrutural, low signal) + marker fechamento sessao | state |
+| 7 | `99af14b7` | exp — validacao 14d real REFUTA S+N promoves de CHAMPION_DECISION_MATRIX | **Reduz 7→4 promoves alta-confianca.** S lr+h22 (CV -2.9pp) vira +0.8pp em 14d real; SE bonus: lgbm+h22_MA emerge como best 14d real (sem CV ainda) | PHASE B leaderboard revisado |
 
 ### Interpretacao detalhada por commit
 
@@ -169,12 +172,66 @@ champion S mas documenta o "porque" da fragilidade conhecida.
 
 **`593a1093`, `de190f9d`** — markers (absorvidos no descrito acima).
 
+**`99af14b7` — Validacao 14d real (REFUTA 2/7 promoves)**
+
+Sprint autopilot envelope-safe post-checkpoint 14:15Z. Roda `bakeoff_d1`
+em **single-fold com test=2026-03-24..05-21 (n=59, ultimos 60 dias)**
+para `full`, `h22_per_fold`, `h22_model_aware` em todas as 16 cells
+(4 subs × 4 modelos). Razao: H21 ulfor ja mostrou que CV-win pode
+nao se replicar em 14d real (clean_plus_v2 SE refutado em iter_0017).
+
+**Best por sub (14d real) vs CV 5x60d**:
+
+| Sub | 14d_best (model×set) | 14d_NMAE | CV_best | CV_NMAE | Convergem? |
+|---|---|---:|---|---:|---|
+| NE | ridge × {full≈h22≈h22_MA} | 30.9-31.1 | ridge × h22 | 31.4 | SIM (~tie) |
+| SE | **lgbm × h22_MA** (achado novo) | **42.7** | lr × full ou MA | 46.5-48.1 | PARCIAL |
+| S | lr × full | 93.6 | lr × h22 | 84.3 | **NAO** (full bate h22) |
+| N | **lgbm × full** (achado novo) | **68.1** | lr × h22 | 91.1 | **NAO** (lgbm+full domina) |
+
+**Veredito autopilot consolidado pos-14d-real** (substitui matriz CV-only):
+
+| Acao matrix | CV 5x60d | 14d real | Veredito FINAL |
+|---|---|---|---|
+| NE: lr+full → ridge+h22_per_fold | -8.8pp | tie (~-0.2pp) | **PROMOVER** |
+| NE: bias H14-C → H14-G(w=14,k=1) | strict Pareto | nao testavel | **PROMOVER** |
+| SE: lr+full → ridge+h22_per_fold | -1.8pp | -0.5pp | promover marginal |
+| **SE: lr+full → lr+h22_model_aware** | tie | **-2.0pp** | **PROMOVER** |
+| S: lr+full → lr+h22_per_fold | -2.9pp | **+0.8pp (PIOR)** | **NAO PROMOVER** |
+| N: lr+full → ridge+h22_per_fold | -23.7pp | -1.2pp (gain) | **PROMOVER** (corrigido) |
+| N: explorar lgbm+full (achado novo) | perde CV vs ridge+h22 | -7.1pp (best) | **NAO** (viola CV-first) |
+| N: bias H14-B → H14-G(w=60,k=1) | trade-off | nao testavel | **DECIDIR Breno** |
+
+**Promote enxuto final (UlFor) — 4 acoes alta-confianca**:
+
+1. **NE**: lr+full → **ridge+h22_per_fold** + bias H14-C → **H14-G(w=14, k=1)** (Pareto strict)
+2. **SE**: lr+full → **lr+h22_model_aware** (preserva LR, ganho 14d -2.0pp, CV-equiv)
+3. **N**: lr+full → **ridge+h22_per_fold** (CV+14d ambos vencem)
+4. **S**: **MANTER STATUS QUO** (so refutado real — CV win falsified)
+
+**Achados novos NAO promovieis (CV missing)**:
+- SE prefere LGBM (nao-linear) com h22_MA em 14d real (42.7% vs xgb+full 44.2%).
+- N prefere LGBM+full em 14d real (68.1% vs lr+full 75.2%).
+- **Ambos violariam "CV-first"** — proximo sprint UlFor candidato: reabrir
+  CV 5x60d para LGBM × h22_MA em SE+N.
+
+**Lesson reforcada** (3a evidencia desde iter_0017 H21 ulfor): **CV 5x60d
+e' protocolo oficial mas holdout 14d real e' ground-truth final**. UlFor
+agora se auto-impoe validation 14d real ANTES de promote — sinal de
+maturidade. **Implicacao para req-0008**: ja **OBSOLETO** (UlFor mesmo
+fez o trabalho que iter_0021 H31_emergente sugeria). NAO emitir.
+
+Artefatos: `FINDING_14D_REAL_VALIDATION.md` (157 LoC, doc completo),
+update final em `CHAMPION_DECISION_MATRIX.md` ("Validation gap" FECHADO),
+3 parquets per-fold `cv_summary_per_fold_*_val14d.parquet`, flag novo
+`--out-suffix` em `bakeoff_d1.py:7`.
+
 ## PHASE B — Atualizacoes do loop
 
 ### state.json `ulfor_session_sync`
 
 Adicionado bloco `iter0023_inicio_head=ec0fd937`, 
-`iter0023_fim_head=4427a718`, lista de 6 commits absorvidos, 
+`iter0023_fim_head=99af14b7`, lista de 7 commits absorvidos, 
 `delta_resumo_iter0023` documentando:
 - Champions em producao **INALTERADOS** (Registry intocado);
 - **DOIS candidatos sucessores novos** alem dos de iter_0021:
@@ -216,13 +273,11 @@ champions atualizadas:
 
 ### open_requests
 
-Continua vazio. **req-0008 (P2 data_publish)** ainda nao emitido formalmente 
-mas atratividade SUBE: agora ha 7 candidatos PROMOVIVEIS aguardando holdout 
-14d real para decisao Breno informada (era ~3 em recon iter_0021). 
-**Recomendacao**: emitir req-0008 na proxima iter pedindo bake-off 14d real 
-para o subset PROMOVIVEL (NE ridge+h22, SE lr+h22_MA, SE ridge+h22, 
-S lr+h22, N ridge+h22, N bias H14-G). Custo UlFor: ~30-60min execucao. 
-Comando ja' documentado no CHAMPION_DECISION_MATRIX (validation gap).
+Continua vazio. **req-0008 (P2 data_publish)** que iter_0021 planner sugeria
+**virou OBSOLETO**: UlFor mesmo rodou validacao 14d real no commit `99af14b7`,
+fechando a lacuna sem precisar de request externo. **NAO emitir req-0008.**
+Resultado entregue: 4 promoves alta-confianca consolidados (era 7 em CV-only).
+Decisao Breno agora informada sem dependencia adicional do loop.
 
 ## PHASE C — Handoff
 
@@ -235,27 +290,28 @@ Pelo planner_config existente (notas_iter0022 do planner), opcoes ranqueadas:
   LGB-mean em magnitude em N (-18%), S (-14%), SE (-1.6%). Custo zero, 
   ganho transversal garantido em N+S. Ortogonal a frente H22_MA/H14-G 
   do UlFor (evita colisao com agentes paralelos). **Sem dep externa.**
-- **(B-NOVA pos-iter_0023) H31 emergente (P2 ~0.5h)** — emitir req-0008 
-  ao UlFor pedindo holdout 14d real para o conjunto PROMOVIVEL 
-  consolidado em CHAMPION_DECISION_MATRIX. **Custo loop**: ~30min escrita 
-  + sync coordination/loop_requests.md. **Custo UlFor**: ~30-60min execucao 
-  (comando ja definido). **Ganho**: destrava decisao Breno informada com 
-  evidencia 14d real para 6 candidatos. Atratividade SUBIU significativamente 
-  pos-iter_0023 (3 candidatos extras absorvidos). **Sem dep externa.**
+- **(B-NOVA pos-iter_0023, P2 ~0.5h) H32 emergente** — replicar o
+  promote-enxuto-UlFor no nosso replay sklearn: treinar Ridge+h22_per_fold
+  em NE, LR+h22_model_aware em SE, Ridge+h22_per_fold em N (features
+  iter_0002, CV 5x60d). Audit independente da consolidacao 4-promoves.
+  Custo: baixo (sklearn local, reusa codigo H24). Valor: 2a opiniao
+  antes de Breno tocar prod via promote_champions.py. **NAO criar
+  formalmente ate Breno sinalizar interesse em promover.**
 - **(C) H30 (P3 ~1h)** — replicar H21 em Ridge_alpha10 CV; script base 
   `scripts/h21_pdp_residual_cv.py` ja existe.
 - **(D) H22 nosso (P3 ~1h, atratividade alta pos-iter_0021)** — GBDT vs 
-  OLS gap; carrega lesson H23 ulfor (PI com modelo final).
+  OLS gap; carrega lesson H23 ulfor (PI com modelo final), agora REFORCADO
+  pelo H22_MA (2a evidencia de que "PI mede-se com o modelo final").
 - **(E) H29 emergente (P2 ~1h)** — aplicar bias_correction per-sub UlFor 
   sobre H10 ensemble LGBM+persist no replay.
 
 ### Sequencia recomendada
 
-1. **iter_0024**: H31 emergente (escrita req-0008, low-touch UlFor) — 
-   alavanca decisao Breno informada em 7 acoes consolidadas. Sem 
-   colisao com agentes paralelos UlFor.
-2. **iter_0025**: H27 (P50 substituto, custo zero) OU H30 (Ridge pdp 
-   residual) dependendo de progresso UlFor.
+1. **iter_0024**: **H27** (P50 quantile, custo zero, ganho transversal
+   N+S garantido por iter_0014 bonus). Ortogonal a frente UlFor ativa,
+   sem dep externa, sem risco de colisao com agentes paralelos.
+2. **iter_0025**: H30 (Ridge pdp_residual CV, script existe) OU H22
+   nosso (GBDT vs OLS gap, carrega lesson H22_MA/H23 ulfor).
 
 ### Riscos detectados
 
@@ -275,6 +331,6 @@ Pelo planner_config existente (notas_iter0022 do planner), opcoes ranqueadas:
 
 ## Budget
 
-- Estimado: 0.4h
-- Real: ~0.4h (leitura 6 commits + 3 docs + sintese)
-- Acumulado iter (29-30): ~5.6h / cap 16h diario
+- Estimado: 0.5h
+- Real: ~0.5h (leitura 7 commits + 4 docs + sintese)
+- Acumulado iter (31-32): ~5.7h / cap 16h diario

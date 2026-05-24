@@ -1,13 +1,13 @@
-# Loop status — 2026-05-24T13:23:47Z
+# Loop status — 2026-05-24T13:32:23Z
 
-**Saude**: green (loop saudavel)
+**Saude**: yellow (STOP file presente)
 
-**Loop continuo**: yes (pid=272863, .STOP=no)
+**Loop continuo**: yes (pid=272863, .STOP=yes)
 
-**Iter atual**: 23
-**Alvo ativo**: recon_delta_ulfor_post_ec0fd937
+**Iter atual**: 24
+**Alvo ativo**: recon_delta_ulfor_post_4427a718
 
-**Budget**: 23 iters / 0.4 horas consumidas
+**Budget**: 24 iters / 0.4 horas consumidas
 
 **Open requests ao UlFor**: 0
 
@@ -16,9 +16,9 @@
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: f0fd809 bridge: sync iter 22 (2 minutes ago)
+**Bridge ultimo sync**: 7fe24bf bridge: sync ulfor iter 27 (4 minutes ago)
 
-**UlFor HEAD**: 5d41d063 exp(forecast): correcao N — ridge+h22 NAO foi refutado em 14d real
+**UlFor HEAD**: 756457c7 ulfor checkpoint: 14:25Z — Acao #2 (val14d) + ADDENDUM z-score, convergencia com parallel agent
 
 ---
 

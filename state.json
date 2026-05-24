@@ -1,7 +1,7 @@
 {
-  "iter_atual": 23,
+  "iter_atual": 24,
   "mode": "self_planning",
-  "alvo_ativo": "recon_delta_ulfor_post_ec0fd937",
+  "alvo_ativo": "recon_delta_ulfor_post_4427a718",
   "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
@@ -517,9 +517,9 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0023_recon_delta.md",
+  "ultimo_handoff": "iter_0024_recon_delta.md",
   "budget_consumido": {
-    "iter": 23,
+    "iter": 24,
     "horas": 0.4,
     "custo_usd": null
   },
@@ -1028,6 +1028,167 @@
         }
       ],
       "nota_nomenclatura_aplicada": "Convencao Hxx_ulfor mantida. UlFor H22 (VIF per-fold + PI per-fold) != nosso H22 (GBDT vs OLS gap curt~gen+pdp queued). UlFor H23 (SE LR load-bearing) sem colisao no nosso queue. Esta e a 7a iter consecutiva com colisao."
+    },
+    "iter0023_inicio_head": "ec0fd937",
+    "iter0023_fim_head": "4427a718",
+    "novos_commits_durante_iter0023": [
+      {
+        "hash": "2daa5d40",
+        "msg": "exp(forecast): H22 model-aware -- SE/lr fix (preserva ter_verif_rmean7)",
+        "absorbed": true,
+        "interpretacao": "PATCH LOAD-BEARING. Substitui PI universal (Ridge) do feature_set=h22_per_fold por PI medida com o champion-model REAL de cada sub (NE/N=ridge, SE/S=lr). Resolve bug teorico de H23_ulfor (recon iter_0021): 'Ridge mascara importance via shrinkage L2'. Caso canonico: ter_verif_rmean7 em SE/lr. Resultado CV 5x60d: SE/lr 57.2%/-0.068 (H22) -> 48.1%/+0.381 (H22_MA) -- recupera 9.1pp NMAE + 0.449 R^2. S/lr 87.2%/+0.371 (full) -> 84.3%/+0.387 (-2.9pp). NE+N inalterados (mesmo champion ridge). Artefatos: h22_model_aware_per_fold.py, FINDING_H22_MODEL_AWARE.md, --feature-set h22_model_aware, cv_summary_*_h22_model_aware.parquet. Implicacao: SE agora tem candidato sucessor PROMOVIVEL SEM trocar familia LR."
+      },
+      {
+        "hash": "593a1093",
+        "msg": "ulfor checkpoint: 13:45Z -- H22 model-aware fechado (PROMOVIVEL SE/lr)",
+        "absorbed": true,
+        "interpretacao": "Marker fechamento H22_MA. Sprint co-autorado com agente paralelo. Lesson operacional: ler loader.py:CHAMPIONS antes de qualquer model-aware experiment."
+      },
+      {
+        "hash": "1ba9cb39",
+        "msg": "exp(forecast): H14-G window x k sweep em N+NE",
+        "absorbed": true,
+        "interpretacao": "Sweep window in {14,28,60,90} x k in {0.5,1.0,1.5} para bias correction com threshold sigma_bias. Subs N+NE. VEREDITO: (N) PROMOVIVEL w=14d k=1.5 -- mean dNMAE=-31.87pp 3W/1L apply_rate=41% (SUPERA H14-B atual -19.63pp por -12.24pp); (NE) MANTER H14-C status quo. UlFor: PARAR E PERGUNTAR Breno antes de promover. Artefatos: h14g_window_k_sweep.py, FINDING_H14G_WINDOW_K_SWEEP.md."
+      },
+      {
+        "hash": "de190f9d",
+        "msg": "ulfor checkpoint: 14:05Z -- frente bias correction fechada (H14 a H14-G)",
+        "absorbed": true,
+        "interpretacao": "Marker. Frente bias correction agora tem 7 variacoes. 2 wins produtizados (NE@28d, N@60d) + 2 candidatos PROMOVIVEIS aguardando Breno."
+      },
+      {
+        "hash": "c5004bac",
+        "msg": "docs(forecast): CHAMPION_DECISION_MATRIX consolida H22/H22_MA/H14-G",
+        "absorbed": true,
+        "interpretacao": "DOCUMENTO DECISION-AID LOAD-BEARING. 4 secoes: (1) Champion ATUAL [CAVEAT: discrepancia state.json em NE/N]; (2) Matriz 24 cells CV 5x60d ridge+lr x {full, h22, h22_MA}; (3) Bias correction 6 cells; (4) Recomendacoes + Risk/value table 7 acoes + Validation gap. 7 acoes PROMOVIVEIS: NE ridge+h22 (-8.8pp), SE ridge+h22 (+1.8pp/estab), SE lr+h22_MA (+1.6pp/-0.002R^2 -11 feat), S lr+h22 (-2.9pp), N ridge+h22 (-23.7pp/+0.51 R^2), NE bias H14-C->H14-G(w=14,k=1) Pareto strict, N bias H14-B->H14-G(w=60,k=1) trade-off. UlFor sugere bake-off 14d real antes de produtizar."
+      },
+      {
+        "hash": "4427a718",
+        "msg": "ulfor checkpoint: 14:15Z -- 3 sprints + decisao pendente Breno",
+        "absorbed": true,
+        "interpretacao": "Marker fechamento + FINDING_S_PROFILE.md + s_sub_profile.py. Sessao 13:00Z-14:15Z (~75min). 3 sprints fechados (H22_MA, H14-G, MATRIX). Champion atual INTACTO. Concorrencia coordenada multi-agente (3 paralelos + 2 leader + 1 colaborativo, sem merge conflict). Master 13 ahead origin. UlFor pede 'proxima sessao deve ler CHAMPION_DECISION_MATRIX primeiro'. FINDING_S_PROFILE documenta sub S curt-zero estrutural ~37% dias + ymean fold-dependente 32-1023 MWh."
+      }
+    ],
+    "delta_resumo_iter0023": {
+      "champions_status_change": "INALTERADO em producao. Loader.py + MLflow Registry intocados. PORÉM 3 candidatos sucessores novos consolidados em CHAMPION_DECISION_MATRIX (alem dos 2 de iter_0021): (a) SE lr+h22_model_aware (PRESERVA familia LR -- 48.1% NMAE / R^2 +0.381, recupera ter_verif_rmean7); (b) S lr+h22_per_fold (-2.9pp NMAE / +0.016 R^2, novo); (c) N bias H14-G w=14 k=1.5 (-31.87pp CV vs H14-B -19.63pp, 3W/1L apply 41%). Total candidatos PROMOVIVEIS aguardando decisao Breno: 7 (5 modelo+feature, 2 bias correction).",
+      "novos_requests": [],
+      "requests_fechados_extras": [],
+      "novas_hipoteses_loop_geradas": [],
+      "discrepancia_champion_atual_doc": {
+        "issue": "CHAMPION_DECISION_MATRIX.md secao 'Champion ATUAL em prod' lista TODOS os 4 subs como 'lr + full'. Contradiz state.json + iter_0017/0018: NE=ridge_alpha10, N=ridge_alpha10@staging v2 clean_plus, SE=lr, S=lr.",
+        "hipoteses_provaveis": [
+          "(A) UlFor reverteu silentemente loader.py -- IMPROVAVEL (nao tem commit loader.py na janela ec0fd937..4427a718)",
+          "(B) Bug de documentacao na matriz -- PROVAVEL (outras secoes 'substituir X por Y' sao consistentes com state.json)",
+          "(C) UlFor usou lr+full como referencia padrao na matriz mas Registry segue ridge_NE + ridge_N"
+        ],
+        "acao": "FLAGGAR para proxima recon investigar via git show 4427a718:services/.../loader.py ou /api/forecast/d1 smoke. Por seguranca, leaderboard mantem state.json (ridge_NE, lr_SE, lr_S, ridge_N).",
+        "impacto_no_loop": "Baixo. Alternativas listadas na matriz sao todas vs champions em CV, sao validas independente da escolha de referencia. Decisao Breno NAO bloqueada."
+      },
+      "frente_h22_ulfor_status": "EXPANDIU. H22 (universal Ridge-PI) + H22_MA (model-aware PI) coexistem como feature_sets distintos em bakeoff_d1.py. H22_MA destrava SE/lr (mantem familia, mitiga cond_num 2.5e17 com -11 feat). H22 = H22_MA em NE+N (champions ridge). UlFor NAO promove automaticamente.",
+      "frente_bias_correction_status": "REABERTA com novo champion candidate. H14-G dominou H14-B em N (CV -31.87pp vs -19.63pp), apesar de apply 41% vs 100%. UlFor pede holdout 14d real antes de promover.",
+      "regime_ulfor_multi_agente": "PERMANECE ATIVO. 3 sprints coordenados em 75min com agente paralelo (sem merge conflict). Padrao: freq recon loop deve ser max 30-60 min quando UlFor 'online'.",
+      "h_loop_impactadas": [
+        {
+          "id": "H22 (nosso)",
+          "status_change": "queued->queued (atratividade alta, lesson reforcada)",
+          "motivo": "H22_MA reforca lesson H23_ulfor (PI mede-se com o modelo final). Para H22 nosso (GBDT vs OLS gap pdp): se rodarmos PI sobre OLS e treinarmos GBDT depois, podemos subestimar features que GBDT precisa para interacoes nao-lineares."
+        },
+        {
+          "id": "H8 (nosso)",
+          "status_change": "queued->queued (sem mudanca)",
+          "motivo": "FEATURE_DROPS H22_MA preservam val_export/val_import/val_net como drop candidates em NE+SE (VIF=1e8) -- identico a H22. N: val_net_* NAO listado -> MANTEM em N."
+        },
+        {
+          "id": "H31_emergente",
+          "status_change": "atratividade SUBIU SIGNIFICATIVAMENTE",
+          "motivo": "Era ~3 candidatos pos-iter_0021. Agora 7 candidatos PROMOVIVEIS consolidados em CHAMPION_DECISION_MATRIX. req-0008 (P2 data_publish, ~30min escrita + ~30-60min UlFor) alavanca decisao Breno informada para 7 acoes. Comando ja documentado na matriz (validation gap)."
+        },
+        {
+          "id": "H18",
+          "status_change": "blocked-acao-Breno-trivializa -> blocked-acao-Breno-trivializa",
+          "motivo": "MLflow CF Access continua pendente em Breno."
+        }
+      ],
+      "nota_nomenclatura_aplicada": "Convencao Hxx_ulfor mantida. UlFor H22_model_aware (variante de H22) != nosso H22. 8a iter consecutiva com colisao."
+    },
+    "iter0024_inicio_head": "4427a718",
+    "iter0024_fim_head": "5d41d063",
+    "novos_commits_durante_iter0024": [
+      {
+        "hash": "99af14b7",
+        "msg": "exp(forecast): validacao 14d real refuta promoves S/N de CHAMPION_DECISION_MATRIX",
+        "absorbed": true,
+        "interpretacao": "FECHA validation_gap dos 7 promovieis da CHAMPION_DECISION_MATRIX iter_0023. Sprint autopilot envelope-safe (single-fold cv-folds=1, test=2026-03-24..2026-05-21 n=59) para 3 feature-sets {full, h22_per_fold, h22_model_aware} x {ridge,lr,lgbm,xgb} x 4 subs = 48 runs. Veredito CV ∧ 14d real: (a) CONFIRMADO NE ridge+h22 (CV -8.8pp, 14d tie -0.2pp), (b) CONFIRMADO SE lr+h22_MA (CV tie, 14d -2.0pp), (c) CONFIRMADO NE bias H14-G(w=14,k=1) Pareto strict CV, (d) PROMOVER MARGINAL SE ridge+h22 (CV -1.8pp, 14d -0.5pp), (e) REFUTADO S lr+h22 (CV -2.9pp mas 14d +0.8pp PIOR), (f) classificou erroneamente N ridge+h22 como REFUTADO -- corrigido em commit 2. Achados novos NAO promoviveis: SE prefere lgbm+h22_MA em 14d (42.7% vs xgb+full 44.2%), N prefere lgbm+full em 14d (68.1% vs lr+full 75.2%) -- ambos sem CV win. Artefatos: FINDING_14D_REAL_VALIDATION.md (157 lines), --out-suffix em bakeoff_d1.py, 3 parquets val14d. CHAMPION_DECISION_MATRIX secao 'Validation gap' FECHADA. Backward-compat: nenhuma mudanca em loader.py/Registry."
+      },
+      {
+        "hash": "5d41d063",
+        "msg": "exp(forecast): correcao N -- ridge+h22 NAO foi refutado em 14d real",
+        "absorbed": true,
+        "interpretacao": "CORRIGE veredito iter anterior (99af14b7). Erro: classificou N ridge+h22 como REFUTADO porque perdia para lgbm+full em 14d real (+1.3pp). Comparacao correta e vs status quo (lr+full): lr+full atual 110.1 CV / 75.2 14d; ridge+h22 86.4 CV / 74.0 14d (gain -23.7pp/-1.2pp vs status quo, ganha em ambas dimensoes). LGBM+full e best 14d (68.1%) mas viola 'so promover apos CV win' (perde 10pp para ridge+h22 em CV 5x60d). Correcoes: (a) N agora marcado PROMOVER; (b) LGBM+full N listado como achado novo NAO promovivel; (c) recomendacao final tem 4 acoes (era 3); (d) S permanece como unica acao formalmente refutada. Artefatos: FINDING_14D_REAL_VALIDATION.md revisado, CHAMPION_DECISION_MATRIX.md revisado."
+      }
+    ],
+    "delta_resumo_iter0024": {
+      "champions_status_change": "INALTERADO em producao. Loader.py + MLflow Registry intocados. PORÉM validation_gap dos 7 promovieis FECHADO. Veredito final post-validation 14d real: 4 acoes CONFIRMADAS (NE ridge+h22+H14-G, SE lr+h22_MA, N ridge+h22 + bias N H14-B vs H14-G decisao Breno), 1 REFUTADO (S lr+h22 mantem status quo), 1 nao-testavel single-fold (N bias H14-B vs H14-G). 2 achados novos NAO promoviveis (SE lgbm+h22_MA, N lgbm+full -- ambos sem CV win).",
+      "novos_requests": [],
+      "requests_fechados_extras": [],
+      "novas_hipoteses_loop_geradas": [],
+      "pre_emptied_loop_request": {
+        "id": "req-0008 (P2 data_publish, candidato H31_emergente em iter_0023)",
+        "motivo": "UlFor self-actionou em 99af14b7+5d41d063. Validation gap dos 7 promovieis fechada via single-fold 14d real autopilot. Loop NAO emite req-0008 -- superfluo. Atratividade do req cai a zero.",
+        "implicacao_loop": "Reduz superficie de coordenacao 1 req. Padrao recorrente: UlFor multi-agente autopilot pre-empta requests que loop ia emitir quando o trabalho cai em envelope-safe (sem PARAR-E-PERGUNTAR). Manter recon-style absorption."
+      },
+      "validation_gap_status": "FECHADA. iter_0023 listou 'tudo CV, sem 14d real' como gap principal. UlFor entregou 14d real para todos 7 promovieis em ~10min autopilot. Lesson reforcada (iter_0019/iter_0017): UlFor multi-agente fecha gaps faster que loop pode emitir req formal. Recon e' mecanismo eficiente para detectar self-resolution.",
+      "frente_h22_ulfor_status": "ESTABILIZADA pos-validation. H22 (universal Ridge-PI) + H22_MA (model-aware PI) ambos validados em CV ∧ 14d real. h22_MA confirma como sucessor SE/lr robusto. NE ridge+h22 ≡ h22_MA (mesmo champion). UlFor agora aguarda decisao Breno antes de tocar loader.py.",
+      "frente_bias_correction_status": "ESTABILIZADA. H14-G(w=14,k=1) NE Pareto strict vs H14-C (validado CV). H14-G(w=60,k=1) N decisao trade-off (Pareto: 0 loses, mas -8.4pp menos agressivo). Single-fold 14d real nao testa bias correction diretamente (rolling residual).",
+      "achados_novos_nao_promoviveis": [
+        {
+          "sub": "SE",
+          "candidato": "lgbm + h22_model_aware",
+          "evidencia": "14d real 42.7% NMAE / R² +0.428 -- best 14d real em SE",
+          "gap": "CV 5x60d nao testou lgbm x h22_MA",
+          "interpretacao": "Regime atual SE mais nao-linear que historico medio do CV (LR/Ridge linear sub-aproveita). UlFor sugere reabrir CV para lgbm em SE+N como proximo sprint envelope-safe.",
+          "atratividade_h_loop": "SUBE H27 (LGBM P50 quantile) e H22 nosso (GBDT vs OLS gap) -- ambos respondem 'lineares deixam variancia residual em SE+N regime atual'."
+        },
+        {
+          "sub": "N",
+          "candidato": "lgbm + full",
+          "evidencia": "14d real 68.1% NMAE / R² +0.139 -- best 14d real em N (-7.1pp vs ridge+h22)",
+          "gap": "CV 5x60d lgbm+full N 96.4% perde para ridge+h22 86.4% (-10pp)",
+          "interpretacao": "Mesmo padrao SE -- regime atual N favorece nao-linear. Mas principio 'CV win first' bloqueia promote.",
+          "atratividade_h_loop": "Reforca atratividade H27."
+        }
+      ],
+      "h_loop_impactadas": [
+        {
+          "id": "H31_emergente (candidata iter_0021/0023)",
+          "status_change": "nao-formalizada -> PRE-EMPTED",
+          "motivo": "UlFor self-actionou validation 14d real dos 7 promovieis em ~10min. req-0008 fica obsoleto antes mesmo de emitido. Padrao recorrente de pre-empcao -- recon e' protecao eficiente."
+        },
+        {
+          "id": "H27 (P50 quantile)",
+          "status_change": "queued (P3) -> queued (P3, atratividade SUBE)",
+          "motivo": "Achados novos 'SE+N preferem LGBM em 14d real' sugerem que objective swap (regression->quantile P50) pode capturar mesmo ganho transversal a sub. iter_0014 bonus ja mostrou P50 BATE LGB-mean em N -18% / S -14%. Agora ha evidencia complementar de regime nao-linear atual. Recomendado para iter_0025."
+        },
+        {
+          "id": "H22 nosso (GBDT vs OLS gap)",
+          "status_change": "queued (P3) -> queued (P3, atratividade marginalmente SUBE)",
+          "motivo": "Mesma logica de H27. PI medida com LGBM (em vez de Ridge/OLS) poderia revelar features carregando interacoes nao-lineares no regime atual SE+N. Lesson H23_ulfor (PI com modelo final) + H22_MA (model-aware PI) convergem."
+        },
+        {
+          "id": "H8 nosso (intercambio drop em N)",
+          "status_change": "queued (P3) -> queued (P3, inalterado)",
+          "motivo": "Tabela 14d real nao toca drop list. N segue com val_net_*. Sem mudanca."
+        },
+        {
+          "id": "H18",
+          "status_change": "blocked-acao-Breno-trivializa -> blocked-acao-Breno-trivializa",
+          "motivo": "MLflow CF Access continua pendente em Breno. Inalterado."
+        }
+      ],
+      "regime_ulfor_multi_agente": "PERMANECE ATIVO. 2 commits em ~10min autopilot (10:20-10:23 BRT). Padrao confirmado: freq recon loop deve ser max 30-60min quando UlFor 'online'. UlFor HEAD real ja avancou alem do escopo desta iter (7cc3b604 = +2 commits 756457c7+7cc3b604) -- agendar iter_0025 RECON_DELTA para capturar.",
+      "discrepancia_champion_atual_doc_status": "NAO investigada nesta iter. iter_0023 flaggou matriz lista NE+N como 'lr+full' mas state.json/Registry tem ridge_NE+ridge_N. Esta iter nao mexeu em loader.py (apenas docs+experimentos), entao hipotese (B) bug documentacao matriz continua mais plausivel. Segue para iter_0025 RECON ou ate Breno decidir promote.",
+      "push_origin_status": "Master agora 14+ ahead origin (iter_0023 era 13). Acao Breno pendente para deploy EC2. Sem impacto direto no loop (read-only via git show).",
+      "nota_nomenclatura_aplicada": "Convencao Hxx_ulfor mantida. 9a iter consecutiva com colisao H_ulfor (nenhuma neste recon -- commits 99af14b7+5d41d063 sao validation/correction de H22/H22_MA/H14-G existentes, nao novas H_ulfor)."
     }
   },
   "open_requests": [],
@@ -1113,7 +1274,8 @@
     "notas_iter0018": "RECON_DELTA compacto. 6 commits UlFor absorvidos (5c7963d4..515041e1) em ~3h reais de UlFor: (1) MUDANCA EM PRODUCAO N -- bias_correction default ON com window=60d produtizado per UlFor H14-B (commit 515041e1). N segundo sub a ganhar bias correction; modelo treinado ridge_curt_n_d1@staging v2 INALTERADO. CV 5x60d: -19.63pp NMAE media, wins 3/1/5. Smoke: N pred 246 -> default 267 (bias -21). Padrao per-sub adotado: BIAS_CORRECTION_WINDOW_BY_SUB = {NE:28, SE:28, S:28, N:60}. (2) UlFor H14-D (threshold k*sigma_resid_train) REFUTADA -- NE@k=1 perde 2/5 wins; SE/S/N zero wins; threshold filtra demais. (3) UlFor H14-B sweep 28/60/90d -- destrava N@60d, mantem NE@28d, SE/S nao qualificam em nenhuma janela. Confirma data ceiling iter_0017 para SE/S (search-space bias correction esgotando -- precisa dado novo). (4) 3 checkpoints idle em sequencia sinalizam UlFor em pausa aguardando deploy EC2 ou nova frente Breno. 25 commits ahead origin/master. NENHUMA H do loop resolvida, NENHUMA nova gerada formalmente (H29 emergente pode ser proxima: bias_correction per-sub sobre H10 ensemble). Planner mantem H21 como next; H29 e H24 candidatos ALT.",
     "notas_iter0019": "RECON_DELTA pequeno mas estruturalmente importante. 6 commits UlFor absorvidos (515041e1..daf80a6a) em ~8 min reais (09:27-09:34 BRT): (1) Frente bias_correction FORMALMENTE FECHADA pelo UlFor. H14-F (combo window=60d + threshold sigma_bias) domina H14-B no papel em N (mesma media -19.63pp, zero loses vs 1 lose +0.84pp) MAS custo de produtizar alto (compute sigma_bias_rolling em runtime, 30-50 LoC + cache) nao justifica ganho marginal (lose evitado abaixo do ruido CV). Status quo mantido: NE@28d, N@60d, SE/S OFF. SE/S declarados intrinsicamente nao-corrigiveis (bias bidirecional). (2) ACHADO TEORICO TRANSFERIVEL: razao sigma_bias_rolling/sigma_resid (~1/7 a 1/12 em todos subs) classifica regimes -- NE bias-dominated, SE/S noise-dominated, N intermediario. Aplicavel ao planejamento H29 (diagnostico previo per-sub). (3) INFRA MAJOR: mlflow.brazilgrid.com exposto via Cloudflare Access (commit cd12cf2a). Nginx vhost pronto no EC2, MLflow systemd ja localhost-only. Acao Breno pendente: 2 passos no dash CF (DNS A + ZT Access Application). Quando ativo, DESTRAVA H18 (sanity B1-B6 via MLflow REST direto, eliminando dep req-0005 parquet). (4) producao 100% inalterada nesta iter (loader.py + MLflow Registry intocados). NENHUMA H do loop resolvida, NENHUMA nova gerada. H18 status_change: blocked -> blocked-acao-Breno-trivializa. Planner mantem H21 como next; opcao D nova considerar: H18 ativavel quando Breno fizer setup CF.",
     "notas_iter0020": "H21 fechada como REFUTADO. OLS full-sample n=486 dias (parquet cacheado de H3 iter_0010): V_residual_plus_gen (2 feats: gen + pdp_residual_total) PERDE para V_brutos (3 feats) em NE -5.1pp R\u00b2 (0.654 vs 0.705), SE -4.3pp (0.438 vs 0.481). Holdout 80/20 amplifica NE -27pp adicional. V_residual_split (3 feats per-fonte) tambem perde -3/-4pp -- decomposicao per-fonte importa, agregar eolica+solar destroi sinal. Sanity B1+B2+B4 PASS NE+SE (leak forward-looking, perm p=0.0, residual bate gen-only por +0.31/+0.25). Protocol identity H3<->H21: R\u00b2_gen_only bate exato (|delta|<0.001) nos 3 subs (validacao reproducibilidade). Bonus pdp_prog drop test NAO_CONFIRMADO: pdp_prog adiciona +5.9pp NE / +9.2pp SE conditional em brutos (contradiz H3 univariate; mecanismo: pdp_prog tem info residual conditional em pdp_prev). Mecanismo do REFUTADO: OLS sobre (gen, pdp_prev) ja' tem qualquer combinacao linear de (gen, residual) no seu span -- engineering linear NAO expande basis. Para GBDT pode ser diferente (H22 P3 GBDT vs OLS gap sobe importancia). H30 derivada criada (P3 ~1h, Ridge_alpha10 CV protocolo UlFor; script base h21_pdp_residual_cv.py ja existe). Lessons: (a) engineering linear em modelo linear e' no-op-ou-perda por condicionamento numerico; (b) 'quase redundante' univariate != 'redundante conditional' multivariate; (c) decomposicao per-fonte importa em curt (eolica/solar tem timing diferente). NOTA DE COLISAO: iter_0019 paralela fez recon_delta (UlFor 515041e1..daf80a6a) e deixou pronto scripts/h21_pdp_residual_cv.py mas NAO rodou; este iter_0020 fez o teste OLS rapido per task spec ('procedimento mais simples que produza verdict'); CV LGBM completo fica como proximo iter via H30. Planner proximo: H27 (custo zero, ganho garantido) ou H30 (fecha H3-family Ridge). **SUPPLEMENT 16:50Z** (sessao paralela HYPOTHESIS_TEST iter_0020 supplement): scripts/h21_pdp_residual_cv.py RODADO. LGBM CV 5x60d/gap7d em NE/SE/S v3 com 5 feature sets (A baseline / B additive / C replacement / D drop_prog / E full_simplification). Resultado: A vence todas em mean MAE em 3/3 cells -- C +1.3-3.1%, B +0.7-2.1%, D +3.6-8.2%, E +1.8-8.0%. B2 perm fold-final NE [C] +6.6%, SE [C] +10.8%, S [C] -0.2% (residual carrega sinal real NE+SE, e' noise S, mas redundante com pdp_prev_eolica + pdp_prev_solar raw quando GBDT os tem). CORROBORA OLS por protocolo bake-off empirico. H22 PARCIALMENTE pre-respondida: drop pdp_prog confirmado prejudicial em GBDT tambem. Outputs em outputs/iter_0020/h21_pdp_residual_engineered/lgbm_cv_supplement/, supplement Secao adicionada ao handoff. Budget +0.5h paralelo.",
-    "notas_iter0021": "RECON_DELTA estruturalmente IMPORTANTE. 6 commits UlFor absorvidos (daf80a6a..ec0fd937) em ~15 min reais (13:10-13:35 BRT): (1) UlFor H22 (VIF per-fold + Permutation Importance per-fold, commit 10fa56d3) corrige refutacao H8 ulfor (greedy puro VIF) e e PROMOVIVEL CV em NE+SE: NE ridge -2.3pp NMAE/+0.074 R2; NE lr -9.5pp/+0.263 R2 (enorme); SE ridge -2.5pp/+0.194 R2. S/N neutral. UlFor NAO promove automaticamente (deferimento Breno, mesmo pattern H14-F). Novo feature_set=h22_per_fold disponivel em bakeoff_d1.py + parquet outputs publicados. (2) Anomalia LR_SE patologica exposta (commit 34478f93): champion SE atual (lr_curt_se_d1@v1 full) tem matriz X com cond_num 2.5e17 -- NMAE 46.6% e 'acidental' (sorte amostral). Recomendacao implicita UlFor: SE -> ridge+h22 (R2 +0.390 essencialmente empate vs lr atual sem risco numerico). (3) H23 ulfor (commit ccf53722) elucidou root-cause via leave-one-in: ter_verif_rmean7 SOZINHA recupera 99% do R2 em SE LR pos-H22. Lesson teorico TRANSFERIVEL: PI deve ser medida com o modelo final, nao com proxy mais robusto. Ridge usa L2 para redistribuir importance entre colineares -> PI subestima. Aplicavel ao nosso H22 queued (GBDT vs OLS gap pdp): se usarmos OLS para PI e GBDT para predicao, gap pode ficar oculto. (4) Checkpoint ec0fd937 expoe regime multi-agente UlFor ativo (2-3 agentes paralelos) -- freq recon loop deve subir para max 30-60 min. (5) Producao 100% inalterada. NENHUMA H do loop fechada/criada. UlFor H22 != nosso H22 (7a iter consecutiva com colisao Hxx_ulfor vs Hxx). H31 candidata emergente (nao criada formalmente): replicar h22_per_fold em holdout 14d real NE+SE via req-0008 (P2 data_publish UlFor, ~0.5h escrita + ~30min execucao UlFor). Planner proximo: H27 (custo zero, P50 quantile substituto) ou H30 (Ridge pdp_residual CV) ou nosso H22 (atratividade subiu)."
+    "notas_iter0021": "RECON_DELTA estruturalmente IMPORTANTE. 6 commits UlFor absorvidos (daf80a6a..ec0fd937) em ~15 min reais (13:10-13:35 BRT): (1) UlFor H22 (VIF per-fold + Permutation Importance per-fold, commit 10fa56d3) corrige refutacao H8 ulfor (greedy puro VIF) e e PROMOVIVEL CV em NE+SE: NE ridge -2.3pp NMAE/+0.074 R2; NE lr -9.5pp/+0.263 R2 (enorme); SE ridge -2.5pp/+0.194 R2. S/N neutral. UlFor NAO promove automaticamente (deferimento Breno, mesmo pattern H14-F). Novo feature_set=h22_per_fold disponivel em bakeoff_d1.py + parquet outputs publicados. (2) Anomalia LR_SE patologica exposta (commit 34478f93): champion SE atual (lr_curt_se_d1@v1 full) tem matriz X com cond_num 2.5e17 -- NMAE 46.6% e 'acidental' (sorte amostral). Recomendacao implicita UlFor: SE -> ridge+h22 (R2 +0.390 essencialmente empate vs lr atual sem risco numerico). (3) H23 ulfor (commit ccf53722) elucidou root-cause via leave-one-in: ter_verif_rmean7 SOZINHA recupera 99% do R2 em SE LR pos-H22. Lesson teorico TRANSFERIVEL: PI deve ser medida com o modelo final, nao com proxy mais robusto. Ridge usa L2 para redistribuir importance entre colineares -> PI subestima. Aplicavel ao nosso H22 queued (GBDT vs OLS gap pdp): se usarmos OLS para PI e GBDT para predicao, gap pode ficar oculto. (4) Checkpoint ec0fd937 expoe regime multi-agente UlFor ativo (2-3 agentes paralelos) -- freq recon loop deve subir para max 30-60 min. (5) Producao 100% inalterada. NENHUMA H do loop fechada/criada. UlFor H22 != nosso H22 (7a iter consecutiva com colisao Hxx_ulfor vs Hxx). H31 candidata emergente (nao criada formalmente): replicar h22_per_fold em holdout 14d real NE+SE via req-0008 (P2 data_publish UlFor, ~0.5h escrita + ~30min execucao UlFor). Planner proximo: H27 (custo zero, P50 quantile substituto) ou H30 (Ridge pdp_residual CV) ou nosso H22 (atratividade subiu).",
+    "notas_iter0023": "RECON_DELTA estruturalmente LOAD-BEARING. 6 commits UlFor absorvidos (ec0fd937..4427a718) em ~75 min reais (13:00-14:15Z = 09:57-10:13 BRT). Producao 100% inalterada (loader.py + MLflow Registry intocados) MAS 3 candidatos sucessores novos consolidados em CHAMPION_DECISION_MATRIX. (1) PATCH H22_model_aware (commit 2daa5d40) substitui PI universal Ridge do feature_set=h22_per_fold por PI medida com champion-model REAL (NE/N=ridge, SE/S=lr) -- resolve bug teorico H23_ulfor: 'Ridge mascara importance via shrinkage L2'. SE/lr 57.2%/-0.068 (H22) -> 48.1%/+0.381 (H22_MA) recupera 9.1pp NMAE + 0.449 R^2 mantendo ter_verif_rmean7. S/lr -2.9pp. NE+N inalterados (mesmo champion ridge). DESBLOQUEIA SE preservando familia LR (era unica opcao trocar para ridge+h22 pos-iter_0021). (2) H14-G WINDOW x K SWEEP (commit 1ba9cb39) -- N: w=14d k=1.5 -31.87pp 3W/1L apply=41% SUPERA H14-B atual -19.63pp por -12.24pp PROMOVIVEL; NE: marginal -1.39pp MANTER status quo. Custo produtizar similar H14-F. (3) CHAMPION_DECISION_MATRIX (commit c5004bac) DOCUMENTO LOAD-BEARING -- 4 secoes consolidando 7 acoes PROMOVIVEIS: NE ridge+h22, SE ridge+h22, SE lr+h22_MA, S lr+h22, N ridge+h22, NE bias H14-C->H14-G(w=14,k=1) Pareto strict, N bias H14-B->H14-G(w=60,k=1) trade-off. Validation gap explicito: tudo CV, sem 14d real. UlFor sugere bake-off 14d real antes de produtizar (comando documentado). (4) DISCREPANCIA DETECTADA: matriz lista TODOS subs como 'lr+full' em Champion ATUAL -- contradiz state.json (NE=ridge, N=ridge). Provavel bug de documentacao (outras secoes consistentes). FLAGGADO para proxima recon; leaderboard mantem state.json por seguranca. (5) Regime multi-agente UlFor PERMANECE ATIVO -- 3 sprints coordenados em 75min sem merge conflict. NENHUMA H do loop fechada, NENHUMA nova gerada. H31 emergente atratividade SUBIU SIGNIFICATIVAMENTE (era ~3 candidatos pos-iter_0021, agora 7 consolidados). Planner proximo: H31 emergente (escrita req-0008, alavanca decisao Breno) OU H27 (P50 substituto custo zero, ortogonal a UlFor multi-agente)."
   },
   "kill_requested": false,
   "budget_consumido_today": {

@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T18:30:00Z
+last_updated: 2026-05-24T19:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -230,6 +230,11 @@ hypotheses:
       Atratividade H8 nosso CAI: tecnica UlFor (VIF+PI conjunto) supera nossa
       PI puro proposta. Manter queued para confirmacao independente via
       CV-PI proprio se necessario.
+
+      ATUALIZADO iter_0023: H22_model_aware (commit `2daa5d40`) preserva os
+      mesmos drop candidates val_export/val_import/val_net em NE+SE (VIF=1e8
+      colinearidade perfeita). N: val_net_* nao listado -> MANTEM em N. Sem
+      mudanca na atratividade H8 nosso.
     type: feature
     layer: curtailment
     target: feat_intercambio_importance
@@ -241,7 +246,7 @@ hypotheses:
     sanity_checks_required: [perm]
     expected_value: drop intercambio se confirmado ruido
     created_at: 2026-05-24T03:30:00Z
-    last_external_update_iter: 0021
+    last_external_update_iter: 0023
 
   - id: H9
     summary: NMAE substituido por MAE/R²/F1 (Principio 6 PLANO_FINAL)
@@ -718,6 +723,16 @@ hypotheses:
       grande indicaria features carregando interacoes nao-lineares
       mascaradas pelo OLS. Custo zero (mesmo dataset, mesmo split,
       adiciona ~30 LoC de PI-com-GBDT).
+
+      ATUALIZADO iter_0023: lesson REFORCADA por UlFor H22_model_aware
+      (commit `2daa5d40`). Implementacao empirica do mesmo principio:
+      PI medida com `lr` (champion real de SE/S) recupera 9.1pp NMAE +
+      0.449 R^2 em SE/lr vs PI medida com Ridge universal -- `ter_verif_rmean7`
+      sobrevive no h22_model_aware. **Implicacao para nosso H22**: o lesson
+      teorico nao e' soft suggestion, e' efeito mensuravel de magnitude
+      ~10pp. Protocolo H22 nosso deve usar PI-com-GBDT (nao OLS), e a
+      comparacao OLS-vs-GBDT no R^2 final continua valida como medida do
+      gap nao-linear.
     type: model
     layer: curtailment
     target: pdp_gen_gbdt_vs_ols_gap
