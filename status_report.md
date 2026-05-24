@@ -1,4 +1,4 @@
-# Loop status — 2026-05-24T04:43:07Z
+# Loop status — 2026-05-24T04:43:47Z
 
 **Saude**: green (loop saudavel)
 
@@ -16,7 +16,7 @@
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: d0bfbf1 bridge: sync ulfor iter 4 (10 minutes ago)
+**Bridge ultimo sync**: de3c8f1 bridge: sync iter 16 (38 seconds ago)
 
 **UlFor HEAD**: f64cfbb7 coord: req-0007 (P2 data_publish, F1_p50 + per-fold MAE parquet) from loop iter_0016
 
