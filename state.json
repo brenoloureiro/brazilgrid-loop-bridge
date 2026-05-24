@@ -1,7 +1,7 @@
 {
-  "iter_atual": 8,
+  "iter_atual": 9,
   "mode": "self_planning",
-  "alvo_ativo": "metric_suite_principio_6_adopted",
+  "alvo_ativo": "sanity_check_b6_robustness_n_test_gating",
   "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
@@ -90,6 +90,15 @@
       "decision": "ADOTADO. metric_suite.py canonical, B3+B4 patched, leaderboard reescrito. NMAE secundaria com flag 'unsafe' quando ymean<1 MWh. H10/H11 desbloqueadas.",
       "lesson_learned": "NMAE-only ranking enganou inferencia em 3/4 subs no replay loop. Champions UlFor (Ridge/LR) sao definidos por NMAE oficial — H19 abre frente para extrair MAE/R²/F1 dos champions e revalidar promocao FASE 4.",
       "follow_ups_created": ["H19"]
+    },
+    "H16_b6_n_test_gating": {
+      "iter": 9,
+      "verdict": "CONFIRMADO",
+      "iter_closed": 9,
+      "evidence_final": "Patch B6: (1) n_test < 30 -> downgrade severity 1 nivel; (2) sign_flip exige |corr_train|>=0.2 AND |corr_test|>=0.2 (era >0.05). Regression sintetico nT={10,60}x20 seeds DGP fraco-positivo: n=10 elimina 5/20 falsos positivos e downgrade 20/20 severities; n=60 mantem comportamento (0 downgrades, sign_flip count inalterado). Revalidation sobre iter_0002 confirma: SE/v3 lag downgrade high->medium + curt_lag7 sign_flip bloqueado pelo gate |corr|>=0.2 (ct=0.196); 9 features SE/v3 downgrade. NE/v1-3 lag sign_flips persistem (|corr_train|=0.66/0.42, alinhado com warning legitimo).",
+      "decision": "ADOTADO. sanity_checks/zero_count_shift.py patched (params n_test_downgrade_threshold=30, min_abs_corr_for_sign_flip=0.2; campos severity_raw, downgraded_due_to_small_n_test, n_test, sign_flip_blocked_by_min_abs_corr expostos). req-0003-style nao mais emitido para baixa-confianca sign-flips do replay n=11.",
+      "lesson_learned": "B6 antigo era overconfident em test pequeno: corr amostral 0.05<|x|<0.2 com n=11 nao discrimina sinal de ruido. Gate calibrado destrava bake-off em janelas curtas do replay sem gerar req desnecessario.",
+      "follow_ups_created": ["H20"]
     }
   },
   "sanity_checks_disponiveis": [
@@ -101,11 +110,26 @@
     "zero_count_shift"
   ],
   "leaderboard_dirty": false,
-  "ultimo_handoff": "iter_0008_h9_metric_suite_mae_r2_f1.md",
+  "ultimo_handoff": "iter_0009_h16_b6_n_test_gating.md",
   "budget_consumido": {
-    "iter": 8,
-    "horas": 1.3,
+    "iter": 9,
+    "horas": 0.7,
     "custo_usd": null
+  },
+  "b6_robustness_v2": {
+    "version": "1.1",
+    "adopted_in_iter": 9,
+    "hypothesis_source": "H16 (req-0003 ulfor_verdict + iter_0006 lesson)",
+    "params": {
+      "n_test_downgrade_threshold": 30,
+      "min_abs_corr_for_sign_flip": 0.2
+    },
+    "exposed_fields": ["severity_raw", "downgraded_due_to_small_n_test", "n_test", "sign_flip_blocked_by_min_abs_corr"],
+    "evidence_iter0002_revalidation": {
+      "SE_v3_lag_signflip_iter0004": "downgrade high->medium; curt_lag7 sign_flip blocked (ct=0.196 < 0.2)",
+      "NE_v1_v3_lag_signflip": "persistente (|ct|=0.66/0.42 — warning legitimo)",
+      "N_v3_n11": "5 downgrades + 3 sign_flips blocked (mais alto entre subs)"
+    }
   },
   "ulfor_session_sync": {
     "iter0005_fim_head": "be2c9186",
@@ -138,8 +162,8 @@
   ],
   "planner_config": {
     "mode": "self_planning",
-    "next_iter_should_be": "H16 (P1 methodology — B6 zero_count_shift severity downgrade quando n_test<30). Codavel no loop sem dep UlFor. Fechamento natural pos-H9: B3/B4 ja' patched com metric_suite, B6 agora pede thresholds calibrados.",
-    "alt_next": "H10 (P2 ensemble v2_LGBM + persist_d1) — agora unblocked (depends_on=H9 satisfeito). Ou H19 (P2 extrair MAE/R²/F1 dos champions UlFor)."
+    "next_iter_should_be": "H10 (P2 ensemble v2_LGBM + persist_d1) — agora unblocked desde iter_0008 (H9 done) e nao tem dep externa. Codavel localmente com replay iter_0002 + persist_d1 dos baselines. Sanity B4/baseline_compare + B3/holdout_strict ja' patched.",
+    "alt_next": "H19 (P2 extrair MAE/R²/F1 dos champions UlFor Ridge/LR — leaderboard hoje so' tem NMAE deles). Pode ser feito por parse via git show do MLflow proxy file UlFor sem novo req. Ou H7 (P2 XGB vs LGBM com CV mesmo split). Ou H20 (P3 derivada da H16 — auto-flag n_test<30 no leaderboard)."
   },
   "kill_requested": false
 }

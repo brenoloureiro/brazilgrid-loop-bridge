@@ -1,22 +1,22 @@
-# Loop status — 2026-05-24T02:44:07Z
+# Loop status — 2026-05-24T02:57:28Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=54759, .STOP=no)
 
-**Iter atual**: 8
-**Alvo ativo**: metric_suite_principio_6_adopted
+**Iter atual**: 9
+**Alvo ativo**: sanity_check_b6_robustness_n_test_gating
 
-**Budget**: 8 iters / 1.3 horas consumidas
+**Budget**: 9 iters / 0.7 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0008_h9_metric_suite_mae_r2_f1.md
+**Ultimo handoff**: iter_0009_h16_b6_n_test_gating.md
   decision: |
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: f2e763a bridge: sync iter 7 (14 minutes ago)
+**Bridge ultimo sync**: 5f160cc bridge: sync iter 8 (13 minutes ago)
 
 **UlFor HEAD**: 4d6dd73a ulfor checkpoint: 04:00Z — H2+H4 validados, 3 champions promovidos
 

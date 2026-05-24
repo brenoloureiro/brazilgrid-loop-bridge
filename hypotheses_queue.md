@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T06:00:00Z
+last_updated: 2026-05-24T06:45:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -312,17 +312,36 @@ hypotheses:
       nivel (high -> medium, medium -> low). Ou seguir threshold absoluto
       em |corr_train|, |corr_test| >= 0.2 antes de marcar sign_flip.
       Inclui regression test sintetico com n=10 e n=60 mostrando diferenca.
+
+      VEREDITO iter_0009: CONFIRMADO. Ambas mitigations implementadas:
+        (1) `n_test < 30` -> downgrade severity 1 nivel (severity_raw +
+            flag downgraded_due_to_small_n_test preservados).
+        (2) sign_flip exige |corr_train|>=0.2 AND |corr_test|>=0.2 (era
+            >0.05 — overconfident em n=11).
+      Regression sintetico (DGP fraco-positivo, n_train=365, 20 seeds):
+        - n_test=10: 5/20 falsos positivos de sign_flip eliminados, 20/20
+          severities downgrade-adas (medium->low ou high->medium).
+        - n_test=60: 0/20 sign_flips perdidos (zero impacto em VP), zero
+          downgrades aplicados (corretamente — n_test>=30).
+      Revalidation iter_0002 runs: SE/v3 lag sign-flip downgrade high->medium,
+      curt_lag7 sign_flip bloqueado pelo novo gate de |corr|, 9 features
+      em SE/v3 downgrade-adas. NE/v1-3 curt_lag1/lag7 sign_flips persistem
+      (|corr_train|=0.66/0.42, gate novo aceita — sao warnings legitimos).
     type: methodology
     layer: meta
     target: sanity_check_b6_robustness
     priority: P1
-    status: queued
+    status: done
+    iter_handled: 0009
+    verdict: CONFIRMADO
     estimated_effort_hours: 0.5
+    actual_effort_hours: 0.7
     depends_on: []
     blocks: []
     sanity_checks_required: []
     expected_value: evitar req desnecessario ao UlFor por falso positivo
     created_at: 2026-05-24T05:00:00Z
+    completed_at: 2026-05-24T06:45:00Z
 
   - id: H17
     summary: Promover SE/v3 + S/v3.3 PDP-fixed para FASE 4 (SUPERSEDED)
@@ -413,6 +432,28 @@ hypotheses:
     sanity_checks_required: []
     expected_value: leaderboard internamente consistente (MAE/R²/F1 em todas linhas)
     created_at: 2026-05-24T06:00:00Z
+
+  - id: H20
+    summary: Auto-flag bake-off com n_test < 30 — warning explicito no leaderboard
+    detail: |
+      Derivada de H16 iter_0009. Patched B6 evita falsos positivos de
+      severity, mas o problema raiz e' bake-offs com janelas curtas
+      (n_test=11 do replay iter_0002 vs n_test=60 do UlFor oficial). Tudo
+      que entra no leaderboard com test n<30 deveria ter coluna "n_test"
+      visivel e flag `low_confidence_n_test`. Hoje a coluna "sanity_ok"
+      embute isso opacamente. Mudanca pequena de display + adicao no
+      bake-off runner para escrever n_test no meta.json. Sem dep externa.
+    type: meta
+    layer: meta
+    target: leaderboard_low_n_test_warning
+    priority: P3
+    status: queued
+    estimated_effort_hours: 0.5
+    depends_on: []
+    blocks: []
+    sanity_checks_required: []
+    expected_value: leaderboard auto-documentado para baixa confianca amostral
+    created_at: 2026-05-24T06:45:00Z
 
   - id: H15
     summary: S 'nao aprendivel' — rare event classifier em vez de regressor?

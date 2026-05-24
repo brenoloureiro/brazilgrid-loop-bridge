@@ -6,6 +6,12 @@ Atualizado pelo watchdog ao final de cada iteração com ganho promovido.
 **Iter 0008 (H9):** metricas primarias agora **MAE/R²/F1** (PLANO_FINAL Principio 6).
 NMAE mantida como secundaria — flaggada `unsafe` quando ymean<1 MWh.
 
+**Iter 0009 (H16):** B6 zero_count_shift v1.1 — `n_test<30 -> downgrade severity 1 nivel`
+e sign_flip exige `|corr_train| >= 0.2 AND |corr_test| >= 0.2` (era >0.05). Falso positivo
+SE/v3 lag (iter_0004 com n_test=11) automaticamente atenuado: curt_lag7 sign_flip bloqueado,
+severities raw=high downgrade para medium. Replay loop pode rodar em janelas curtas sem
+gerar req desnecessario ao UlFor.
+
 | layer | alvo | sub | baseline (MAE_mwh, CV) | best_metric (MAE/R²/F1, modelo) | NMAE secundario | last_iter | sanity_ok | data_utc |
 |---|---|---|---|---|---|---|---|---|
 | curtailment | d1_ENE_CNF | NE | persist_d1 (UlFor CV 5 folds — MAE pendente extracao) | **ridge_alpha10 (UlFor CV 5 folds, R² +0.469±0.098)** | NMAE 33.7±8.1% | 0007 | aud B1-B6 pendente (H18) | 2026-05-24T05:30Z |
@@ -21,6 +27,7 @@ NMAE mantida como secundaria — flaggada `unsafe` quando ymean<1 MWh.
 | curtailment | d1_ENE_CNF | SE | persist_d1 (loop replay n=11) | NMAE 36.2% v2 LGBM | superado por UlFor v3.3 | 0002 | [3/5] B3 fail | 2026-05-24T01:30Z |
 | meta | h2_off_by_one_pdp | — | dbt_join_correto | corr(PDP[t], gen[t])=0.9118 / corr(PDP[t], gen[t+1])=0.8211 | H2 REFUTADO | 0003 | n=484 dias | 2026-05-24T02:30Z |
 | meta | sanity_check_B6 | — | n/a | zero_count_shift + signal_collapse implementado e validado (sintetico high+collapse, real SE/v3 lag sign-flip) | adicionado a default pipeline | 0004 | passou | 2026-05-24T03:00Z |
+| meta | sanity_check_B6_v1.1 | — | B6 v1.0 (overconfident em n_test=11) | **B6 + n_test<30 downgrade + sign_flip gate \|corr\|>=0.2** | 5/20 FP sint n=10 / 0 perdas n=60 / SE/v3 lag iter_0002 downgrade high->medium | 0009 | regression + revalidation OK | 2026-05-24T06:45Z |
 
 ---
 
@@ -182,3 +189,56 @@ Lessons:
 
 H18 nova (P1 methodology, blocked por req-0005): auditar champions Ridge/LR
 via B1-B6 antes de FASE 4 final.
+
+## Iter 0009 — H16 B6 robustez n_test (CONFIRMADO)
+
+Patch sanity_checks/zero_count_shift.py: dois mitigations ortogonais.
+
+**(1) `n_test < 30 -> downgrade severity 1 nivel`** (high->medium->low->none).
+Severity original preservada em `severity_raw`; flag novo
+`downgraded_due_to_small_n_test` marca downgrades para audit.
+
+**(2) `sign_flip` exige `|corr_train| >= 0.2 AND |corr_test| >= 0.2`**.
+Gate antigo era `>0.05` em ambos — pega ruido amostral em n=11. `corr_test`
+em [0.05, 0.20] com n=11 nao discrimina sinal real de ruido. Flag novo
+`sign_flip_blocked_by_min_abs_corr` documenta o que o gate antigo teria
+flaggado e o novo bloqueia.
+
+**Regression test sintetico** (`scripts/b6_regression_n_test_threshold.py`):
+DGP fraco-positivo (lag1 ~ AR(1), corr alvo ~ +0.25), n_train=365, 20 seeds.
+
+| cenario | old_sign_flip | new_sign_flip | new_downgraded | criterio aceite |
+|---|---|---|---|---|
+| n_test=10 (small) | 5/20 | 0/20 | 20/20 | 5 FP eliminados |
+| n_test=60 (large) | 0/20 | 0/20 | 0/20 | zero regressao em VP |
+
+Todos 4 criterios de aceitacao passam -> verdict **CONFIRMADO**.
+
+**Revalidation iter_0002 runs** (snapshot da causa pratica que motivou H16):
+
+| sub/ver (n_test=11) | n_high | n_med | n_collapse | n_downgrade | sf_blocked |
+|---|---|---|---|---|---|
+| NE/v1 | 0 (era 0) | 0 (era 4) | 2 | 4 | 0 |
+| NE/v3 | 0 (era 0) | 0 (era ~4) | 2 | 8 | 0 |
+| SE/v3 | 0 (era 0) | 4 (era 4) | 3 (era 4) | 9 | 1 (curt_lag7) |
+| N/v3  | 0 | 0 | 1 | 5 | 3 |
+
+- SE/v3: features raw=high downgrade para medium (preserva sinal mas atenua alarme);
+  curt_lag7 sign_flip bloqueado (`ct=0.196 < 0.2`). UlFor req-0003 ja' tinha
+  confirmado que esses flips eram amostrais em n=60 — patch agora alinha o
+  diagnostico do loop com aquela verdade.
+- NE/v1-v3: lag sign_flips PERSISTEM (`|ct|=0.66/0.42`, ambos >>0.2) — gate
+  novo nao mascara warnings legitimos onde a correlacao train e' forte.
+- N/v3: 3 sign_flips bloqueados — sub com mais falso positivo amostral.
+
+H20 derivada (P3): expor n_test no leaderboard + flag `low_confidence_n_test` no
+bake-off runner.
+
+### Lessons learned (cumulativas)
+
+- B6 v1.0 (iter_0004): util mas overconfident em janelas curtas. Gera req
+  externa de baixa-confianca.
+- B6 v1.1 (iter_0009): downgrade calibrado + gate de sign_flip alinhado com
+  corr de UlFor (n>=60). Loop agora pode rodar B6 em replay n=11 sem ruido.
+- Padrao geral: sanity checks devem expor `n_test` e ajustar severities por
+  potencia estatistica — replica-se em B5 (PSI), B1 (leak corr).
