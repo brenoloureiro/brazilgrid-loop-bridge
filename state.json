@@ -946,13 +946,13 @@
         "hash": "34478f93",
         "msg": "exp(forecast): H22 ulfor anomalia LR_SE numericamente patologica",
         "absorbed": true,
-        "interpretacao": "Probe LR_SE/full revelou PI values absurdos (>800.000pp NMAE para carga_mwmed/carga_liquida/val_import). Causa: matriz X SE/full com condition number ~2.5e17, coefs LR oscilam massivamente. NMAE 46.6% em FULL e acidental. Sucessor recomendado SE: ridge+h22 (48.3+/-14.2% NMAE, R2 +0.390). Marginalmente pior NMAE que LR-instavel (~2pp) mas R2 maior, sem risco numerico. NAO promove (decisao Breno). IMPLICACAO: champion SE atual (lr_curt_se_d1@v1 full) tem fragilidade numerica escondida — recomendacao implicita 'SE -> ridge+h22'."
+        "interpretacao": "Probe LR_SE/full revelou PI values absurdos (>800.000pp NMAE para carga_mwmed/carga_liquida/val_import). Causa: matriz X SE/full com condition number ~2.5e17, coefs LR oscilam massivamente. NMAE 46.6% em FULL e acidental. Sucessor recomendado SE: ridge+h22 (48.3+/-14.2% NMAE, R2 +0.390). Marginalmente pior NMAE que LR-instavel (~2pp) mas R2 maior, sem risco numerico. NAO promove (decisao Breno). IMPLICACAO: champion SE atual (lr_curt_se_d1@v1 full) tem fragilidade numerica escondida \u2014 recomendacao implicita 'SE -> ridge+h22'."
       },
       {
         "hash": "ccf53722",
         "msg": "exp(forecast): H23 ulfor SE LR load-bearing -- ter_verif_rmean7 SOZINHA salva LR",
         "absorbed": true,
-        "interpretacao": "Investigacao da anomalia H22: SE LR FULL R2 +0.380 -> H22_drop R2 -0.448 (delta -0.828), enquanto SE Ridge FULL +0.196 -> H22_drop +0.390 (delta +0.194). Metodologia leave-one-in. ter_verif_rmean7 SOZINHA recupera R2 para +0.301 (vs H22 baseline -0.080, delta +0.381). Secundarias: cmo_mwmed_rmean7 (+0.173), prev_solar_pico_mw (+0.099), prev_solar_n (+0.061). INSIGHT TEORICO TRANSFERIVEL: PI medida com Ridge subestima importance de features colineares — ter_verif_rmean7 tinha PI -0.043pp em H22 ('inutil') mas era artefato de Ridge redistribuir sinal via L2 entre ter_verif_lag1/ter_verif/ter_prog. LR sem shrinkage colapsa quando removida. Lesson: PI deveria ser medida com o modelo final, nao com proxy mais robusto. Se promover SE com H22_drop, USAR RIDGE. Artefatos: h23_se_lr_load_bearing.py, FINDING_H23_SE_LR_LOAD_BEARING.md, outputs/cv_summary_h23_se_lr_loi.parquet."
+        "interpretacao": "Investigacao da anomalia H22: SE LR FULL R2 +0.380 -> H22_drop R2 -0.448 (delta -0.828), enquanto SE Ridge FULL +0.196 -> H22_drop +0.390 (delta +0.194). Metodologia leave-one-in. ter_verif_rmean7 SOZINHA recupera R2 para +0.301 (vs H22 baseline -0.080, delta +0.381). Secundarias: cmo_mwmed_rmean7 (+0.173), prev_solar_pico_mw (+0.099), prev_solar_n (+0.061). INSIGHT TEORICO TRANSFERIVEL: PI medida com Ridge subestima importance de features colineares \u2014 ter_verif_rmean7 tinha PI -0.043pp em H22 ('inutil') mas era artefato de Ridge redistribuir sinal via L2 entre ter_verif_lag1/ter_verif/ter_prog. LR sem shrinkage colapsa quando removida. Lesson: PI deveria ser medida com o modelo final, nao com proxy mais robusto. Se promover SE com H22_drop, USAR RIDGE. Artefatos: h23_se_lr_load_bearing.py, FINDING_H23_SE_LR_LOAD_BEARING.md, outputs/cv_summary_h23_se_lr_loi.parquet."
       },
       {
         "hash": "9d9a5979",
@@ -964,16 +964,16 @@
         "hash": "ec0fd937",
         "msg": "ulfor checkpoint 13:25Z -- sprint H23 (multi-agente, preventivo)",
         "absorbed": true,
-        "interpretacao": "Checkpoint PREVENTIVO apos 1 sprint pessoal (vs minimo 3): '2-3 agentes paralelos ativos, risco duplicar maior que beneficio acumular sprints'. Convergencia com agente paralelo: addendum LR_SE patologico (cond number 2.5e17). Ambos recomendam ridge+h22 como sucessor SE. Master agora 5+ ahead origin (sem conflito de merge entre commits paralelos). SINAL ESTRUTURAL: regime UlFor mudou para multi-agente paralelo — checkpoints mais frequentes."
+        "interpretacao": "Checkpoint PREVENTIVO apos 1 sprint pessoal (vs minimo 3): '2-3 agentes paralelos ativos, risco duplicar maior que beneficio acumular sprints'. Convergencia com agente paralelo: addendum LR_SE patologico (cond number 2.5e17). Ambos recomendam ridge+h22 como sucessor SE. Master agora 5+ ahead origin (sem conflito de merge entre commits paralelos). SINAL ESTRUTURAL: regime UlFor mudou para multi-agente paralelo \u2014 checkpoints mais frequentes."
       }
     ],
     "delta_resumo_iter0021": {
-      "champions_status_change": "INALTERADO em producao. Loader.py + MLflow Registry intocados. PORÉM 2 candidatos sucessores prontos para decisao Breno: (a) NE: ridge+h22_per_fold (-2.3pp NMAE CV, +0.074 R2); (b) SE: ridge+h22_per_fold (-2.5pp NMAE CV, +0.194 R2) substituindo lr_SE atual (anomalo numericamente, cond_num 2.5e17). NE lr+h22 daria -9.5pp / +0.263 R2 mas champion atual NE ja e ridge. S/N H22 neutral, sem candidato.",
+      "champions_status_change": "INALTERADO em producao. Loader.py + MLflow Registry intocados. POR\u00c9M 2 candidatos sucessores prontos para decisao Breno: (a) NE: ridge+h22_per_fold (-2.3pp NMAE CV, +0.074 R2); (b) SE: ridge+h22_per_fold (-2.5pp NMAE CV, +0.194 R2) substituindo lr_SE atual (anomalo numericamente, cond_num 2.5e17). NE lr+h22 daria -9.5pp / +0.263 R2 mas champion atual NE ja e ridge. S/N H22 neutral, sem candidato.",
       "novos_requests": [],
       "requests_fechados_extras": [],
       "novas_hipoteses_loop_geradas": [],
       "frente_h22_ulfor_status": "ABERTA EM CV, PENDENTE HOLDOUT 14d REAL E DECISAO BRENO. H22 ulfor (VIF per-fold + PI per-fold) PROMOVIVEL CV em NE+SE. UlFor explicitamente deferiu promocao ao Breno (mesmo pattern de H14-F iter_0019). H23 ulfor (leave-one-in) elucidou root-cause da anomalia LR_SE patologica e produziu lesson teorico transferivel: PI deve ser medida com o modelo final, nao com proxy mais robusto.",
-      "fragilidade_numerica_se_lr_exposta": "Champion SE atual (lr_curt_se_d1@v1 full) tem cond_num matriz X ~2.5e17. NMAE 46.6% atual e 'acidental' (sorte amostral) — qualquer perturbacao pode explodir. Recomendacao implicita UlFor: trocar SE de lr para ridge+h22 (mais robusto, R2 essencialmente empate vs lr atual, sem risco numerico).",
+      "fragilidade_numerica_se_lr_exposta": "Champion SE atual (lr_curt_se_d1@v1 full) tem cond_num matriz X ~2.5e17. NMAE 46.6% atual e 'acidental' (sorte amostral) \u2014 qualquer perturbacao pode explodir. Recomendacao implicita UlFor: trocar SE de lr para ridge+h22 (mais robusto, R2 essencialmente empate vs lr atual, sem risco numerico).",
       "achado_teorico_transferivel": "PI mede-se com o modelo final, nao com proxy mais robusto. Ridge usa L2 para redistribuir importance entre colineares; PI subestima. LR sem shrinkage colapsa quando essas features sao removidas. Aplicavel ao nosso H22 queued (GBDT vs OLS gap pdp): se rodarmos PI sobre OLS para escolher features e treinarmos GBDT depois, podemos subestimar features que GBDT precisa para interacoes nao-lineares.",
       "regime_ulfor_multi_agente": "Checkpoint ec0fd937 expoe: '2-3 agentes paralelos ativos' (vs minimo 3 sprints antes de checkpoint). Padrao: se UlFor multi-agente, freq recon loop precisa subir (max 30-60 min vs 2-4h antes). 6 commits em 15 min reais.",
       "h_loop_impactadas": [
@@ -1089,9 +1089,9 @@
   "kill_requested": false,
   "budget_consumido_today": {
     "date_utc": "2026-05-24",
-    "iter": 24,
-    "horas": 2.965,
-    "usd": 59.6835,
+    "iter": 25,
+    "horas": 3.0842,
+    "usd": 63.4572,
     "lgbm_supplement_added_to_iter0020": "+0.5h (paralelo)"
   }
 }

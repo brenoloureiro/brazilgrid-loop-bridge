@@ -1,4 +1,4 @@
-# Loop status — 2026-05-24T13:02:22Z
+# Loop status — 2026-05-24T13:02:28Z
 
 **Saude**: green (loop saudavel)
 
@@ -16,7 +16,7 @@
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 33a3849 bridge: sync ulfor iter 20 (12 seconds ago)
+**Bridge ultimo sync**: e0a0b2c bridge: sync iter 21 (7 seconds ago)
 
 **UlFor HEAD**: 593a1093 ulfor checkpoint: 13:45Z — H22 model-aware fechado (PROMOVIVEL SE/lr)
 
