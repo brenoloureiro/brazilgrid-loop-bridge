@@ -1,6 +1,24 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0040 (2026-05-25T20:00Z, **H30 pdp_residual em Ridge_alpha1+alpha10
+Atualizado em iter_0041 (2026-05-25T22:00Z, **H33 joint-drop SE em LinearRegression
+vs Ridge (H8 iter_0027) — CONFIRMADO_LR**: SE LR joint_dnmae_pp = +1.316 (> +0.5pp
+threshold). 4/5 folds positivos (sinal robusto). Direcao 4/4 subs consistente cross-model:
+NE -4.285 (vs Ridge a10/a1 -1.167/-3.951), SE +1.316 (vs +0.270/+1.205), S -7.376
+(vs -8.334/-6.989), N -1.816 (vs -2.742/-2.293). Magnitude LR ~ Ridge a1
+(LR = limite alpha->0). **Insight metodologico canonico**: PI single-feat em LR
+para colinears perfeitos (val_net = val_import - val_export) EXPLODE 172000-3000000
+pp dNMAE (artefato `lstsq` min-norm SVD + cancelamento de pesos), enquanto
+val_net_lag1 nao-colinear tem PI razoavel 0.18-2.5pp. **|PI_single_feat|
+arbitrariamente grande em colinears = METRICA QUEBRADA, nao feature importante**;
+joint-drop refit dissolve artefato e mede aporte real cross-model. **Bundle
+intercambio CASE FECHADO** no replay loop (3-fold convergence Ridge a10 + Ridge a1
++ LR). Caveat H22_MA SE drop_HARMFUL reproduzido empiricamente no champion LR
+(commit UlFor 2daa5d40 confirmado por direcao apesar PI single-feat ser proxy
+biased). Sem mudanca de champion (decisao operacional UlFor permanece).
+H33 era puramente curiosidade metodologica pos-iter_0031; valor real = 3-fold
+convergence cross-model arquivada + 1 follow-up doc-only (H40 P5, adicionar caso
+em sanity_checks/B2_interpretation.md como segundo exemplo canonico apos H30 NE).
+Custo 0.25h. Atualizado anteriormente em iter_0040 (2026-05-25T20:00Z, **H30 pdp_residual em Ridge_alpha1+alpha10
 CV 5x60d NE+SE/v3 — REFUTADO_RIDGE**: paired delta_R²(B-A) com threshold
 CONFIRMADO >=-0.005 em NE AND SE; REFUTADO < -0.01 em qualquer. Resultado:
 alpha=1 NE B +0.013 (PASSA), SE B -0.032 (FAIL); alpha=10 NE B -0.064 (FAIL),

@@ -1,22 +1,22 @@
-# Loop status — 2026-05-24T18:57:24Z
+# Loop status — 2026-05-24T19:12:04Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=554874, .STOP=no)
 
-**Iter atual**: 40
-**Alvo ativo**: pdp_residual_in_ridge_cv
+**Iter atual**: 41
+**Alvo ativo**: feat_intercambio_joint_drop_se_lr
 
-**Budget**: 36 iters / 0.2 horas consumidas
+**Budget**: 41 iters / 0.25 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0040_h30_pdp_residual_ridge_cv.md
-  decision: DESCARTA — REFUTADO_RIDGE consistente; encerra H3-family residual no replay loop
+**Ultimo handoff**: iter_0041_h33_intercambio_lr.md
+  decision: DESCARTA — verdict CONFIRMADO_LR fecha caveat H22_MA mas decisao
 
-**Quality gate proximo**: pass — all_rules_passed
+**Quality gate proximo**: force_consolidation — refuted_streak_2 (iters iter_0040_h30_pdp_residual_ridge_cv.md, iter_0041_h33_intercambio_lr.md)
 
-**Bridge ultimo sync**: 46ecdd0 bridge: sync iter 39 (12 minutes ago)
+**Bridge ultimo sync**: 4245daf bridge: sync iter 40 (15 minutes ago)
 
 **UlFor HEAD**: 4f4e21f4 ulfor checkpoint: 17:44Z — fase 4, proximo: Breno desbloqueia (10o forcado, SEM substantive, standby puro tunnels DOWN, sinal/ruido 22.2%)
 

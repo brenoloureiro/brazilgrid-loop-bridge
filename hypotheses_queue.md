@@ -1409,13 +1409,27 @@ hypotheses:
     layer: curtailment
     target: feat_intercambio_joint_drop_se_lr
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0041
+    verdict: CONFIRMADO_LR
     estimated_effort_hours: 0.5
+    actual_effort_hours: 0.25
     depends_on: [H8]
     blocks: []
     sanity_checks_required: [perm, baseline]
     expected_value: fechar empiricamente o caveat metodologico H22_model_aware
     created_at: 2026-05-24T22:30:00Z
+    closed_at: 2026-05-25T22:00:00Z
+    closure_note: |
+      iter_0041 verdict CONFIRMADO_LR: SE joint-drop LR dNMAE=+1.316pp (>+0.5pp threshold).
+      Direcao 4/4 subs consistente entre LR e Ridge a10/a1 (cross-model convergence).
+      Magnitude LR ~ Ridge a1 (LR = limite alpha->0). Caveat H22_MA SE drop_HARMFUL
+      reproduzido empiricamente em LR puro (champion SE) — decisao operacional UlFor
+      (drop bundle SE) confirmada por direcao, apesar PI single-feat em LR ser
+      meaningless (explode 172000-3000000 pp por min-norm SVD em colinears perfeitos
+      val_net = val_import - val_export). Joint-drop e o teste autoritativo
+      cross-model. **Bundle intercambio CASE FECHADO** no replay loop.
+      1 follow-up criado: H40 (P5 doc-only sanity_checks/B2_interpretation.md).
     notes_iter0028: |
       Atratividade DIMINUI marginalmente pos-val14d alpha sweep UlFor
       (commits f7c56c3d + 1bd8638f + ff112a27). val14d real (test
@@ -1712,3 +1726,68 @@ notas_iter0031:
       ferramenta para distribution shift em outros forecasts (carga,
       eolica D+1 per-conjunto).
     created_at: 2026-05-25T08:00:00Z
+
+  - id: H40
+    summary: Documentar joint-drop > PI single-feat em colinears perfeitos (B2_interpretation)
+    detail: |
+      Derivada de H33 iter_0041 (CONFIRMADO_LR). Segundo caso canonico,
+      apos H39 (P5, criada em iter_0040 sobre H30 NE alpha=10), para a
+      entrada `sanity_checks/B2_interpretation.md`.
+
+      H33 expos comportamento radical de PI single-feat em LR com colinears
+      perfeitos (val_net = val_import - val_export):
+        SE LR PI val_export: +327559 pp dNMAE
+        SE LR PI val_import: +383150 pp dNMAE
+        SE LR PI val_net:    +327975 pp dNMAE
+        SE LR PI val_net_lag1 (nao-colinear): +0.18 pp dNMAE
+      Magnitude 1M+ vezes maior em colinear vs nao-colinear na mesma sub
+      no mesmo modelo na mesma feature semanticamente similar (intercambio).
+
+      Causa: `sklearn.LinearRegression` usa `scipy.linalg.lstsq` (SVD) que
+      retorna min-norm solution para design matrix rank-deficient. Coefs
+      individuais nas 3 colineares sao distribuidos com cancelamento
+      perfeito (a*val_export + b*val_import + c*val_net = 0 para qualquer
+      (a, b, c) tal que c = -b, a = b por algebra). Permutar uma das 3
+      quebra o cancelamento -> predicoes saem do eixo dos dados,
+      `pred = c1*shuffled + c2*real + c3*real` produz erro arbitrariamente
+      grande.
+
+      Esse padrao tambem aparece em Ridge mas atenuado (shrinkage L2 reduz
+      magnitude individual dos coefs colineares); H8 iter_0027 mostrou
+      Ridge a1 +1.21pp / a10 +0.27pp em SE — mesma direcao, magnitude
+      muito mais civilizada.
+
+      LESSON CANONICA p/ B2:
+        |PI_single_feat| arbitrariamente grande em colinears perfeitos
+        = METRICA QUEBRADA (artefato algebrico), nao feature importante.
+        Joint-drop refit sem o bundle inteiro e' o teste autoritativo
+        cross-model — mede aporte real sem produzir explosao numerica.
+
+      Adicionar ao sanity_checks/B2_interpretation.md:
+        - Caso 1 (H30 iter_0040 NE alpha=10): perm +105% MAE drop em
+          residual_total mas mean R² CV perde -0.064 -> "perm confirma
+          signal nao confirma feature_engineering_gain"
+        - Caso 2 (H33 iter_0041 SE LR): PI single-feat explode 172000-
+          3000000 pp em colinears perfeitos -> "joint-drop > PI em
+          colinears"
+        - Regra geral: SEMPRE rodar joint-drop alongside PI single-feat
+          quando ha grupo de features com VIF alto (>10) ou identidade
+          algebrica suspeita.
+
+      Custo estimado: 30 min (escrita + cross-link com casos H30 e H33,
+      sem codigo novo).
+    type: governance
+    layer: methodology
+    target: sanity_checks/B2_interpretation.md
+    priority: P5
+    status: queued
+    estimated_effort_hours: 0.5
+    depends_on: [H33, H39]
+    blocks: []
+    sanity_checks_required: []
+    expected_value: |
+      Codifica 2 casos canonicos (H30 + H33) que evitam interpretacao
+      errada de PI em iters futuras. Reduz custo de re-descobrir os
+      mesmos artefatos algebricos (perm em col duplicado, PI em
+      col perfeito) ao limpar a interpretacao no playbook.
+    created_at: 2026-05-25T22:00:00Z
