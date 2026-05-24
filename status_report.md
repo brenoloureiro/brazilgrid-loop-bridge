@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T16:31:38Z
+# Loop status — 2026-05-24T16:50:36Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=554874, .STOP=no)
 
-**Iter atual**: 29
-**Alvo ativo**: h13_persist_d7_baseline_aux
+**Iter atual**: 30
+**Alvo ativo**: h15_s_classifier_vs_regressor
 
-**Budget**: 29 iters / 0.3 horas consumidas
+**Budget**: 30 iters / 1.2 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0029_h13_persist_d7_baseline_aux.md
-  decision: RETÉM (persist_d7 permanece como diagnostico, agora com nota)
+**Ultimo handoff**: iter_0030_h15_s_classifier_vs_regressor.md
+  decision: |
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 2b8e45c bridge: sync ulfor iter 43 (4 minutes ago)
+**Bridge ultimo sync**: 5f48891 bridge: sync ulfor iter 57 (39 seconds ago)
 
-**UlFor HEAD**: 655729cd ulfor checkpoint: 16:27Z — fase 4, proximo: Breno decide EC2 setup vs skip-local-revalidate (promote v3 DECIDIDO mas bloqueado por CH local stale + MLflow tunel down)
+**UlFor HEAD**: 2917289c ulfor checkpoint: 16:48Z — fase 4, proximo: Breno desbloqueia (4o standby consecutivo, nada mudou desde 16:29Z)
 
 ---
 

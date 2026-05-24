@@ -1,7 +1,9 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0029 (2026-05-25T00:30Z, H13 persist_d7 validado como
-baseline aux — sub-claim "vence persist_d1 em S" REFUTADO no CV canonico).
+Atualizado em iter_0030 (2026-05-25T01:30Z, H15 S classifier vs regressor
+binarizado — CONFIRMADO_PARCIAL_NON_RARE; classifier vence em thr_zero/p75
+mas EMPATA em thr_p90 rare event; alerta binario operacional S viavel via
+LogReg AUC 0.78).
 Suite canonica MAE/R²/F1/RMSE/skill + NMAE/bias secundarios. Fonte unica:
 parquets UlFor commit `6b21ffdf`
 (`experiments/bakeoff_curtailment_multisub/outputs/cv_summary_*.parquet`),
@@ -345,6 +347,37 @@ vs 34.7%) e por estabilidade std.
    ausencia de CV. UlFor candidato a executar em proximo sprint
    envelope-safe.
 
+## S binary alert (iter_0030 H15) — classifier viavel para alerta operacional
+
+CV 5×60d gap 7d, S/v1 (37 feats iter_0002), LogReg(class_weight=balanced)
+vs LGBMClassifier vs LR_sklearn (champion S) vs Ridge_α10 binarizados.
+Persist_d1 binario + climatology como baselines. P50_thresholds derivados
+do y_tr (sem leak).
+
+| threshold | pos_rate_te | best CLS AUC | best REG AUC | persist AUC | ΔAUC CLS−REG | best PR-AUC CLS | best PR-AUC REG | ΔPR-AUC |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| thr_zero  (any curt)   | 40% | **0.784 (logreg)** | 0.739 (lr_reg)   | 0.617 | **+0.045** | **0.784** | 0.733 | **+0.051** |
+| thr_p75   (big curt)   | 25% | **0.821 (logreg)** | 0.754 (lr_reg)   | 0.633 | **+0.068** | **0.716** | 0.635 | **+0.081** |
+| thr_p90   (rare event) | 10% | 0.762 (logreg)     | **0.778 (lr_reg)** | 0.551 | −0.016     | 0.451     | **0.456** | −0.006 |
+
+- **Confirma classifier > regressor binarizado em alerta moderado** (thr_zero
+  + thr_p75) com gain 4.5-6.8pp AUC e 5.1-8.1pp PR-AUC.
+- **Refuta classifier > regressor em rare event** (thr_p90): regressor
+  binarizado empata classifier. Mecanismo: pos absoluto baixo no test (fold
+  5: 1 positivo em 60d) inviabiliza calibracao LogReg.
+- **Permutation test FORTE**: real LogReg AUC=0.872 (fold 5, thr_zero) vs
+  perm 0.512±0.13 (n=50, p=0.000). Sinal nao e' artefato amostral.
+- **Distribution shift severo** (status WARN): zero_rate y_te varia
+  0.30-0.83 entre folds vs y_tr 0.57-0.75. Explica volatilidade thr_p90.
+- **Implicacao produtizavel** (sugestao para UlFor, NAO requisitada): se o
+  endpoint /api/forecast/d1 quiser expor "vai ter curtailment em S amanha?"
+  como flag binaria, LogReg dedicado a esse problema bate a binarizacao do
+  champion LR continuo por 4.5pp AUC sem custo de re-treino do regressor.
+  F1 thr_zero: LogReg 0.718 vs LR_reg 0.682 (close), recall LogReg 0.737
+  vs LR_reg 0.900 (regressor recupera mais mas com 14pp menos precisao).
+
+Artefatos: `outputs/iter_0030/h15_s_classifier_vs_regressor/`.
+
 ## Historico iter loop (deprecado — replays n=11)
 
 Antes do iter_0007 (champions UlFor Ridge/LR CV 5×60d), o loop usou
@@ -372,6 +405,7 @@ iterations/iter_0002 a iter_0006.
 | 0027 | H8 feat_intercambio CV-PI independente | CONFIRMADO_PARCIAL_3SUBS_REFUTADO_SE_em_Ridge — joint-drop primario + 30-perm single-feat reproduz UlFor H22 drop direction em 3/4 subs (NE -3.95pp joint a1; S -8.3pp gigante; N inconclusivo unsafe) e diverge em SE (+1.21pp joint a1, lesson model-aware H22_MA empirico). H33 derivada. | — (definitivo) |
 | 0028 | RECON_DELTA UlFor 83abab3e..27152e16 | val14d alpha sweep (3 candidatos ridge × 4 subs, n≈58d) FECHA validation gap parcial iter_0026; promote v3 consolidado (NE/N coincidem CV+val14d, S rejeita ambos, SE INVERTE — opt_A h22_MA val14d vs opt_B h22_pf CV); diff features SE elucida mecanismo (10 features carregam regime recente CMO+intercambio); convergencia empirica com H8 iter_0027 | — (handoff) |
 | 0029 | H13 persist_d7 baseline aux | CONFIRMADO_DISPLAY_REFUTADO_REGIME_CLAIM — persist_d7 ja' presente no leaderboard desde iter_0007 (display OK); sub-claim "vence persist_d1 em S" REFUTADO em CV canonico (persist_d1 vence 4/4 subs no agregado, 19/20 per-fold cells). Unica inversao: N fold 0 (regime sazonal antigo, nao S). Origem da premissa: replay iter_0002 n=11 onde d7 venceu d1 EM N (nao S, erro de transcricao do detail). Mantido como diagnostico auto-correlacao | — (definitivo) |
+| 0030 | H15 S classifier vs regressor binarizado | CONFIRMADO_PARCIAL_NON_RARE — em thr_zero (any curt, pos_rate 40%) e thr_p75 (big curt, pos_rate 25%) LogReg(class_weight=balanced) bate LR_reg+Ridge_reg binarizados em **+4.5pp/+6.8pp AUC** e **+5.1pp/+8.1pp PR-AUC**; em thr_p90 (rare event, pos_rate 10%) regressor binarizado EMPATA classifier (ΔAUC −1.6pp, ΔPR-AUC −0.6pp, dentro do ruido). Mecanismo: rare events com test_pos absoluto baixo (1-5 positivos em fold 5) inviabilizam calibracao do LogReg. Perm test FORTE: real AUC=0.872 vs perm 0.512±0.13 (p=0.000). Hipotese original ("classifier > regressor em rare-event") REFUTADA, mas H15 derivada: classifier e' o caminho para alerta binario "vai ter curt em S?" (LogReg AUC 0.78 vs persist 0.62, +16.8pp) | H35 (alerta operacional moderado S) |
 
 ## Lessons learned (transferiveis)
 

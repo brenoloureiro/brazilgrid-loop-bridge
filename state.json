@@ -1,8 +1,8 @@
 {
-  "iter_atual": 29,
+  "iter_atual": 30,
   "mode": "self_planning",
-  "alvo_ativo": "h13_persist_d7_baseline_aux",
-  "layer_ativa": "meta",
+  "alvo_ativo": "h15_s_classifier_vs_regressor",
+  "layer_ativa": "curtailment",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
     "version": "1.0",
@@ -549,6 +549,50 @@
       "artefatos": "outputs/iter_0029/persist_d7_baseline_aux/",
       "budget_horas": 0.3,
       "h_derivada": null
+    },
+    "H15_s_classifier_vs_regressor": {
+      "status": "done",
+      "iter_handled": 30,
+      "veredito": "CONFIRMADO_PARCIAL_NON_RARE",
+      "closed_at": "2026-05-25T01:30:00Z",
+      "summary": "CV walk-forward 5x60d gap 7d em S/v1 (37 feats iter_0002). Classifier (LogReg balanced) bate regressor binarizado (LR_reg + Ridge_a10) em thr_zero (+4.5pp AUC, +5.1pp PR-AUC) e thr_p75 (+6.8pp AUC, +8.1pp PR-AUC). REFUTA claim original em thr_p90 (rare event, pos_rate 10%): regressor binarizado EMPATA classifier (delta AUC -1.6pp, PR-AUC -0.6pp). Mecanismo: pos absoluto baixo no test (fold 5 thr_p90 = 1 pos em 60d) inviabiliza calibracao LogReg. Permutation FORTE: real LogReg AUC=0.872 vs perm 0.512+-0.13 (n=50, p=0.000). H35 derivada (P3 queued) para alerta operacional moderado S via LogReg dedicado se algum produto pedir.",
+      "sanity_checks_done": [
+        "leak_passed_inherited",
+        "perm_passed",
+        "holdout_strict_passed",
+        "baseline_passed",
+        "dist_shift_warn",
+        "zero_count_warn"
+      ],
+      "artefatos": "outputs/iter_0030/h15_s_classifier_vs_regressor/",
+      "budget_horas": 1.2,
+      "h_derivada": "H35",
+      "per_threshold_metrics": {
+        "thr_zero": {
+          "best_cls_auc": 0.784,
+          "best_reg_auc": 0.739,
+          "best_cls_pr_auc": 0.784,
+          "best_reg_pr_auc": 0.733,
+          "persist_auc": 0.617,
+          "confirm": true
+        },
+        "thr_p75": {
+          "best_cls_auc": 0.821,
+          "best_reg_auc": 0.754,
+          "best_cls_pr_auc": 0.716,
+          "best_reg_pr_auc": 0.635,
+          "persist_auc": 0.633,
+          "confirm": true
+        },
+        "thr_p90": {
+          "best_cls_auc": 0.762,
+          "best_reg_auc": 0.778,
+          "best_cls_pr_auc": 0.451,
+          "best_reg_pr_auc": 0.456,
+          "persist_auc": 0.551,
+          "confirm": false
+        }
+      }
     }
   },
   "sanity_checks_disponiveis": [
@@ -812,10 +856,10 @@
       "warn": ""
     }
   },
-  "ultimo_handoff": "iter_0029_h13_persist_d7_baseline_aux.md",
+  "ultimo_handoff": "iterations/iter_0030_h15_s_classifier_vs_regressor.md",
   "budget_consumido": {
-    "iter": 29,
-    "horas": 0.3,
+    "iter": 30,
+    "horas": 1.2,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -1772,11 +1816,9 @@
   },
   "kill_requested": false,
   "budget_consumido_today": {
-    "date_utc": "2026-05-25",
-    "iter": 41,
-    "horas": 8.5953,
-    "usd": 133.0233,
-    "note": "iter_0029 H13 persist_d7 baseline_aux (0.3h, no exec cost, display + analysis only)",
-    "last_update": "2026-05-25T00:30:00Z"
+    "date_utc": "2026-05-24",
+    "iter": 1,
+    "horas": 0.3058,
+    "usd": 5.6365
   }
 }

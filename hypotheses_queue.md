@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T23:30:00Z
+last_updated: 2026-05-25T01:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -819,17 +819,48 @@ hypotheses:
       JA E aprendivel como regressor — classifier nao e mais P2.
       Manter como P3 — pode ainda dar AUC > regressor para alerta
       operacional (recall mais util que MAE neste sub low-signal).
+
+      VEREDITO iter_0030: CONFIRMADO_PARCIAL_NON_RARE. CV walk-forward
+      5×60d gap 7d em S/v1 (37 feats iter_0002) com LogReg+LGBMClassifier
+      vs LR_reg (champion S) + Ridge_α10 binarizados, 3 thresholds.
+
+      Resultado por threshold:
+        thr_zero (any curt, pos_rate 40%): LogReg AUC=0.784 vs LR_reg=0.739
+          (+4.5pp); PR-AUC 0.784 vs 0.733 (+5.1pp). CONFIRMA.
+        thr_p75 (big curt, pos_rate 25%): LogReg AUC=0.821 vs LR_reg=0.754
+          (+6.8pp); PR-AUC 0.716 vs 0.635 (+8.1pp). CONFIRMA.
+        thr_p90 (rare event, pos_rate 10%): LogReg AUC=0.762 vs LR_reg=0.778
+          (−1.6pp); PR-AUC 0.451 vs 0.456 (−0.6pp). REFUTA original claim.
+
+      Hipotese original (rare-event classifier > regressor): REFUTADA.
+      Mecanismo: pos absoluto baixo no test (fold 5 thr_p90: 1 positivo em
+      60d) inviabiliza calibracao LogReg; regressor binarizado a thr_p90
+      preserva ordering por magnitude continua.
+
+      Hipotese REFINADA (CONFIRMADA): classifier dedicado > regressor
+      binarizado para alerta moderado em S (any curt ou big curt). LogReg
+      AUC 0.78-0.82 vs persist 0.62-0.63 (+16-19pp).
+
+      Sanity: 6 checks executados (leak inherited, perm p=0.000 fold 5,
+      holdout PASS, baseline persist+climat PASS, dist_shift WARN
+      severo, zero_count WARN 3/37 features curt_lag*).
     type: methodology
     layer: curtailment
     target: S_classification
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0030
+    verdict: CONFIRMADO_PARCIAL_NON_RARE
     estimated_effort_hours: 1.5
+    actual_effort_hours: 1.2
     depends_on: []
     blocks: []
     sanity_checks_required: [holdout, baseline]
+    sanity_checks_done: [leak, perm, holdout, baseline, dist_shift, zero_count]
+    follow_ups_created: [H35]
     expected_value: maybe upside, ja menos urgente que pre-PDP-fix
     created_at: 2026-05-24T03:30:00Z
+    completed_at: 2026-05-25T01:30:00Z
 
   - id: H24
     summary: Mesmo ensemble (model + persist) aplicado aos champions Ridge/LR UlFor
@@ -1222,3 +1253,43 @@ notas_iter0028:
     N:  PROMOVER ridge + h22_per_fold + α=100 (CV+val14d coincidem; val14d 71.51% MELHOR)
     Operacional: promote_champions.py ja patcheado iter_0026 (75e2431e).
     Branch 26+ ahead origin. Requer decisao Breno + push.
+
+  - id: H35
+    summary: S alerta operacional binario via LogReg dedicado (vs binarizar champion)
+    detail: |
+      Derivada de H15 iter_0030 (CONFIRMADO_PARCIAL_NON_RARE). Em CV
+      walk-forward 5×60d gap 7d, LogReg(class_weight=balanced) sobre
+      features S/v1 bate LR_reg binarizado por +4.5pp AUC em thr_zero
+      (any curt) e +6.8pp AUC em thr_p75 (big curt). PR-AUC tambem +5-8pp.
+
+      H35 testa: produzir um endpoint binario "vai ter curtailment em S
+      amanha?" via LogReg dedicado adicionaria valor operacional vs apenas
+      thresholdar a saida continua do champion LR.
+
+      Plano possivel (NAO implementado neste loop, fica em backlog):
+        - UlFor treina LogReg(C=1, class_weight=balanced, scaler) sobre
+          mesmas 55 feats que champion S usa (full feature_set, nao 37 do
+          iter_0002). CV walk-forward 5×60d gap 7d para confirmar gain.
+        - Threshold "any curt" (y_d1 > 0) — pos rate ~40% S, util como
+          flag binaria em dashboard operador.
+        - Validar val14d real recente (~58d) — mesmo protocolo iter_0028.
+        - Expor /api/forecast/d1/s_alert {date, p_curt, threshold,
+          decision} alimentando dashboard curtometro/historico.
+
+      Bloqueador: alerta binario nao e' prioridade Breno (vs forecast
+      continuo). H35 fica P3 ate' alguem pedir o endpoint.
+
+      Nota: H15 thr_p90 (rare event severo) NAO e' viavel — pos absoluto
+      <5 por fold inviabiliza calibracao classifier; manter regressor
+      binarizado se quiser alertar severo.
+    type: model
+    layer: curtailment
+    target: S_binary_alert_endpoint
+    priority: P3
+    status: queued
+    estimated_effort_hours: 2.5
+    depends_on: []
+    blocks: []
+    sanity_checks_required: [holdout, baseline, perm]
+    expected_value: novo endpoint binario para dashboard operador, ganho 5pp AUC vs binarizar champion. Sem pedido formal, fica em backlog.
+    created_at: 2026-05-25T01:30:00Z
