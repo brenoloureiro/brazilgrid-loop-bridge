@@ -1,18 +1,18 @@
-# UlFor headless runner — status — 2026-05-24T16:35:10Z
+# UlFor headless runner — status — 2026-05-24T16:37:40Z
 
-**Saude**: green (runner saudavel)
+**Saude**: yellow (UlFor sem commits ha 3 iters — proxima e MODO_3)
 
 **Runner**: alive=yes pid=571987 .STOP=no
 **Loop status**: running
-**Ultimo heartbeat**: 2026-05-24T16:35:10Z
+**Ultimo heartbeat**: 2026-05-24T16:37:40Z
 
 ## Iter / decisao
 
-- **Iter atual UlFor (runner)**: 47
+- **Iter atual UlFor (runner)**: 48
 - **Ultimo plan_step modo**: MODO_1_CONTINUACAO
 - **Ultimo plan_step razao**: sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE
 - **err_streak**: 0
-- **iters_sem_commit**: 2
+- **iters_sem_commit**: 3
 
 ## UlFor master (estado observado)
 
@@ -20,16 +20,16 @@
 - **Branch**: master
 - **Ultimo commit observado (state)**: 759d6cfe
 - **Ultimo checkpoint**: ulfor_2026-05-24T16-29.md
-  - **Idade**: 3 min
+  - **Idade**: 6 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
 
 ## Budget (reset diario 00:00 UTC)
 
 - **Data UTC**: 2026-05-24
-- **Iters hoje**: 15 / 30
-- **Horas hoje**: 1.3615 / 12
-- **Custo hoje**: $23.4496 / $50
+- **Iters hoje**: 16 / 30
+- **Horas hoje**: 1.3848 / 12
+- **Custo hoje**: $24.1163 / $50
 
 ---
 
