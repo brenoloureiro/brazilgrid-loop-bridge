@@ -1,7 +1,7 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0028 (2026-05-24T23:30Z, RECON_DELTA absorvendo
-`83abab3e..27152e16` UlFor — 5 commits val14d alpha sweep + diff features SE).
+Atualizado em iter_0029 (2026-05-25T00:30Z, H13 persist_d7 validado como
+baseline aux — sub-claim "vence persist_d1 em S" REFUTADO no CV canonico).
 Suite canonica MAE/R²/F1/RMSE/skill + NMAE/bias secundarios. Fonte unica:
 parquets UlFor commit `6b21ffdf`
 (`experiments/bakeoff_curtailment_multisub/outputs/cv_summary_*.parquet`),
@@ -67,6 +67,15 @@ Notas:
   como sanity floor. Champion deve bater **ambos**.
 - N champion (MAE 425) bate ma7 (MAE 464) por −8% — overlap modesto.
 - S champion (MAE 805) bate ma7 (MAE 1269) por −37% — ganho real.
+- **persist_d7 vs persist_d1 (iter_0029, H13)**: persist_d1 vence em 4/4 subs no
+  CV agregado (NE +77.3%, SE +19.4%, S +26.4%, N +13.1%) e em 19/20
+  per-fold cells. Unica inversao: **N fold 0** (d7=441.6 vs d1=592.4,
+  −25.4%), regime temporal mais antigo do walk-forward (consistente com
+  seca-2025Q3 dominante em N tardio, ja' identificado em iter_0018).
+  **Diagnostico estrutural**: curtailment tem persistencia diaria forte e
+  ciclo semanal fraco — contra-intuitivo para audiencia operacional. Sub-claim
+  "persist_d7 vence em S" da H13 e' REFUTADO (S e' onde d1 vence d7 por
+  +26.4%, 2a maior margem).
 
 ## Overlay de producao (NAO no CV puro — pos-processamento)
 
@@ -362,6 +371,7 @@ iterations/iter_0002 a iter_0006.
 | 0026 | RECON_DELTA UlFor 5d41d063..83abab3e | alpha sweep v3 (NE+SE+N ridge+h22_pf, α-aware) + H22 stricter REFUTADO + promote_champions.py patched + ADDENDUM val14d (LGBM refuted-CV) | — (handoff) |
 | 0027 | H8 feat_intercambio CV-PI independente | CONFIRMADO_PARCIAL_3SUBS_REFUTADO_SE_em_Ridge — joint-drop primario + 30-perm single-feat reproduz UlFor H22 drop direction em 3/4 subs (NE -3.95pp joint a1; S -8.3pp gigante; N inconclusivo unsafe) e diverge em SE (+1.21pp joint a1, lesson model-aware H22_MA empirico). H33 derivada. | — (definitivo) |
 | 0028 | RECON_DELTA UlFor 83abab3e..27152e16 | val14d alpha sweep (3 candidatos ridge × 4 subs, n≈58d) FECHA validation gap parcial iter_0026; promote v3 consolidado (NE/N coincidem CV+val14d, S rejeita ambos, SE INVERTE — opt_A h22_MA val14d vs opt_B h22_pf CV); diff features SE elucida mecanismo (10 features carregam regime recente CMO+intercambio); convergencia empirica com H8 iter_0027 | — (handoff) |
+| 0029 | H13 persist_d7 baseline aux | CONFIRMADO_DISPLAY_REFUTADO_REGIME_CLAIM — persist_d7 ja' presente no leaderboard desde iter_0007 (display OK); sub-claim "vence persist_d1 em S" REFUTADO em CV canonico (persist_d1 vence 4/4 subs no agregado, 19/20 per-fold cells). Unica inversao: N fold 0 (regime sazonal antigo, nao S). Origem da premissa: replay iter_0002 n=11 onde d7 venceu d1 EM N (nao S, erro de transcricao do detail). Mantido como diagnostico auto-correlacao | — (definitivo) |
 
 ## Lessons learned (transferiveis)
 

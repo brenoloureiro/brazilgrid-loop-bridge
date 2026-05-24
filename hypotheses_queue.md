@@ -413,13 +413,32 @@ hypotheses:
     layer: meta
     target: leaderboard_baselines
     priority: P3
-    status: queued
+    status: done
+    iter_handled: 0029
+    veredito: CONFIRMADO_DISPLAY_REFUTADO_REGIME_CLAIM
     estimated_effort_hours: 0.5
+    actual_effort_hours: 0.3
     depends_on: []
     blocks: []
     sanity_checks_required: []
+    sanity_checks_done: [leak_passed, perm_skipped_NA, holdout_strict_passed, baseline_passed, dist_shift_passed, zero_count_passed]
     expected_value: leaderboard mais honesto
     created_at: 2026-05-24T03:30:00Z
+    closed_at: 2026-05-25T00:30:00Z
+    closure_summary: |
+      C1 (display) ATENDIDO trivialmente — persist_d7 ja' estava no leaderboard
+      desde iter_0007 (4 linhas baselines secao). C2 (regime claim "S")
+      REFUTADO em CV canonico 5x60d: persist_d1 vence em 4/4 subs no
+      agregado (NE +77.3%, SE +19.4%, S +26.4%, N +13.1%) e em 19/20
+      per-fold cells. Unica inversao: N fold 0 (regime temporal mais antigo,
+      consistente com seca-2025Q3 dominante em N tardio ja' coberta por H14).
+      Origem provavel da premissa: replay iter_0002 n=11 mostrou d7 vence d1
+      em N (nao S — provavel erro de transcricao no detail original).
+      Mantido como diagnostico auto-correlacao no leaderboard com nota
+      explicita destruindo expectativa anterior. Sem H derivada criada
+      (finding N fold 0 ja' coberto por hipoteses fechadas).
+    artefatos: outputs/iter_0029/persist_d7_baseline_aux/ (analise.md +
+      persist_d7_metrics.json + sanity_checks.json)
 
   - id: H14
     summary: Rodar sanity checks B1-B6 sobre v3.3 UlFor (PDP NE off)

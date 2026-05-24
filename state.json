@@ -1,7 +1,7 @@
 {
-  "iter_atual": 28,
+  "iter_atual": 29,
   "mode": "self_planning",
-  "alvo_ativo": "recon_delta_ulfor_post_83abab3e",
+  "alvo_ativo": "h13_persist_d7_baseline_aux",
   "layer_ativa": "meta",
   "iter_no_alvo_atual": 1,
   "metric_suite_primary": {
@@ -531,6 +531,24 @@
         "verdict.json",
         "sanity_checks.json"
       ]
+    },
+    "H13_persist_d7_baseline_aux": {
+      "status": "done",
+      "iter_handled": 29,
+      "veredito": "CONFIRMADO_DISPLAY_REFUTADO_REGIME_CLAIM",
+      "closed_at": "2026-05-25T00:30:00Z",
+      "summary": "Display ja atendido desde iter_0007; regime claim (S vence) REFUTADO em CV canonico 4/4 subs persist_d1 vence (S +26.4%, NE +77.3%, SE +19.4%, N +13.1%). Per-fold 19/20 cells persist_d1 vence. Unica inversao: N fold 0 (regime sazonal antigo, nao S). Origem premissa: replay iter_0002 n=11 N (erro de transcricao no detail original). Mantido como diagnostico auto-correlacao.",
+      "sanity_checks_done": [
+        "leak_passed",
+        "perm_skipped_NA",
+        "holdout_strict_passed",
+        "baseline_passed",
+        "dist_shift_passed",
+        "zero_count_passed"
+      ],
+      "artefatos": "outputs/iter_0029/persist_d7_baseline_aux/",
+      "budget_horas": 0.3,
+      "h_derivada": null
     }
   },
   "sanity_checks_disponiveis": [
@@ -794,10 +812,10 @@
       "warn": ""
     }
   },
-  "ultimo_handoff": "iter_0028_recon_delta.md",
+  "ultimo_handoff": "iter_0029_h13_persist_d7_baseline_aux.md",
   "budget_consumido": {
-    "iter": 25,
-    "horas": 1.4,
+    "iter": 29,
+    "horas": 0.3,
     "custo_usd": null
   },
   "b6_robustness_v2": {
@@ -1754,11 +1772,11 @@
   },
   "kill_requested": false,
   "budget_consumido_today": {
-    "date_utc": "2026-05-24",
-    "iter": 39,
-    "horas": 8.1356,
-    "usd": 128.1395,
-    "note": "iter_0028 RECON_DELTA UlFor 83abab3e..27152e16 (5 commits val14d alpha sweep + diff features SE, 0.3h, no exec cost)",
-    "last_update": "2026-05-24T23:30:00Z"
+    "date_utc": "2026-05-25",
+    "iter": 41,
+    "horas": 8.5953,
+    "usd": 133.0233,
+    "note": "iter_0029 H13 persist_d7 baseline_aux (0.3h, no exec cost, display + analysis only)",
+    "last_update": "2026-05-25T00:30:00Z"
   }
 }
