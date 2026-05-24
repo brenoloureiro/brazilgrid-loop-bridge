@@ -1,14 +1,14 @@
-# UlFor headless runner — status — 2026-05-24T12:27:21Z
+# UlFor headless runner — status — 2026-05-24T12:29:42Z
 
 **Saude**: green (runner saudavel)
 
 **Runner**: alive=yes pid=273001 .STOP=no
 **Loop status**: running
-**Ultimo heartbeat**: 2026-05-24T12:27:21Z
+**Ultimo heartbeat**: 2026-05-24T12:29:41Z
 
 ## Iter / decisao
 
-- **Iter atual UlFor (runner)**: 11
+- **Iter atual UlFor (runner)**: 12
 - **Ultimo plan_step modo**: MODO_1_CONTINUACAO
 - **Ultimo plan_step razao**: sem loop_requests abertos, sem trigger de checkpoint, sem PLANO_FINAL_COMPLETE
 - **err_streak**: 0
@@ -16,19 +16,19 @@
 
 ## UlFor master (estado observado)
 
-- **HEAD**: be529e93 docs(h14e): adicionar comparacao H14-B vs H14-E + nota sobre SE/S intrinsicos
+- **HEAD**: 3b0719e2 ulfor checkpoint: 12:45Z — 2 sprints (H14-D REFUTADA + H14-E PROMOVIVEL c/ conflito H14-B)
 - **Branch**: master
-- **Ultimo commit observado (state)**: be529e93
-- **Ultimo checkpoint**: ulfor_2026-05-24T12-15.md
-  - **Idade**: 11 min
+- **Ultimo commit observado (state)**: 3b0719e2
+- **Ultimo checkpoint**: ulfor_2026-05-24T12-28.md
+  - **Idade**: 0 min
 - **Fase PLANO_FINAL**: 4
 - **Loop requests pendentes**: 0
 
 ## Budget (reset diario 00:00 UTC)
 
 - **Data UTC**: 2026-05-24
-- **Iters hoje**: 11 / 30
-- **Horas hoje**: 2.8627 / 12
+- **Iters hoje**: 12 / 30
+- **Horas hoje**: 3.0883 / 12
 - **Custo hoje**: $61.2556 / $50
 
 ---
