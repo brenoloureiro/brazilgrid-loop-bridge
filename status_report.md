@@ -1,24 +1,24 @@
-# Loop status — 2026-05-24T16:09:42Z
+# Loop status — 2026-05-24T16:21:02Z
 
 **Saude**: green (loop saudavel)
 
 **Loop continuo**: yes (pid=554874, .STOP=no)
 
-**Iter atual**: 27
-**Alvo ativo**: feat_intercambio_importance_cv_pi
+**Iter atual**: 28
+**Alvo ativo**: recon_delta_ulfor_post_83abab3e
 
 **Budget**: 25 iters / 1.4 horas consumidas
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0027_h8_intercambio_cv_pi.md
-  decision: |
+**Ultimo handoff**: iter_0028_recon_delta.md
+  decision: 
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: d8ff404 bridge: sync ulfor iter 39 (4 minutes ago)
+**Bridge ultimo sync**: 31a2d7f bridge: sync iter 27 (11 minutes ago)
 
-**UlFor HEAD**: 27152e16 ulfor checkpoint: 16:02Z — fase 4, proximo: Breno decide promote v3 (tree limpo, paralelo fechou pendencias 15:46Z)
+**UlFor HEAD**: 0971c699 docs(forecast): promote v3 DECISAO Breno + bloqueio dataset local
 
 ---
 

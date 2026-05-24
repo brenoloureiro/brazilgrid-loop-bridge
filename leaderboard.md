@@ -1,11 +1,13 @@
 # Leaderboard — forecast-mega-loop
 
-Atualizado em iter_0026 (2026-05-24T21:30Z, RECON_DELTA absorvendo
-`5d41d063..83abab3e` UlFor). Suite canonica MAE/R²/F1/RMSE/skill + NMAE/bias
-secundarios. Fonte unica: parquets UlFor commit `6b21ffdf`
+Atualizado em iter_0028 (2026-05-24T23:30Z, RECON_DELTA absorvendo
+`83abab3e..27152e16` UlFor — 5 commits val14d alpha sweep + diff features SE).
+Suite canonica MAE/R²/F1/RMSE/skill + NMAE/bias secundarios. Fonte unica:
+parquets UlFor commit `6b21ffdf`
 (`experiments/bakeoff_curtailment_multisub/outputs/cv_summary_*.parquet`),
-+ 7 parquets novos alpha-sweep desta janela (h22_MA × {α=1,100,1000} +
-h22_per_fold × {α=1,100}). **Zero retrain neste iter.**
++ 7 parquets alpha-sweep iter_0026 (h22_MA × {α=1,100,1000} + h22_per_fold ×
+{α=1,100}) + **3 parquets val14d real iter_0028** (`*_val14d_alpha*`).
+**Zero retrain neste iter.**
 
 **Protocolo CV** (4 subs × 7 modelos × 5 folds = 140 runs por feature_set):
 
@@ -152,6 +154,51 @@ muda. `promote_champions.py` ja patcheado (commit `75e2431e`) com
 foi testado em 14d real (iter_0024 testou apenas α=10 default). Principio 5
 (CV win first) NAO basta — UlFor explicito: "nao promovivel sem val_recent".
 Loop NAO emite req-0008 nesta iter (padrao pre-empcao UlFor self-actiona).
+**→ FECHADO em iter_0028** (UlFor self-actionou em <90min; ver bloco a seguir).
+
+### Val14d alpha sweep v3 — holdout real recente (commits `f7c56c3d` + `1bd8638f` + `ff112a27`, iter_0028)
+
+Holdout estrito: train **2024-12-01 → 2026-03-23**, test **2026-03-24 →
+2026-05-21** (n≈58d). 3 candidatos ridge × 4 subs. Pre-empta `req-0008` que
+loop ia emitir.
+
+| sub | h22_MA + α=1 | h22_pf + α=1 | h22_pf + α=100 | veredito val14d |
+|---|---:|---:|---:|---|
+| NE | **30.88% / +0.476** | **30.88% / +0.476** | 34.59% / +0.380 | empate h22_MA = h22_pf — promover h22_pf por coerencia |
+| SE | **43.03% / +0.392** ✅ | 44.67% / +0.344 | 47.83% / +0.227 | **INVERSAO vs CV**: h22_MA vence val14d por −1.64pp |
+| S | 95.03% / +0.176 | 93.20% / +0.177 | 100.5% / +0.071 | TODAS perdem persist (~93%) — manter `lr+full` |
+| N | 75.31% / +0.057 | 75.32% / +0.056 | **71.51% / +0.158** ✅ | confirma α=100 + h22_pf (val MELHOR que CV — concept drift positivo) |
+
+**Mecanismo da divergencia SE** (commit `ff112a27` diff features): `h22_MA`
+preserva 10 features que `h22_pf` dropa: CMO (×3), Intercambio
+(`val_export_mwmed`, `val_import_mwmed`), regime (`taxa_penetracao`,
+`ger_eolica_mwh`), `carga_pico_mw`, `prev_solar_pico_mw`, `ter_verif_rmean7`.
+Causa: `h22_pf` usa Ridge universal PI (L2 mascara importance); `h22_MA`
+usa champion-model real (LR p/ SE preserva load-bearing). Regime val14d
+(Mar-Mai/2026) favorece CMO+intercambio (curt economico em alta) — features
+marginais que CV agregado dilui voltam a contribuir.
+
+**Convergencia com H8 iter_0027**: `val_export_mwmed` + `val_import_mwmed`
+estao entre as 10 features divergentes. iter_0027 H8 ja' provou via
+joint-drop refit que dropar intercambio em SE Ridge α=1 e' HARMFUL
+(+1.21pp NMAE). iter_0028 val14d empiricamente reforca: opt_A (preserva
+intercambio + outras 8) BATE opt_B (dropa intercambio + outras 8) por
+−1.64pp NMAE. Mesma direcao, magnitudes consistentes, contextos
+independentes.
+
+**Promote v3 atualizado (decisao Breno aberta)**:
+
+| sub | Acao | Champion v3 | Fonte da decisao |
+|---|---|---|---|
+| NE | PROMOVER | `ridge + h22_per_fold + α=1` | CV + val14d coincidem (30.88%) |
+| SE | opt_A | `ridge + h22_model_aware + α=1` | val14d 43.03% / +0.392 (Breno aposta regime recente persistir) |
+| SE | opt_B | `ridge + h22_per_fold + α=1` | CV 46.60% / +0.430 + coerencia multi-sub + menor overfit (recomendacao tecnica UlFor) |
+| S | MANTER | `lr + full` (status quo) | val14d confirma rejeicao ridge em ambos |
+| N | PROMOVER | `ridge + h22_per_fold + α=100` | CV+val14d coincidem; val14d 71.51% MELHOR que CV |
+
+Decisao SE defensavel em ambos sentidos. Diff <2pp NMAE = margem amostral
+val14d (n≈58d). Loop NAO tem voto. `promote_champions.py` ja' patcheado
+(iter_0026 commit `75e2431e`). Branch 26+ ahead origin — Breno + push.
 
 ### Ablation negativa H22 stricter (commit `42dc0d7a`, iter_0026) — REFUTADO
 
@@ -314,6 +361,7 @@ iterations/iter_0002 a iter_0006.
 | 0024 | RECON_DELTA UlFor 4427a718..5d41d063 | validation_gap dos 7 promovieis FECHADA (4 PROMOVER, 1 REFUTADO, 1 decisao Breno, 1 marginal) + 2 achados novos (lgbm em SE+N regime atual) | — (handoff) |
 | 0026 | RECON_DELTA UlFor 5d41d063..83abab3e | alpha sweep v3 (NE+SE+N ridge+h22_pf, α-aware) + H22 stricter REFUTADO + promote_champions.py patched + ADDENDUM val14d (LGBM refuted-CV) | — (handoff) |
 | 0027 | H8 feat_intercambio CV-PI independente | CONFIRMADO_PARCIAL_3SUBS_REFUTADO_SE_em_Ridge — joint-drop primario + 30-perm single-feat reproduz UlFor H22 drop direction em 3/4 subs (NE -3.95pp joint a1; S -8.3pp gigante; N inconclusivo unsafe) e diverge em SE (+1.21pp joint a1, lesson model-aware H22_MA empirico). H33 derivada. | — (definitivo) |
+| 0028 | RECON_DELTA UlFor 83abab3e..27152e16 | val14d alpha sweep (3 candidatos ridge × 4 subs, n≈58d) FECHA validation gap parcial iter_0026; promote v3 consolidado (NE/N coincidem CV+val14d, S rejeita ambos, SE INVERTE — opt_A h22_MA val14d vs opt_B h22_pf CV); diff features SE elucida mecanismo (10 features carregam regime recente CMO+intercambio); convergencia empirica com H8 iter_0027 | — (handoff) |
 
 ## Lessons learned (transferiveis)
 

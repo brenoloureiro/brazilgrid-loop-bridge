@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-last_updated: 2026-05-24T22:30:00Z
+last_updated: 2026-05-24T23:30:00Z
 notes: |
   Backlog auditavel. Loop le este arquivo antes de planejar cada iter.
   Editavel manualmente — Breno pode adicionar/repriorizar/declinar.
@@ -1105,6 +1105,21 @@ hypotheses:
     sanity_checks_required: [perm, baseline]
     expected_value: fechar empiricamente o caveat metodologico H22_model_aware
     created_at: 2026-05-24T22:30:00Z
+    notes_iter0028: |
+      Atratividade DIMINUI marginalmente pos-val14d alpha sweep UlFor
+      (commits f7c56c3d + 1bd8638f + ff112a27). val14d real (test
+      2026-03-24..2026-05-21, n~58d) em SE compara h22_MA+α=1 vs h22_pf+α=1
+      no mesmo ridge: h22_MA (43.03% NMAE) BATE h22_pf (44.67%) por -1.64pp.
+      Diff features SE (10 features que h22_MA preserva mas h22_pf dropa)
+      inclui val_export_mwmed + val_import_mwmed -- exatamente 2 das 3
+      features do bundle intercambio que H33 propunha testar isoladamente
+      em LR. h22_MA derivado com champion-model real (LR p/ SE), entao a
+      comparacao h22_MA vs h22_pf no mesmo ridge ja' opera como teste
+      indireto da hipotese model-aware: features preservadas por LR-PI
+      MELHORAM val14d em ridge tambem. Isso reforca lesson H22_MA / H23_ulfor
+      / H8 iter_0027 sem precisar de H33 isolado. H33 ainda vale ~0.3h se
+      Breno quiser teste especifico do bundle intercambio (nao confounded
+      com outras 8 features), mas o pico de atratividade foi pre-empted.
 
 notas_iter0026:
   inspected_range: 5d41d063..83abab3e (8 commits UlFor, ~25 min reais)
@@ -1145,3 +1160,46 @@ notas_iter0027:
     (val_net = val_import - val_export, VIF=1e8) e' viesada para cima.
     Joint-drop refit dissolve a ambiguidade. NE alpha=1 single-PI val_import
     +1.65pp parece KEEP; joint-drop -3.95pp prova bundle HARMFUL.
+
+notas_iter0028:
+  inspected_range: 83abab3e..27152e16 (5 commits UlFor, ~76 min reais)
+  resolved: []
+  newly_blocked: []
+  newly_queued: []
+  pre_empted: []
+  attractiveness_changes:
+    H30: SOBE MARGINAL (val14d reforca alpha=1 vence alpha=10 default)
+    H33: DIMINUI MARGINAL (val14d ja deu evidencia model-aware indireta SE)
+    H22 (nosso): INALTERADO (sweep linear puro, nao toca GBDT vs OLS)
+    H27: INALTERADO
+  validation_gap_status_fechada: |
+    SE ridge+h22_per_fold+α=1 (gap parcial reaberto em iter_0026) FECHADO via
+    val14d real (commit f7c56c3d). Resultado SE val14d:
+      h22_MA+α=1: 43.03% NMAE / R²+0.392 (val14d BEST)
+      h22_pf+α=1: 44.67% NMAE / R²+0.344 (CV BEST)
+      h22_pf+α=100: 47.83% NMAE / R²+0.227
+    Inversao CV vs val14d em SE (-1.64pp). Promote v3 atualizado com decisao
+    Breno em aberto: opt_A (val14d) vs opt_B (CV+coerencia multi-sub).
+    Recomendacao tecnica UlFor: opt_B. Mecanismo da divergencia documentado
+    em FINDING_RIDGE_ALPHA_SWEEP ADDENDUM (commit ff112a27): 10 features que
+    h22_MA preserva mas h22_pf dropa carregam sinal em regime recente
+    (CMO+intercambio+regime+carga+prev_solar+ter_verif_rmean7).
+  convergencia_h8_val14d: |
+    val_export_mwmed + val_import_mwmed (2 das 3 features do bundle
+    intercambio H8 testou em iter_0027) estao entre as 10 features que
+    h22_MA preserva mas h22_pf dropa em SE. Resultado iter_0027 SE Ridge
+    α=1 joint-drop intercambio: +1.21pp NMAE (HARMFUL). Resultado iter_0028
+    val14d SE: opt_A (preserva intercambio + outras 8) BATE opt_B (dropa
+    intercambio + outras 8) por -1.64pp NMAE. Mesma direcao, magnitude
+    consistente, contexto diferente. **val14d reforca empiricamente H8
+    iter_0027 SE_em_Ridge REFUTADO**: dropar intercambio em SE Ridge α=1
+    e' harmful em CV (H8) E em val14d (h22_MA vence h22_pf).
+  promote_v3_decisao_breno_aberta: |
+    NE: PROMOVER ridge + h22_per_fold + α=1 (CV+val14d coincidem)
+    SE: opt_A ridge + h22_model_aware + α=1 (val14d 43.03%, preserva CMO+intercambio+regime)
+        OU opt_B ridge + h22_per_fold + α=1 (CV 46.60% + coerencia multi-sub + menor overfit)
+        Recomendacao UlFor: opt_B. Diff <2pp = margem amostral val14d.
+    S:  MANTER status quo lr + full
+    N:  PROMOVER ridge + h22_per_fold + α=100 (CV+val14d coincidem; val14d 71.51% MELHOR)
+    Operacional: promote_champions.py ja patcheado iter_0026 (75e2431e).
+    Branch 26+ ahead origin. Requer decisao Breno + push.
