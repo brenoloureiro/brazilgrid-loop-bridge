@@ -6,6 +6,28 @@ Atualizado pelo watchdog ao final de cada iteração com ganho promovido.
 **Iter 0008 (H9):** metricas primarias agora **MAE/R²/F1** (PLANO_FINAL Principio 6).
 NMAE mantida como secundaria — flaggada `unsafe` quando ymean<1 MWh.
 
+**Iter 0018 (RECON_DELTA):** 6 commits UlFor `5c7963d4..515041e1` absorvidos.
+**(1) MUDANCA DE COMPORTAMENTO DE PRODUCAO N** (segundo sub a ganhar bias correction
+default ON): commit `515041e1` produtizou bias_correction com **window=60d** em N
+per UlFor H14-B (commit `eb9fca05` sweep cross-window). CV 5x60d N@60d: **-19.63pp
+NMAE media, wins 3/1/5** vs N@28d MAYBE (3/5 wins, 2/5 loses). Fold-4 N (2025-07/09
+seca) dominante (-78pp em 60d, raw 226% — modelo colapsa, bias compensa). Smoke
+e2e: N pred 246 → default 267 (bias -21, applied=True; era applied=False iter_0017).
+Modelo treinado (`ridge_curt_n_d1@staging v2 clean_plus 31 feat`) **INALTERADO** no
+MLflow Registry — wrapper de inferencia agora subtrai bias mean(pred-actual) dos
+ultimos 60d causais. **(2) Padrao per-sub adotado**: `BIAS_CORRECTION_WINDOW_BY_SUB
+= {NE:28, SE:28, S:28, N:60}` substitui global 28d. **(3) UlFor H14-D
+(threshold k*sigma_resid_train) REFUTADA** (commit `4871998c`): NE@k=1 perde
+2/5 wins (passa a 1/5); SE/S/N zero wins (threshold filtra demais, apply_rate
+~0-10%). Status atual mantido. **(4) Search-space bias correction esgotando**:
+janela curta/media/longa (H14-B), threshold sigma (H14-D), CV producao (H14-C)
+todos testados. SE/S nao destravam sem **dado novo** — confirma data ceiling
+iter_0017. **(5) 3 checkpoints idle** (`0c2f7429/2b262f51/1804c496`) sinalizam
+UlFor em pausa aguardando deploy EC2 ou nova frente Breno (25 commits ahead
+origin/master). **Nenhuma H do loop fechada; nenhuma nova gerada formalmente
+(H29 emergente: bias_correction per-sub sobre H10 ensemble — candidata ALT
+proxima iter)**. Detalhe em `iterations/iter_0018_recon_delta.md`.
+
 **Iter 0017 (RECON_DELTA):** 15 commits UlFor `5dacb5a2..5c7963d4` absorvidos.
 **(1) MUDANCA DE COMPORTAMENTO DE PRODUCAO NE**: bias_correction rolante-28d
 default ON na route `/api/forecast/d1` (commits `41d8d952`+`586eeae6`). 14d real
@@ -120,7 +142,7 @@ queue. Detalhe em `iterations/iter_0013_h10_ensemble_v2_persist.md`.
 | curtailment | d1_ENE_CNF | NE | persist_d1 MAE≈33.7k MWh (CV 5x60d, NMAE 44.5%) | **ridge_curt_ne_d1 @champion + bias_corr_28d (PROD default ON desde iter_0017) — MAE 27.3k±11.9k MWh (parquet) / R² +0.469±0.098 / F1_p50 0.808±0.170** (req-0007 closed iter_0017); in-sample R²=0.830; **14d real corrected NMAE 49.2% bate persist 54.1% por -4.9pp — PRIMEIRA VEZ no projeto** | NMAE 33.7±8.1% CV; raw 14d 59.2% / corrected 49.2% | 0017 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE c/ bias_correction_mw exposto** | 2026-05-24T14:30Z |
 | curtailment | d1_ENE_CNF | SE | persist_d1 MAE≈8.3k MWh (CV 5x60d, NMAE 68.8%) | **lr_curt_se_d1 @champion — MAE 6.1k±0.9k MWh (parquet) / R² +0.383±0.094 / F1_p50 0.785±0.108** (req-0007 closed iter_0017); in-sample R²=0.619; **UlFor H14-C decidiu NAO produtizar bias_correction** (regime change Mai/26 chuvoso->seco joga bias no rumo errado, +1.61pp 14d real); **UlFor H21 REFUTADA** (clean_plus_v2 regride +15.31pp em 14d real); **teto-de-dados D+1 estendido NE->SE: NENHUM ML bate persist em 14d real** | NMAE 46.6±13.4% | 0017 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T14:30Z |
 | curtailment | d1_ENE_CNF | S | persist_d1 MAE≈1.27k MWh (CV 5x60d, NMAE 124.2%) | **lr_curt_s_d1 @champion — MAE 805±441 MWh (parquet) / R² +0.371±0.164 / F1_p50 NaN** (P50_train=0 — sub com muitos zeros, esperado per spec req-0007); in-sample R²=0.725 FRAGIL (validate_d1 7-14d skill -37 a -41%); **UlFor H13 REFUTADA** (ridge_S+clean_plus regride CV+14d); **UlFor H18 ABERTA** (S underperforma persist estruturalmente em 2026-05); **UlFor H14-C NAO produtizou bias_correction** (+10.81pp 14d real, ymean ~32 MWh amplifica ruido) | NMAE 89.6±31.2% (CV ymean≈1k MWh > EPS=1 → safe; iter_0008 unsafe era replay n=11) | 0017 | aud B1-B6 pendente (H18) — **endpoint /api/forecast/d1 LIVE** | 2026-05-24T14:30Z |
-| curtailment | d1_ENE_CNF | N | persist_d1 MAE≈0.51k MWh (CV 5x60d, NMAE 100.7%) | **ridge_curt_n_d1 v2 @staging — MAE 425±149 MWh (parquet) / R² +0.170±0.185 / F1_p50 0.790±0.048** (req-0007 closed iter_0017; vs persist 0.72) (clean_plus, 31 feat; in-sample R²=0.472); FRAGIL atenuado vs v1 (era MAE≈440 MWh / R² +0.196±0.289); UlFor H14-C decidiu NAO produtizar bias_correction (wins 3/2/5 com fold 4 outlier) | NMAE 84.8±26.2% | 0017 | nao promovivel ainda — staging only | 2026-05-24T14:30Z |
+| curtailment | d1_ENE_CNF | N | persist_d1 MAE≈0.51k MWh (CV 5x60d, NMAE 100.7%) | **ridge_curt_n_d1 v2 @staging + bias_corr_60d (PROD default ON desde iter_0018)** — MAE 425±149 MWh (parquet) / R² +0.170±0.185 / F1_p50 0.790±0.048 (req-0007 closed iter_0017; vs persist 0.72) (clean_plus, 31 feat; in-sample R²=0.472); FRAGIL atenuado vs v1 (era MAE≈440 MWh / R² +0.196±0.289); **UlFor H14-B PROMOVEU bias_correction com window=60d** (CV 5x60d: -19.63pp NMAE media, wins 3/1/5; fold-4 seca-2025Q3 dominante, -78pp em 60d raw 226%); smoke e2e: pred 246 → default 267 (bias -21, applied=True) | NMAE 84.8±26.2% | 0018 | nao promovivel ainda (champion @staging) — **endpoint /api/forecast/d1 LIVE c/ bias_correction_mw exposto + applied_in_default=True** | 2026-05-24T15:30Z |
 | meta | metric_suite | — | NMAE (Principio 6 violado) | **MAE/R²/F1 primario + NMAE secundario com flag** | 3/4 subs (NE,SE,N) conflict NMAE↔R²/F1 em iter_0002 replay; S NMAE unsafe | 0008 | H9 CONFIRMADO | 2026-05-24T06:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | NE | persist_d1 | NMAE 35.7% xgb UlFor v3.3 (superseded por ridge_alpha10) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
 | curtailment | d1_ENE_CNF (DEPRECATED) | SE | persist_d1 | NMAE 46.0% xgb UlFor v3.3 (superseded por lr) | superseded iter_0007 | 0006 | — | 2026-05-24T05:00Z |
