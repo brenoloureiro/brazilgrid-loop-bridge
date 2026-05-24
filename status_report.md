@@ -1,4 +1,4 @@
-# Loop status — 2026-05-24T13:17:55Z
+# Loop status — 2026-05-24T13:22:08Z
 
 **Saude**: green (loop saudavel)
 
@@ -16,9 +16,9 @@
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 98adcf8 bridge: sync ulfor iter 24 (4 minutes ago)
+**Bridge ultimo sync**: 22ae074 bridge: sync iter 22 (4 minutes ago)
 
-**UlFor HEAD**: 4427a718 ulfor checkpoint: 14:15Z — 3 sprints (H22_MA validado, H14-G, matrix) + decisao pendente Breno
+**UlFor HEAD**: 99af14b7 exp(forecast): validacao 14d real refuta promoves S/N de CHAMPION_DECISION_MATRIX
 
 ---
 
