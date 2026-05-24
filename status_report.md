@@ -1,4 +1,4 @@
-# Loop status — 2026-05-24T13:36:37Z
+# Loop status — 2026-05-24T13:37:14Z
 
 **Saude**: yellow (STOP file presente)
 
@@ -11,12 +11,12 @@
 
 **Open requests ao UlFor**: 0
 
-**Ultimo handoff**: iter_0023_recon_delta.md
+**Ultimo handoff**: iter_0025_h19_leaderboard_canonical_suite.md
   decision: 
 
 **Quality gate proximo**: pass — all_rules_passed
 
-**Bridge ultimo sync**: 6b6fd82 bridge: sync iter 24 (25 seconds ago)
+**Bridge ultimo sync**: 0622958 bridge: sync iter 24 (37 seconds ago)
 
 **UlFor HEAD**: 756457c7 ulfor checkpoint: 14:25Z — Acao #2 (val14d) + ADDENDUM z-score, convergencia com parallel agent
 
