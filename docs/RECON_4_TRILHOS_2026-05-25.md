@@ -356,3 +356,140 @@ A acao remanescente nao e "fazer recon", e "subir API". Diferente.
 
 **Recon executado em ~1h, ZERO modificacao em CH ou codigo. 9 worktrees,
 ~50 arquivos amostrados, ~15 tabelas CH inspecionadas.**
+
+---
+
+## Apendice A — Mapeamento hierarquico Usina → PCon → Conjunto → Area → Sub → Brasil
+
+> Adicionado 2026-05-25 apos investigacao complementar. Este apendice
+> destrava o Trilho A para **geracao** (gap apontado em A.4 — "area
+> geoeletrica de geracao inexiste em CH"): com o crosswalk PDP↔usina
+> pronto, a cadeia completa fica resolvida inclusive para usinas de
+> distribuicao.
+
+### A.1 Insight-gatilho (Breno, 2026-05-23)
+
+`dim_usina` esta limitada a **transmissao**. Usinas conectadas na **rede
+de distribuicao** (caso **Rio do Peixe II UFV 34,4 MW em 69 kV Energisa PB**)
+**estao no SIN** — despachadas pelo ONS, aparecem em `programacao_previsao`
+PDP — mas **NAO aparecem em `dim_usina`**. ANEEL SIGA tem todas (25,4k
+empreendimentos; 18,3k EOL+UFV Operacao).
+
+Consequencia silenciosa: qualquer pipeline que agregue "usina → conjunto"
+via `dim_usina` (e e o caso da maioria dos agregados) **descarta usinas de
+distribuicao**. Buraco invisivel no SIN.
+
+### A.2 Hierarquia canonica decidida
+
+Commit `a343aa5a` (bigforecaster, UI hierarchical drill-down) cravou:
+
+```
+Brasil > Subsistema > Estado > PCon (Ponto de Conexao) > Conjunto > Usina
+```
+
+`PCon` resolve o nivel faltante entre Estado e Conjunto, e enderece usinas
+de distribuicao (que nao tem `id_ons_conjunto`).
+
+### A.3 Pipeline G12 — crosswalk PDP ↔ usina (4 commits)
+
+| Commit | O que faz |
+|---|---|
+| `bac7508b` | G12 seed crosswalk PDP usina (SIGA + dim_usina + BDGD) |
+| `7b323616` | G12 validacao lat/lon do crosswalk |
+| `f05e5000` | G12 QW1+QW2 — sobe cobertura **72,6% → 82,3%** |
+| `bb02356b` | G12 QW3 — `feat_pdp_renovavel` (ONS PDP via crosswalk) |
+
+### A.4 Arquivos
+
+**Codigo** — `experiments/crosswalk_cod_usinapdp/`:
+- `build_full_crosswalk.py` (414 linhas) — pipeline completo, escreve o seed
+- `match_siga.py` — fuzzy match `nom_usinapdp` ↔ `nom_empreendimento` SIGA
+- `investigate_pdp.py`, `validate_latlon.py`, `build_crosswalk.py`
+- `outputs/` — 9 CSVs (crosswalk, unmatched, validate_latlon, pdp_investigation)
+
+**Seed dbt** — `dataops/dbt/seeds/seed_crosswalk_pdp_usina.csv` (500 linhas).
+
+Colunas: `cod_usinapdp, nom_usinapdp, cod_ceg, siga_nom, tipo, uf,
+potencia_mw, lat, lon, fase, id_ons_conjunto, nom_conjunto,` **`conexao_tipo`**
+`(transmissao/distribuicao), nearest_se_cod, nearest_se_nom,`
+**`nearest_se_distribuidora`** `, nearest_se_km, match_source, match_score, n_obs`.
+
+### A.5 Estrategia (5 fontes, 4 etapas de match)
+
+1. **Fonte primaria:** `stg_ons_programacao_previsao` (todas usinas PDP, inclusive distribuicao)
+2. **SIGA ANEEL:** `aneel_siga_empreendimentos` (EOL+UFV Operacao+Construcao, 18,3k)
+3. **Bridge:** `ons_raw___programacao_diaria` (nomes limpos, match via sufixo do `cod_exibicaousina` + validacao por valor)
+4. **Transmissao enrichment:** `dim_usina` (ceg → conjunto/subestacao/subsistema)
+5. **Distribuicao enrichment:** `bdgd_subestacao_distribuicao` (nearest neighbor por UF; devolve SE + distribuidora + distancia km)
+
+Match sources hierarquizados: `siga_exact` → `siga_fuzzy` → `diaria_bridge_exact`
+→ `diaria_bridge_fuzzy` → `conjunto_dim` (fallback CJ-prefix sem ceg).
+
+### A.6 Caso Rio do Peixe no seed (linha real)
+
+```
+I5RIOD, Rio do Peixe I,  UFV.RS.PB.043210-5.1, UFV, PB, 34.4 MW, distribuicao,
+        SE SAO JOAO DO RIO DO PEIXE, Energisa_PB, 8.16 km, siga_exact, score 100
+I5RIOO, Rio do Peixe II, UFV.RS.PB.043215-6.1, UFV, PB, 34.4 MW, distribuicao,
+        SE SAO JOAO DO RIO DO PEIXE, Energisa_PB, 8.78 km, siga_exact, score 100
+```
+
+Ambas com `id_ons_conjunto` e `nom_conjunto` **vazios** (nao estao em
+`dim_usina`) — exatamente o que o trabalho resolve: descobrir que sao
+atendidas pela SE Sao Joao do Rio do Peixe (Energisa PB) via BDGD.
+
+### A.7 Feature dbt criada — `feat_pdp_renovavel`
+
+Commit `bb02356b` (G12 QW3) no `dataops/` cria a feature ONS PDP via
+crosswalk. Foi usada no bake-off de forecast:
+
+- `319633a9` bakeoff v3 — add `feat_pdp_renovavel`
+- `18b400e5` PDP coalesce 0 (gap ingestao Abr/26)
+- `055b9d03` test — disable PDP for NE (isolar regressao)
+- `5e1bc70a` v3.2 — `pdp_has_data` indicator
+- `e283a03a` v3.3 final — PDP NE off, indicator p/ outros subsistemas
+
+Loop H3 (iter 0010): **CONFIRMADO — `PDP_prev` carrega sinal de curtailment
+alem de geracao.** Loop H82 (iter 48): PDP gap REFUTED como hipotese forte.
+
+### A.8 Outros artefatos de mapeamento hierarquico
+
+- `products/bigforecaster/scripts/fase0_mapeamento.py` — Fase 0 mapeamento
+  hierarquico (commit `197bd02b`)
+- `products/bigforecaster/scripts/v20_hierarchical_reconciliation.py` —
+  reconciliacao hierarquica top-down/bottom-up
+- `docs/technical/reconciliacao-curtailment-conjunto-usina.md`
+- `scripts/analysis/investigar_perdas_usina_conjunto.py`
+- `services/forecasting/area_mapping.py` — mapping estado → area geoeletrica
+  (separado, complementar; resolve carga, nao topologia de geracao)
+
+### A.9 Conexao com os 4 trilhos
+
+**Destrava o Trilho A para GERACAO** (o gap A.4 do recon): com o
+`seed_crosswalk_pdp_usina.csv` aplicado, a cadeia completa
+**usina → ceg → (conjunto OU SE distribuidora) → UF → area geoeletrica
+(via `area_mapping.py`) → subsistema → Brasil** fica resolvida, inclusive
+para usinas de distribuicao.
+
+**Impacto cross-trilho:**
+- **Trilho B (bottom-up):** o universo per-usina deixa de excluir distribuicao
+  silenciosamente (~17% dos cod_usinapdp eram distribuicao no primeiro corte).
+  Modelos per-usina precisam revalidar amostra.
+- **Trilho C (DESSEM granularidade):** abre o caminho para join
+  `dessem_dbar.barra` ↔ usina-PCon-via-SE-distribuicao, oferecendo um
+  mapa topologico ate o nivel barra para distribuicao tambem.
+- **Trilho D (residuo DESSEM):** o residuo `programada − verificada` por
+  `cod_areacarga` pode agora ser decomposto em "quanto cabe a usinas de
+  distribuicao vs transmissao", separando o sinal MMGD do sinal de geracao
+  distribuicao-conectada.
+
+### A.10 Pendencias (gaps remanescentes do mapeamento)
+
+1. **Cobertura 82,3% — falta ~17%** das usinas em PDP nao mapeadas
+   (`outputs/full_crosswalk_unmatched.csv`). Investigar nomes patologicos.
+2. **`feat_pdp_renovavel` desligada para NE no bakeoff v3.3** (commit
+   `e283a03a`) — entender se e bug de feature ou regressao real do modelo.
+3. **Gap de ingestao Abr/26 PDP** (commit `18b400e5` coalesce 0) — verificar
+   se ja foi corrigido upstream ou se ainda contamina backfill.
+4. **Crosswalk hoje cobre EOL+UFV** — nao inclui PCH/UHE/UTE/MMGD. Para
+   carga liquida completa precisa de extensao.
